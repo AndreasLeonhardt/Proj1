@@ -3,5 +3,11 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main.cpp
+SOURCES += \
+    trialfct.cpp \
+    Proj1.cpp
 
+LIBS += -larmadillo
+
+HEADERS += \
+    trialfct.h
