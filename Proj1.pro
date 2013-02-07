@@ -5,9 +5,15 @@ CONFIG -= qt
 
 SOURCES += \
     trialfct.cpp \
-    Proj1.cpp
+    Proj1.cpp \
+    hamilton.cpp \
+    mcint.cpp \
+    positions.cpp
 
-LIBS += -larmadillo
+LIBS += -larmadillo -lconfig++
 
 HEADERS += \
-    trialfct.h
+    trialfct.h \
+    hamilton.h \
+    mcint.h \
+    positions.h

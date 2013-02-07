@@ -1,12 +1,14 @@
 #include "trialfct.h"
 
 // constructor
-TrialFct::TrialFct(double a, double b, int d, int p)
+TrialFct::TrialFct(Config * parameters, double a, double b )
 {
             alpha = a;
             beta = b;
-            ndim = d;
-            nParticles = p;
+            ndim = parameters->lookup("ndim");
+            nParticles = parameters->lookup("nParticles");
+            r = vec(nParticles);
+            rr = zeros(nParticles,nParticles);
 
 
 }
@@ -17,19 +19,40 @@ TrialFct::TrialFct(double a, double b, int d, int p)
 // f(r)=e^(-alpha(|r_1|+|r_2|) * e^(|r_1-r_2|/2*(1+beta|r_1-r_2|))
 double TrialFct::getValue()
 {
-    double r[nParticles];
-    for (int i=0; i<nParticles; i++)
+    double value = 0;
+
+    for (int i=0;i<nParticles;i++)
     {
-        r[i]=norm(position.col(i),2);
+        value += -alpha*r[i];
+        for (int j=0;j<i;j++)
+        {   double dist = rr(i-1,j);
+            value += dist/(2+2*beta*dist);
+        }
     }
-
-    // This works just for 2 particles
-    double r12= norm(position.col(0)-position.col(1),2);
-
-    double value = exp( -alpha*(r[0]+r[1]) + r12/(2+2*beta*r12) );
+    value = exp( value );
 
     return value;
 }
+
+
+// overload function for given values
+double TrialFct::getValue(mat R,mat RR)
+{
+    double value = 0;
+
+    for (int i=0;i<nParticles;i++)
+    {
+        value += -alpha*R[i];
+        for (int j=0;j<i;j++)
+        {   double dist = RR(i-1,j);
+            value += dist/(2+2*beta*dist);
+        }
+    }
+    value = exp( value );
+
+    return value;
+}
+
 
 // calculate the sum of the numerical second derivatives acting on the trail function ( \nabla^2_i f(x_1,...x_i,...x_n) ),
 // derivatives act on the postion of particle n according to the given argument
@@ -43,15 +66,21 @@ double TrialFct::getDivGrad(int particleNumber)
     double step;
 
     for (int i = 0; i<ndim; i++)
-    {   // r+h*e_i
+    {
+        // move forward: r+h*e_i
         position(i,particleNumber)+=h;
+        updateParticelPosition(position.col(particleNumber),particleNumber);
         step = getValue();
-        // r-h*e_i
-        position(i,particleNumber)-=2*h;
-        step += getValue();
-        position(i,particleNumber)+=h;
 
-        // f''(x)*h^2=f(x+h)+f(x-h) - 2*f(x)
+
+        // move backwards: r-h*e_i
+        position(i,particleNumber)-=2*h;
+        updateParticelPosition(position.col(particleNumber),particleNumber);
+        step += getValue();
+
+        // move to middle
+        position(i,particleNumber)+=h;
+        updateParticelPosition(position.col(particleNumber),particleNumber);
         d+=step-2*getValue();
     }
     return d/(h*h);
@@ -59,16 +88,58 @@ double TrialFct::getDivGrad(int particleNumber)
 
 // set and get private variables
 
+// change the whole position matrix and update r and rr
 void TrialFct::set_position(mat newPosition)
 {
     position=newPosition;
+    for (int i=0;i<nParticles;i++)
+    {
+        // length of position vector
+        r[i] = norm(position.col(i),2);
+
+        // relative distance
+        for (int j=0; j<i;j++)
+        {
+            rr(i-1,j) = norm(position.col(i)-position.col(j),2);
+        }
+    }
 }
+
+// change a single particle vector and update r and rr
+void TrialFct::updateParticelPosition(vec newPosition,int particleNumber)
+{
+    // write new particle position
+    position.col(particleNumber)=newPosition;
+
+    // update r
+    r[particleNumber]=norm(position.col(particleNumber),2);
+
+    // update rr
+    for (int j=0;j<particleNumber;j++)
+    {
+        rr(particleNumber-1,j)=norm(position.col(particleNumber)-position.col(j),2);
+    }
+    for (int i=particleNumber+1; i<nParticles;i++)
+    {
+        rr(i-1,particleNumber) = norm(position.col(particleNumber)-position.col(i),2);
+    }
+}
+
 
 mat TrialFct::get_position()
 {
     return position;
 }
 
+vec TrialFct::get_r()
+{
+    return r;
+}
+
+mat TrialFct::get_rr()
+{
+    return rr;
+}
 
 void TrialFct::set_alpha(double new_alpha)
 {
