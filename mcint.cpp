@@ -25,7 +25,6 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
     positions R1_old =positions(parameters);
     positions * Rold = &R1_old;
 
-
     double Phi = fct->getValue(Rnew);
     double P_old = Phi*Phi;
     double P_new;
@@ -57,7 +56,7 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
         }
         else
         {
-
+            // keep old position
         }
 
         // add energy value
@@ -71,7 +70,7 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
     }
 
     value /= nSamples*nParticles;
-    variance = sqrt(stabw-value*value);
+    variance = sqrt(stabw-value*value) / (nParticles*nSamples);
 }
 
 
@@ -100,7 +99,7 @@ int  mcInt::get_stepSize()
 
 double mcInt::get_acceptanceRatio()
 {
-    return acceptedSteps/nSamples;
+    return (double) acceptedSteps/nSamples;
 }
 
 double mcInt::get_value()

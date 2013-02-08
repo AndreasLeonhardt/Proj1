@@ -39,7 +39,7 @@ double TrialFct::getValue(positions * R)
 double TrialFct::getDivGrad(int particleNumber, positions * R)
 {
     // stepwidth for numerical differenciation
-    double h=0.001;
+    double h=0.01;
 
     double value;
 
