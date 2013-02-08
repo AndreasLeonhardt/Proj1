@@ -18,7 +18,7 @@ class hamilton
 public:
     hamilton(Config * parameters);
 
-    double localEnergy(TrialFct * trialfct );
+    double localEnergy(TrialFct * trialfct, positions * R);
 
 
 };

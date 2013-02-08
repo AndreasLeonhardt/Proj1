@@ -6,44 +6,73 @@ positions::positions(Config * parameters)
 {
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
-    positions.randn(ndim,nParticles);
-}
-
-
-
-void positions::set_pos(mat * NewPositions)
-{
-    position = &NewPositions;
-
+    pos.randn(ndim,nParticles);
     for (int i=0;i<nParticles;i++)
     {
         // length of position vector
-        r[i] = norm(position.col(i),2);
+        r[i] = norm(pos.col(i),2);
 
         // relative distance
         for (int j=0; j<i;j++)
         {
-            rr(i-1,j) = norm(position.col(i)-position.col(j),2);
+            rr(i-1,j) = norm(pos.col(i)-pos.col(j),2);
         }
     }
 }
 
-void positions::set_singlePos(vec * NewPosition, int particleNumber)
+
+
+void positions::set_pos(mat  NewPositions)
+{
+    pos = NewPositions;
+
+    for (int i=0;i<nParticles;i++)
+    {
+        // length of position vector
+        r[i] = norm(pos.col(i),2);
+
+        // relative distance
+        for (int j=0; j<i;j++)
+        {
+            rr(i-1,j) = norm(pos.col(i)-pos.col(j),2);
+        }
+    }
+}
+
+void positions::set_singlePos(vec NewPosition, int particleNumber)
 {
     // write new particle position
-    position.col(particleNumber)=&NewPosition;
+    pos.col(particleNumber)=NewPosition;
 
     // update r
-    r[particleNumber]=norm(position.col(particleNumber),2);
+    r[particleNumber]=norm(pos.col(particleNumber),2);
 
     // update rr
     for (int j=0;j<particleNumber;j++)
     {
-        rr(particleNumber-1,j)=norm(position.col(particleNumber)-position.col(j),2);
+        rr(particleNumber-1,j)=norm(pos.col(particleNumber)-pos.col(j),2);
     }
     for (int i=particleNumber+1; i<nParticles;i++)
     {
-        rr(i-1,particleNumber) = norm(position.col(particleNumber)-position.col(i),2);
+        rr(i-1,particleNumber) = norm(pos.col(particleNumber)-pos.col(i),2);
+    }
+}
+
+
+void positions::step(double distance, int axis, int Particle)
+{
+    pos(axis,Particle)+=distance;
+    // update r
+    r[Particle]=norm(pos.col(Particle),2);
+
+    // update rr
+    for (int j=0;j<Particle;j++)
+    {
+        rr(Particle-1,j)=norm(pos.col(Particle)-pos.col(j),2);
+    }
+    for (int i=Particle+1; i<nParticles;i++)
+    {
+        rr(i-1,Particle) = norm(pos.col(Particle)-pos.col(i),2);
     }
 }
 
@@ -60,7 +89,7 @@ double positions::get_rr(int i, int j)
 
 mat positions::get_pos()
 {
-    return positions;
+    return pos;
 }
 
 

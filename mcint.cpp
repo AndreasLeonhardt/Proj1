@@ -11,33 +11,36 @@ mcInt::mcInt(Config * parameters)
 
 
 
-void mcInt::integrate(TrialFct * fct, hamilton * H)
+void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
 {
     acceptedSteps = 0;
     value = 0.0;
     double stabw = 0.0;
-    int i=0;
+    int i = 0;
 
-    double Phi = fct->getValue();
-    P_old = Phi*Phi;
+    // positions
+    positions R1_new =positions(parameters);
+    positions * Rnew = &R1_new;
+
+    positions R1_old =positions(parameters);
+    positions * Rold = &R1_old;
+
+
+    double Phi = fct->getValue(Rnew);
+    double P_old = Phi*Phi;
     double P_new;
-    mat oldPosition(ndim,nParticles);
-    mat newPosition(ndim,nParticles);
+
 
     while (i<nSamples)
     {
 
-        // save old Position
-        oldPosition = fct->get_position();
-        R_old =fct->get_r();
-        RR_old=fct->get_rr();
 
         // perform step
-        newPosition = oldPosition+ (+2*randu<mat>(ndim,nParticles)-ones(ndim,nParticles))*stepSize;
+        mat newPositions = Rold->get_pos()+ (+2*randu<mat>(ndim,nParticles)-ones(ndim,nParticles))*stepSize;
+        Rnew->set_pos(newPositions);
 
         // calculate P_new/P_old
-        fct->set_position(newPosition);
-         Phi = fct->getValue();
+         Phi = fct->getValue(Rnew);
          P_new =Phi*Phi;
 
 
@@ -46,18 +49,19 @@ void mcInt::integrate(TrialFct * fct, hamilton * H)
          vec zufallszahl(randu(1));
          if( zufallszahl(0) <= P_new/P_old )
         {
-
+            P_old = P_new;
+            swap(Rnew,Rold);
 
             // increase accepted steps
             acceptedSteps++;
         }
         else
         {
-             fct->set_position(oldPosition);
+
         }
 
         // add energy value
-         double ede = H->localEnergy(fct);
+         double ede = H->localEnergy(fct,Rold);
          value += ede;
          stabw += ede*ede;
 

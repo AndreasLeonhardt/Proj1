@@ -17,28 +17,21 @@ class TrialFct
     double alpha, beta;
 
     // more general parameters (position vector, number of spacial dimensions, number of particles.
-    mat position;
     int ndim, nParticles;
-    vec r;
-    mat rr;
+
 
 
 public:
     // constructor, takes the above parameters
-    TrialFct(Config * parameters, double a, double b );
+    TrialFct(Config * parameters);
 
     // calculate the value of the trial function at a certain position
-    double getValue();
-    double getValue(mat R,mat RR);
+    double getValue(positions * R);
+
 
     // calculate the sum of the second derivatives acting on the trial function
-    double getDivGrad(int particleNumber);
+    double getDivGrad(int particleNumber, positions * R);
 
-    // read and set the private values
-    void set_position(mat newPosition);
-    mat get_position();
-
-    void updateParticelPosition(vec newPosition,int particleNumber);
 
     void set_alpha(double new_alpha);
     double get_alpha();
@@ -46,8 +39,6 @@ public:
     void set_beta(double new_beta);
     double get_beta();
 
-    vec get_r();
-    mat get_rr();
 
 };
 

@@ -22,8 +22,9 @@ public:
     double get_rr(int i, int j);
 
     mat get_pos();
-    void set_pos(mat * NewPositions);
+    void set_pos(mat NewPositions);
     void set_singlePos(vec NewPosition, int particleNumber);
+    void step(double distance, int axis, int Particle);
 
 };
 

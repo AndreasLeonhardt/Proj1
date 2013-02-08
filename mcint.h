@@ -7,6 +7,7 @@
 
 #include "trialfct.h"
 #include "hamilton.h"
+#include "positions.h"
 
 using namespace std;
 using namespace arma;
@@ -26,7 +27,7 @@ class mcInt
 public:
     mcInt(Config * parameters);
 
-    void integrate(TrialFct * fct, hamilton * H);
+    void integrate(TrialFct * fct, hamilton * H, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();
