@@ -36,24 +36,43 @@ int main()
     // create instance of mcInt
     mcInt MC = mcInt(parameters);
 
+    ofstream results;
+    results.open("Results_Proj1.txt");
+    results << "alpha\tbeta\tE\tdE\tE_analytical\tdE_analytical\tacceptance_ratio" << endl ;
+
     //loop over different parameters alpha, beta
-    for (double a = 2.5; a<4.6 ; a+=0.5)
+    double a_min = 3.0;
+    double a_max = 3.6;
+    double a_step= 0.1;
+
+    double b_min = .5;
+    double b_max = 1.6;
+    double b_step= .5;
+
+
+    for (double a = a_min; a<a_max ; a+=a_step)
     {
-        for(double b = 1.0; b<4.1; b+=1.0)
+        for(double b = b_min; b<b_max; b+=b_step)
+
         {
             fun->set_alpha(a);
             fun->set_beta(b);
 
             MC.integrate(fun,H,parameters);
 
-            cout << "alpha = " << a << "  beta = " << b << endl;
-            cout << "E=" << MC.get_value() << endl <<"dE=" << MC.get_variance() << endl;
-            cout << "acceptance ratio=" << MC.get_acceptanceRatio()*100<< "%" <<endl << endl;
+            results << a << "\t"
+                    << b << "\t"
+                    << MC.get_value()  << "\t"
+                    << MC.get_variance() << "\t"
+                    << MC.get_value_analytical() << "\t"
+                    << MC.get_variance_analytical() << "\t"
+                    << MC.get_acceptanceRatio()*100 << "%"
+                    <<endl;
 
         }
     }
 
-
+    results.close();
 
     return 0;
 }

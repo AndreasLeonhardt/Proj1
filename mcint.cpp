@@ -16,6 +16,7 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
     acceptedSteps = 0;
     value = 0.0;
     double stabw = 0.0;
+    double stabw_analytical = 0.0;
     int i = 0;
 
     // positions
@@ -61,8 +62,11 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
 
         // add energy value
          double ede = H->localEnergy(fct,Rold);
+         double ede_analytical = H->analytical_localEnergy(fct,Rold);
          value += ede;
+         value_analytical += ede_analytical;
          stabw += ede*ede;
+         stabw_analytical +=ede_analytical*ede_analytical;
 
         // increase i
         i++;
@@ -70,7 +74,9 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
     }
 
     value /= nSamples*nParticles;
+    value_analytical /= nSamples*nParticles;
     variance = sqrt(stabw-value*value) / (nParticles*nSamples);
+    variance_analytical = sqrt(stabw-value_analytical*value_analytical) / (nParticles*nSamples);
 }
 
 
@@ -111,4 +117,15 @@ double mcInt::get_value()
 double mcInt::get_variance()
 {
     return variance;
+}
+
+double mcInt::get_value_analytical()
+{
+    return value_analytical;
+}
+
+
+double mcInt::get_variance_analytical()
+{
+    return variance_analytical;
 }
