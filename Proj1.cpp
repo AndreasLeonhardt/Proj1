@@ -1,6 +1,7 @@
 #include <iostream>
 #include <armadillo>
 #include <libconfig.h++>
+#include <string>
 
 #include "positions.h"
 #include "trialfct.h"
@@ -42,17 +43,20 @@ int main()
 
     //loop over different parameters alpha, beta
     double a_min = 3.0;
-    double a_max = 3.6;
-    double a_step= 0.1;
+    double a_sup = 3.7;
+    double a_step= 0.2;
+    int a_n = floor((a_sup-a_min)/a_step)+1;
 
     double b_min = .5;
-    double b_max = 1.6;
+    double b_sup = 1.6;
     double b_step= .5;
+    int b_n = floor((b_sup-b_min)/b_step)+1;
+    int c_n=b_n*a_n;
+    int c = 0;
 
-
-    for (double a = a_min; a<a_max ; a+=a_step)
+    for (double a = a_min; a<a_sup ; a+=a_step)
     {
-        for(double b = b_min; b<b_max; b+=b_step)
+        for(double b = b_min; b<b_sup; b+=b_step)
 
         {
             fun->set_alpha(a);
@@ -69,7 +73,23 @@ int main()
                     << MC.get_acceptanceRatio()*100 << "%"
                     <<endl;
 
+
+             c++;
+
+
+             int counter = 100*c/c_n;
+
+             for (int i=0;i<45;i++)
+                 cout<<"\n\n\n\n"<<endl;
+
+             string bar(counter/1.5151,'X');
+             bar.append((100-counter)/1.5151,'_');
+
+             cout << "progress = " << counter << "%" << endl;
+             cout << bar << endl;
+
         }
+
     }
 
     results.close();
