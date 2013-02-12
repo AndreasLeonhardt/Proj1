@@ -36,10 +36,11 @@ double TrialFct::getValue(positions * R)
 // calculate the sum of the numerical second derivatives acting on the trail function ( \nabla^2_i f(x_1,...x_i,...x_n) ),
 // derivatives act on the postion of particle n according to the given argument
 // uses the position given in the privat variable position.
+
 double TrialFct::getDivGrad(int particleNumber, positions * R)
 {
     // stepwidth for numerical differenciation
-    double h=0.01;
+    double h=0.001;
 
     double value;
 
