@@ -85,6 +85,8 @@ double positions::get_r(int i)
     return r[i];
 }
 
+// This functions returns the length of the differences in position between particle i and j.
+// Note that r_ij has to be adressed through get_rr(i-1,j)
 double positions::get_rr(int i, int j)
 {
     return rr(i,j);

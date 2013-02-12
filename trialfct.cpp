@@ -42,15 +42,12 @@ double TrialFct::getDivGrad(int particleNumber, positions * R)
     // stepwidth for numerical differenciation
     double h=0.001;
 
-    double value;
-
+    double value =-2*ndim*getValue(R);
     for (int i = 0; i<ndim; i++)
     {
         // move forward: r+h*e_i
-
         R->step(h,i,particleNumber);
-        value = getValue(R);
-
+        value += getValue(R);
 
         // move backwards: r-h*e_i
         R->step(-2*h,i,particleNumber);
@@ -58,7 +55,6 @@ double TrialFct::getDivGrad(int particleNumber, positions * R)
 
         // move to middle
         R->step(h,i,particleNumber);
-        value+=-2*getValue(R);
     }
     return value/(h*h);
 }

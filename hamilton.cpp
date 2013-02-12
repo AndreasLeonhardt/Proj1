@@ -36,3 +36,9 @@ double hamilton::localEnergy(TrialFct * trialfct, positions * R)
 
     return dens;
 }
+
+
+double analytical_localEnergy(TrialFct * trialfct, positions * R)
+{
+    return 0.0;
+}

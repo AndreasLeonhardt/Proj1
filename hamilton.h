@@ -21,6 +21,9 @@ public:
     double localEnergy(TrialFct * trialfct, positions * R);
 
 
+    double analytical_localEnergy(TrialFct * trialfct, positions * R);
+
+
 };
 
 #endif // HAMILTON_H
