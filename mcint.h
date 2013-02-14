@@ -22,9 +22,7 @@ class mcInt
     double stepSize;
     int acceptedSteps;
     double value;
-    double value_analytical;
     double variance;
-    double variance_analytical;
 
 public:
     mcInt(Config * parameters);
@@ -39,9 +37,7 @@ public:
 
     double get_acceptanceRatio();
     double get_value();
-    double get_value_analytical();
     double get_variance();
-    double get_variance_analytical();
 };
 
 #endif // MCINT_H

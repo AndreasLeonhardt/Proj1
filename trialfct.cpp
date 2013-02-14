@@ -3,10 +3,10 @@
 // constructor
 TrialFct::TrialFct(Config * parameters)
 {
-    alpha = parameters->lookup("alpha");
-    beta = parameters->lookup("beta");
-            ndim = parameters->lookup("ndim");
-            nParticles = parameters->lookup("nParticles");
+    alpha = parameters->lookup("a_min");
+    beta = parameters->lookup("b_min");
+    ndim = parameters->lookup("ndim");
+    nParticles = parameters->lookup("nParticles");
 
 }
 

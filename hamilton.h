@@ -13,15 +13,16 @@ using namespace libconfig;
 
 class hamilton
 {
+protected:
+
     int ndim, nParticles, Z;
 
 public:
 
     hamilton(Config * parameters);
 
-    double localEnergy(TrialFct * trialfct, positions * R);
+    virtual double localEnergy(TrialFct * trialfct, positions * R);
 
-    double analytical_localEnergy(TrialFct * trialfct, positions * R);
 
 
 };

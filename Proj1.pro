@@ -8,7 +8,9 @@ SOURCES += \
     Proj1.cpp \
     hamilton.cpp \
     mcint.cpp \
-    positions.cpp
+    positions.cpp \
+    hamilton_analytical.cpp \
+    hamilton_numerical.cpp
 
 LIBS += -larmadillo -lconfig++
 
@@ -16,4 +18,6 @@ HEADERS += \
     trialfct.h \
     hamilton.h \
     mcint.h \
-    positions.h
+    positions.h \
+    hamilton_analytical.h \
+    hamilton_numerical.h
