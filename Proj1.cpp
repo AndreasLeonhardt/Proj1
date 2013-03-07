@@ -4,7 +4,9 @@
 #include <string>
 
 #include "positions.h"
+#include "function.h"
 #include "trialfct.h"
+#include "trialfct_analytical.h"
 #include "hamilton.h"
 #include "hamilton_analytical.h"
 #include "hamilton_numerical.h"
@@ -25,23 +27,28 @@ int main()
     Config * parameters = &conf_parameters;
     parameters->readFile("../Proj1/parameters.cfg");
 
-    // seed for randu
-    srand(41);
+
+    // seed for rand0
+    long int idum = -1;
+
 
     // create instance of TrialFct
-    TrialFct * fun = new TrialFct( parameters);
+    function * fun = new function( parameters);
 
 
     // create instance of hamilton
     hamilton * H = new hamilton(parameters);
+
     int schalter = parameters->lookup("analytical_energy_density");
     if (!schalter)
     {   
         H = new hamilton_numerical(parameters);
+        fun = new TrialFct(parameters);
     }
     else
     {
         H = new hamilton_analytical(parameters);
+        fun = new TrialFct_analytical(parameters);
     }
 
 
@@ -76,10 +83,10 @@ int main()
         for(double b = b_min; b<b_max; b+=b_step)
 
         {
-            fun->set_alpha(a);
-            fun->set_beta(b);
+            fun->setParameter(a,1);
+            fun->setParameter(b,2);
 
-            MC.integrate(fun,H,parameters);
+            MC.integrate(fun,H,parameters,idum);
 
             results << a << "\t"
                     << b << "\t"

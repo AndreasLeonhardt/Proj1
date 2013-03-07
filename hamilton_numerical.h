@@ -5,7 +5,7 @@
 #include <libconfig.h++>
 
 #include "positions.h"
-#include "trialfct.h"
+#include "function.h"
 #include "hamilton.h"
 
 using namespace std;
@@ -17,7 +17,7 @@ class hamilton_numerical : public hamilton
 {
 public:
     hamilton_numerical(Config * parameters);
-    double localEnergy(TrialFct * trialfct, positions * R);
+    double localEnergy(function * trialfct, positions * R);
 };
 
 #endif // HAMILTON_NUMERICAL_H

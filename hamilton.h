@@ -21,9 +21,7 @@ public:
 
     hamilton(Config * parameters);
 
-    virtual double localEnergy(TrialFct * trialfct, positions * R);
-
-
+    virtual double localEnergy(function *trialfct, positions * R);
 
 };
 

@@ -5,10 +5,10 @@ hamilton_analytical::hamilton_analytical(Config * parameters) : hamilton(paramet
 }
 
 
-double hamilton_analytical::localEnergy(TrialFct * trialfct, positions * R)
+double hamilton_analytical::localEnergy(function *trialfct, positions * R)
 {
-    double alpha = trialfct->get_alpha();
-    double beta  = trialfct->get_beta();
+    double alpha = trialfct->getParameter(1);
+    double beta  = trialfct->getParameter(2);
 
     // specified for two particles only
     try

@@ -6,7 +6,7 @@
 #include <libconfig.h++>
 
 #include "positions.h"
-#include "trialfct.h"
+#include "function.h"
 #include "hamilton.h"
 
 using namespace std;
@@ -20,7 +20,7 @@ public:
 
     hamilton_analytical(Config * parameters);
 
-    double localEnergy(TrialFct * trialfct, positions * R);
+    double localEnergy(function * trialfct, positions * R);
 
 };
 

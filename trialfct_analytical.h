@@ -1,5 +1,5 @@
-#ifndef TRIALFCT_H
-#define TRIALFCT_H
+#ifndef TRIALFCT_ANALYTICAL_H
+#define TRIALFCT_ANALYTICAL_H
 
 #include <armadillo>
 #include <libconfig.h++>
@@ -12,22 +12,20 @@ using namespace arma;
 using namespace libconfig;
 
 
-class TrialFct : public function
+class TrialFct_analytical : public function
 {
+
+
     // parameters of the trial function
-    //double parameters[2];
-
-    // parameters for numerical differentiation
-    double stepwidth, stepwidthsqr;
-
+    double alpha, beta;
 
 
 
 public:
     // constructor, takes the above parameters
-    TrialFct(Config * parameters);
+    TrialFct_analytical(Config * parameters);
     // default constructor without parameters
-    TrialFct();
+    TrialFct_analytical();
 
     // calculate the value of the trial function at a certain position
     double getValue(positions * R);
@@ -38,15 +36,16 @@ public:
     // calculate the quantum force defined by grad(f)/f of the function numerically
     vec quantumForce(int particleNumber, positions *R);
 
+    void set_alpha(double new_alpha);
+    double get_alpha();
 
-    void setParameter(double newParameter, int parameterNumber);
-    double getParameter(int parameterNumber);
+    void set_beta(double new_beta);
+    double get_beta();
 
 
-    void set_stepwidth(double new_stepwidth);
-    double get_stepwidth();
+
+
 
 };
 
-#endif // TRIALFCT_H
-
+#endif // TRIALFCT_ANALYTICAL_H

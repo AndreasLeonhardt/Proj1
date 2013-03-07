@@ -1,22 +1,33 @@
 #include "mcint.h"
 
+mcInt::mcInt()
+{
+    nSamples = 1000;
+    timeStep = 1;
+    ndim = 3;
+    nParticles = 2;
+    sqrtTimeStep = 1;
+}
+
+
 mcInt::mcInt(Config * parameters)
 {
     nSamples = parameters->lookup("nSamples");
-    stepSize = parameters->lookup("stepSize");
+    timeStep = parameters->lookup("timeStep");
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
+    sqrtTimeStep = sqrt(timeStep);
 }
 
 
 
 
-void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
+void mcInt::integrate(function * fct, hamilton * H, Config * parameters, long int idum)
 {
     acceptedSteps = 0;
     value = 0.0;
     double stabw = 0.0;
-    int i = 0;
+    int n = 0;
 
     // positions
     positions R1_new =positions(parameters);
@@ -30,47 +41,67 @@ void mcInt::integrate(TrialFct * fct, hamilton * H, Config * parameters)
     double P_new;
 
 
-    while (i<nSamples)
+
+
+    while (n<nSamples)
     {
 
 
-        // perform step
-        mat newPositions = Rold->get_pos()+ (+2*randu<mat>(ndim,nParticles)-ones(ndim,nParticles))*stepSize;
-        Rnew->set_pos(newPositions);
-
-        // calculate P_new/P_old
-         Phi = fct->getValue(Rnew);
-         P_new =Phi*Phi;
-
-
-
-        // compare to random variable
-         vec zufallszahl(randu(1));
-         if( zufallszahl(0) <= P_new/P_old )
+        // perform step one particles at the time
+        for (int i =0; i<nParticles; i++)
         {
-            P_old = P_new;
-            swap(Rnew,Rold);
+            vec newPosition(ndim);
+            newPosition = Rold->get_r(i)+randn(ndim)*sqrtTimeStep +0.5*fct->quantumForce(i,Rold)*timeStep;
+            Rnew->set_singlePos(newPosition,i);
 
-            // increase accepted steps
-            acceptedSteps++;
-        }
-        else
-        {
+            // calculate Greensfct CHECK FOR SIGN ERROR
+            vec Fold = fct->quantumForce(i,Rold);
+            vec Fnew = fct->quantumForce(i,Rnew);
+
+            double ratioGreensfunction = 0.5*dot(
+                                            (Fold+Fnew),
+                                            ( Rold->get_r(i) - Rnew->get_r(i) + 0.5*timeStep*(Fold-Fnew)) // there might be a sign errror
+                                            );
+            ratioGreensfunction = exp(-ratioGreensfunction);
+
+
+            // calculate ( G(old,new)*P_new ) / ( G(new,old)*P_old )
+            Phi = fct->getValue(Rnew);
+            P_new =Phi*Phi;
+
+
+            double Zufallszahl = ran0(&idum);
+
+            if( Zufallszahl <= ratioGreensfunction*P_new/P_old )
+            {
+                P_old = P_new;
+                swap(Rnew,Rold);
+
+                // increase accepted steps
+                acceptedSteps++;
+            }
+            else
+            {
             // keep old position
-        }
+            }
+        } // end loop over particles.
+
 
         // add energy value
          double ede = H->localEnergy(fct,Rold);
          value += ede;
          stabw += ede*ede;
 
-        // increase i
-        i++;
+
+
+        // increase counter
+        n++;
 
     }
 
     value /= nSamples;
     variance = sqrt(stabw-value*value) / nSamples;
+    acceptedSteps/=nParticles;
 }
 
 
@@ -86,14 +117,14 @@ int  mcInt::get_nSamples()
     return nSamples;
 }
 
-void mcInt::set_stepSize(double NewstepSize)
+void mcInt::set_timeStep(double NewTimeStep)
 {
-    stepSize=NewstepSize;
+    timeStep=NewTimeStep;
 }
 
-int  mcInt::get_stepSize()
+int  mcInt::get_timeStep()
 {
-    return stepSize;
+    return timeStep;
 }
 
 

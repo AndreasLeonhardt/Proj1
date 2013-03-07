@@ -7,7 +7,7 @@ hamilton_numerical::hamilton_numerical(Config * parameters):hamilton(parameters)
 }
 
 
-double hamilton_numerical::localEnergy(TrialFct * trialfct, positions * R)
+double hamilton_numerical::localEnergy(function * trialfct, positions * R)
 {
 
 

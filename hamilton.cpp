@@ -12,9 +12,6 @@ hamilton::hamilton(Config * parameters)
 // The Hamiltonian is defined within this function
 // \hat{H} = \sum_n (\sum_i \frac12 \del_i^2) -\frac{Z}{r_n} +\sum_{j<i} \frac{1}{r_{ij}}
 
-double hamilton::localEnergy(TrialFct * trialfct, positions * R)
+double hamilton::localEnergy(function * trialfct, positions * R)
 {
 }
-
-
-

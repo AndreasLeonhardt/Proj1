@@ -1,12 +1,21 @@
 #include "trialfct.h"
 
-// constructor
-TrialFct::TrialFct(Config * parameters)
+// default constructor
+TrialFct::TrialFct()
 {
-    alpha = parameters->lookup("a_min");
-    beta = parameters->lookup("b_min");
-    ndim = parameters->lookup("ndim");
-    nParticles = parameters->lookup("nParticles");
+    funcParameters[1] = 1.0;
+    funcParameters[2] = 1.0;
+    stepwidth = 0.001;
+    stepwidthsqr = stepwidth*stepwidth;
+}
+
+// constructor taking parameters from the config file
+TrialFct::TrialFct(Config * parameters) : function(parameters)
+{
+    funcParameters[1] = parameters->lookup("a_min");
+    funcParameters[2] = parameters->lookup("b_min");
+    stepwidth = parameters->lookup("stepwidth");
+    stepwidthsqr = stepwidth*stepwidth;
 
 }
 
@@ -20,10 +29,10 @@ double TrialFct::getValue(positions * R)
 
     for (int i=0;i<nParticles;i++)
     {
-        value += -alpha*R->get_r(i);
+        value += -funcParameters[1]*R->get_r(i);
         for (int j=0;j<i;j++)
         {   double dist = R->get_rr(i-1,j);
-            value += dist/(2+2*beta*dist);
+            value += dist/(2+2*funcParameters[2]*dist);
         }
     }
     value = exp( value );
@@ -36,50 +45,72 @@ double TrialFct::getValue(positions * R)
 // calculate the sum of the numerical second derivatives acting on the trail function ( \nabla^2_i f(x_1,...x_i,...x_n) ),
 // derivatives act on the postion of particle n according to the given argument
 // uses the position given in the privat variable position.
-
+// using the numerical derivative: f''(x) = 1/h^2 * (f(x+h) + f(x-h) -2*f(x))
 double TrialFct::getDivGrad(int particleNumber, positions * R)
 {
-    // stepwidth for numerical differenciation
-    double h=0.001;
+
 
     double value =-2*ndim*getValue(R);
     for (int i = 0; i<ndim; i++)
     {
         // move forward: r+h*e_i
-        R->step(h,i,particleNumber);
+        R->step(stepwidth,i,particleNumber);
         value += getValue(R);
 
         // move backwards: r-h*e_i
-        R->step(-2*h,i,particleNumber);
+        R->step(-2*stepwidth,i,particleNumber);
         value += getValue(R);
 
         // move to middle
-        R->step(h,i,particleNumber);
+        R->step(stepwidth,i,particleNumber);
     }
-    return value/(h*h);
+    return value/(stepwidthsqr);
 }
 
+
+// calculates numerically the quantum force, defined by 1/(2*f) * grad(f), where grad(f) is the gradient of f.
+// particle number refers to the particle, on whichs position the derivatives act.
+vec TrialFct::quantumForce(int particleNumber, positions *R)
+{
+    vec gradient = vec(ndim);
+    for (int i =0; i<ndim; i++)
+    {
+        R->step(stepwidth,i,particleNumber);
+        gradient(i)=getValue(R);
+
+        R->step(-2*stepwidth,i,particleNumber);
+        gradient(i)-=getValue(R);
+
+        R->step(stepwidth,i,particleNumber);
+    }
+
+    gradient/=stepwidth*getValue(R);
+    return gradient;
+}
 
 
 // set and get private variables
 
-void TrialFct::set_alpha(double new_alpha)
+void TrialFct::setParameter(double newParameter, int parameterNumber)
 {
-    alpha = new_alpha;
+    funcParameters[parameterNumber] = newParameter;
 }
 
-double TrialFct::get_alpha()
+double TrialFct::getParameter(int parameterNumber)
 {
-    return alpha;
+    return funcParameters[parameterNumber];
+
 }
 
 
-void TrialFct::set_beta(double new_beta)
+void TrialFct::set_stepwidth(double new_stepwidth)
 {
-    beta = new_beta;
+    stepwidth = new_stepwidth;
+    stepwidthsqr = stepwidth*stepwidth;
+
 }
 
-double TrialFct::get_beta()
+double TrialFct::get_stepwidth()
 {
-    return beta;
+    return stepwidth;
 }
