@@ -37,4 +37,5 @@ double function::getDivGrad(int particleNumber, positions * R)
 // quantum force defined by g*grad(f)/f
 // g to be specified (1/2 for fermionic wave functions
 vec function::quantumForce(int particleNumber, positions *R)
-{}
+{
+}

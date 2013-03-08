@@ -12,7 +12,7 @@ class positions
 {
     int ndim, nParticles;
     mat pos;
-    mat r;
+    vec r;
     mat rr;
 
 public:
@@ -23,6 +23,7 @@ public:
 
     mat get_pos();
     void set_pos(mat NewPositions);
+    vec get_singlePos(int particleNumber);
     void set_singlePos(vec NewPosition, int particleNumber);
     void step(double distance, int axis, int Particle);
 

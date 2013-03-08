@@ -32,7 +32,7 @@ void positions::set_pos(mat  NewPositions)
     for (int i=0;i<nParticles;i++)
     {
         // length of position vector
-        r[i] = norm(pos.col(i),2);
+        r(i) = norm(pos.col(i),2);
 
         // relative distance
         for (int j=0; j<i;j++)
@@ -42,13 +42,18 @@ void positions::set_pos(mat  NewPositions)
     }
 }
 
+vec positions::get_singlePos(int particleNumber)
+{
+    return pos.col(particleNumber);
+}
+
 void positions::set_singlePos(vec NewPosition, int particleNumber)
 {
     // write new particle position
     pos.col(particleNumber)=NewPosition;
 
     // update r
-    r[particleNumber]=norm(pos.col(particleNumber),2);
+    r(particleNumber)=norm(pos.col(particleNumber),2);
 
     // update rr
     for (int j=0;j<particleNumber;j++)

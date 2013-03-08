@@ -21,16 +21,22 @@ class mcInt
     int nParticles;
     int ndim;
     int nSamples;
+    int thermalisationSteps;
     double timeStep;
     double sqrtTimeStep;
     int acceptedSteps;
     double value;
     double variance;
+    double P_old;
+
 
 public:
+    mcInt();
     mcInt(Config * parameters);
 
-    void integrate(function * fct, hamilton * H, Config *parameters, long idum);
+    positions * Step(function * fct, positions *Rold, long int idum, Config *parameters);
+    positions * thermalise(function * fct, long int idum, Config *parameters);
+    void integrate(function * fct, hamilton * H, positions * Rold, long idum, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();

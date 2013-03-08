@@ -48,7 +48,9 @@ int main()
     else
     {
         H = new hamilton_analytical(parameters);
-        fun = new TrialFct_analytical(parameters);
+        //fun = new TrialFct_analytical(parameters);
+        fun = new TrialFct(parameters);
+
     }
 
 
@@ -83,10 +85,10 @@ int main()
         for(double b = b_min; b<b_max; b+=b_step)
 
         {
-            fun->setParameter(a,1);
-            fun->setParameter(b,2);
-
-            MC.integrate(fun,H,parameters,idum);
+            fun->setParameter(a,0);
+            fun->setParameter(b,1);
+            positions * Rinitial = MC.thermalise(fun,idum, parameters);
+            MC.integrate(fun,H, Rinitial,idum, parameters);
 
             results << a << "\t"
                     << b << "\t"
