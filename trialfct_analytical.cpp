@@ -53,6 +53,7 @@ double TrialFct_analytical::getDivGrad(int particleNumber, positions *R)
 //        R->step(stepwidth,i,particleNumber);
 //    }
 //    return value/(stepwidthsqr);
+    cout << " analytical stuff"<<endl;
     return 0.0;
 }
 
@@ -77,25 +78,38 @@ vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 }
 
 
+
+
 // set and get private variables
 
-void TrialFct_analytical::set_alpha(double new_alpha)
-{
-    alpha = new_alpha;
-}
 
-double TrialFct_analytical::get_alpha()
-{
-    return alpha;
-}
+//void TrialFct_analytical::setParameter(double newParameter, int parameterNumber)
+//{
+//    funcParameters[parameterNumber]=newParameter;
+//}
+
+//double TrialFct_analytical::getParameter(int parameterNumber)
+//{
+//    return funcParameters[parameterNumber];
+//}
+
+//void TrialFct_analytical::set_alpha(double new_alpha)
+//{
+//    alpha = new_alpha;
+//}
+
+//double TrialFct_analytical::get_alpha()
+//{
+//    return alpha;
+//}
 
 
-void TrialFct_analytical::set_beta(double new_beta)
-{
-    beta = new_beta;
-}
+//void TrialFct_analytical::set_beta(double new_beta)
+//{
+//    beta = new_beta;
+//}
 
-double TrialFct_analytical::get_beta()
-{
-    return beta;
-}
+//double TrialFct_analytical::get_beta()
+//{
+//    return beta;
+//}

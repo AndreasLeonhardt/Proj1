@@ -18,7 +18,7 @@ class TrialFct : public function
     //double parameters[2];
 
     // parameters for numerical differentiation
-    double stepwidth, stepwidthsqr;
+   // double stepwidth, stepwidthsqr;
 
 
 
@@ -44,7 +44,7 @@ public:
 
 
     void set_stepwidth(double new_stepwidth);
-    double get_stepwidth();
+
 
 };
 

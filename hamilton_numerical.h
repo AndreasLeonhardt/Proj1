@@ -17,7 +17,8 @@ class hamilton_numerical : public hamilton
 {
 public:
     hamilton_numerical(Config * parameters);
-    double localEnergy(function * trialfct, positions * R);
+    double localEnergy(function *fct, positions * R);
+
 };
 
 #endif // HAMILTON_NUMERICAL_H

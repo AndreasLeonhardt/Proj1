@@ -28,34 +28,36 @@ int main()
     parameters->readFile("../Proj1/parameters.cfg");
 
 
+
     // seed for rand0
-    long int idum = -1;
+    long  idum;
+    idum =-100;
+    long int * idumadress = &idum;
 
 
     // create instance of TrialFct
-    function * fun = new function( parameters);
-
-
+     function * fun;
     // create instance of hamilton
-    hamilton * H = new hamilton(parameters);
+    hamilton * H;
 
     int schalter = parameters->lookup("analytical_energy_density");
     if (!schalter)
     {   
         H = new hamilton_numerical(parameters);
         fun = new TrialFct(parameters);
+
     }
     else
     {
         H = new hamilton_analytical(parameters);
-        //fun = new TrialFct_analytical(parameters);
-        fun = new TrialFct(parameters);
+
+        fun = new TrialFct_analytical(parameters);
 
     }
 
-
     // create instance of mcInt
     mcInt MC = mcInt(parameters);
+
 
     ofstream results;
     results.open(parameters->lookup("outputfile"));
@@ -83,12 +85,14 @@ int main()
     for (double a = a_min; a<a_max ; a+=a_step)
     {
         for(double b = b_min; b<b_max; b+=b_step)
-
         {
             fun->setParameter(a,0);
+
             fun->setParameter(b,1);
-            positions * Rinitial = MC.thermalise(fun,idum, parameters);
-            MC.integrate(fun,H, Rinitial,idum, parameters);
+
+            positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
+
+            MC.integrate(fun,H, Rinitial,idumadress, parameters);
 
             results << a << "\t"
                     << b << "\t"

@@ -16,7 +16,6 @@ TrialFct::TrialFct(Config * parameters) : function(parameters)
     funcParameters[1] = parameters->lookup("b_min");
     stepwidth = parameters->lookup("stepwidth");
     stepwidthsqr = stepwidth*stepwidth;
-
 }
 
 
@@ -63,8 +62,11 @@ double TrialFct::getDivGrad(int particleNumber, positions * R)
 
         // move to middle
         R->step(stepwidth,i,particleNumber);
+
     }
+    //cout << "h=" << stepwidth << "    h^2=" << stepwidthsqr << endl;
     return value/(stepwidthsqr);
+
 }
 
 
@@ -85,22 +87,25 @@ vec TrialFct::quantumForce(int particleNumber, positions *R)
     }
 
     gradient/=stepwidth*getValue(R);
+
+    //cout<<stepwidth<<"  "<< stepwidthsqr<<endl;
     return gradient;
+
 }
 
 
 // set and get private variables
 
-void TrialFct::setParameter(double newParameter, int parameterNumber)
-{
-    funcParameters[parameterNumber] = newParameter;
-}
+//void TrialFct::setParameter(double newParameter, int parameterNumber)
+//{
+//    funcParameters[parameterNumber] = newParameter;
+//}
 
-double TrialFct::getParameter(int parameterNumber)
-{
-    return funcParameters[parameterNumber];
+//double TrialFct::getParameter(int parameterNumber)
+//{
+//    return funcParameters[parameterNumber];
 
-}
+//}
 
 
 void TrialFct::set_stepwidth(double new_stepwidth)
@@ -110,7 +115,3 @@ void TrialFct::set_stepwidth(double new_stepwidth)
 
 }
 
-double TrialFct::get_stepwidth()
-{
-    return stepwidth;
-}

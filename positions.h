@@ -3,6 +3,7 @@
 
 #include <armadillo>
 #include <libconfig.h++>
+#include "lib.h"
 
 using namespace std;
 using namespace arma;
@@ -10,13 +11,14 @@ using namespace libconfig;
 
 class positions
 {
+protected:
     int ndim, nParticles;
     mat pos;
     vec r;
     mat rr;
 
 public:
-    positions(Config * parameters);
+    positions(Config * parameters, long *idumadress);
 
     double get_r(int i);
     double get_rr(int i, int j);

@@ -2,13 +2,21 @@
 
 
 
-positions::positions(Config * parameters)
+positions::positions(Config * parameters,long int * idumadress)
 {
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
     r = zeros(nParticles);
     rr= zeros(nParticles-1,nParticles-1);
-    pos.randn(ndim,nParticles);
+    pos=zeros(ndim,nParticles);
+    for (int i = 0; i<ndim; i++)
+    {
+        for(int j=0;j<nParticles;j++)
+        {
+            pos(i,j)=ran0(idumadress);
+        }
+    }
+
 
     for (int i=0;i<nParticles;i++)
     {

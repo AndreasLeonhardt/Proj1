@@ -21,6 +21,7 @@ class TrialFct_analytical : public function
 
 
 
+
 public:
     // constructor, takes the above parameters
     TrialFct_analytical(Config * parameters);
@@ -36,13 +37,15 @@ public:
     // calculate the quantum force defined by grad(f)/f of the function numerically
     vec quantumForce(int particleNumber, positions *R);
 
-    void set_alpha(double new_alpha);
-    double get_alpha();
+//    void set_alpha(double new_alpha);
+//    double get_alpha();
 
-    void set_beta(double new_beta);
-    double get_beta();
+//    void set_beta(double new_beta);
+//    double get_beta();
 
+    void setParameter(double newParameter, int parameterNumber);
 
+    double getParameter(int parameterNumber);
 
 
 

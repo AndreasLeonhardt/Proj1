@@ -7,8 +7,9 @@
 
 #include "function.h"
 #include "hamilton.h"
+#include "hamilton_numerical.h"
 #include "positions.h"
-#include "lib.h"
+
 
 
 using namespace std;
@@ -34,9 +35,9 @@ public:
     mcInt();
     mcInt(Config * parameters);
 
-    positions * Step(function * fct, positions *Rold, long int idum, Config *parameters);
-    positions * thermalise(function * fct, long int idum, Config *parameters);
-    void integrate(function * fct, hamilton * H, positions * Rold, long idum, Config *parameters);
+    positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
+    positions * thermalise(function * fct, long * idumadress, Config *parameters);
+    void integrate(function * fct, hamilton *H, positions * Rold, long * idumadress, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();
