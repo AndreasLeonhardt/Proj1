@@ -41,7 +41,7 @@ public:
 
     void setParameter(double newParameter, int parameterNumber);
     double getParameter(int parameterNumber);
-
+    double hydrogen(int particleNumber, int orbital, positions * R);
 
     void set_stepwidth(double new_stepwidth);
 

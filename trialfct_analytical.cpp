@@ -35,7 +35,7 @@ double TrialFct_analytical::getValue(positions * R)
 }
 
 
-// USES NUMERICAL DERIVATIVE.
+// returns 0 at the moment
 double TrialFct_analytical::getDivGrad(int particleNumber, positions *R)
 {
 //    double value =-2*ndim*getValue(R);
@@ -57,7 +57,7 @@ double TrialFct_analytical::getDivGrad(int particleNumber, positions *R)
     return 0.0;
 }
 
-// returns the quantum force. THIS IS NOT ANALYTICAL, BUT USES A NUMERICAL DERIVATIVE
+// returns the quantum force. well, 0 at the moment
 vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 {
 //    vec gradient = vec(ndim);
@@ -80,36 +80,4 @@ vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 
 
 
-// set and get private variables
 
-
-//void TrialFct_analytical::setParameter(double newParameter, int parameterNumber)
-//{
-//    funcParameters[parameterNumber]=newParameter;
-//}
-
-//double TrialFct_analytical::getParameter(int parameterNumber)
-//{
-//    return funcParameters[parameterNumber];
-//}
-
-//void TrialFct_analytical::set_alpha(double new_alpha)
-//{
-//    alpha = new_alpha;
-//}
-
-//double TrialFct_analytical::get_alpha()
-//{
-//    return alpha;
-//}
-
-
-//void TrialFct_analytical::set_beta(double new_beta)
-//{
-//    beta = new_beta;
-//}
-
-//double TrialFct_analytical::get_beta()
-//{
-//    return beta;
-//}

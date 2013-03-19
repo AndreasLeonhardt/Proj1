@@ -24,19 +24,56 @@ TrialFct::TrialFct(Config * parameters) : function(parameters)
 // f(r)=e^(-alpha(|r_1|+|r_2|) * e^(|r_1-r_2|/2*(1+beta|r_1-r_2|))
 double TrialFct::getValue(positions * R)
 {
-    double value = 0;
+    double result = 0.0;
 
-    for (int i=0;i<nParticles;i++)
+    int nParticleshalf = nParticles/2;
+
+    // create Slater matrix
+    mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
+    mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
+
+
+
+    for (int i=0;i<nParticleshalf;i++)
     {
-        value += -funcParameters[0]*R->get_r(i);
-        for (int j=0;j<i;j++)
-        {   double dist = R->get_rr(i-1,j);
-            value += dist/(2+2*funcParameters[1]*dist);
+        for (int j=0;j<nParticleshalf;j++)
+        {
+            Slaterup(i,j)   = hydrogen(j,               i,R);
+            Slaterdown(i,j) = hydrogen(j+nParticleshalf,i,R);
         }
     }
-    value = exp( value );
 
-    return value;
+    result = det(Slaterup)*det(Slaterdown);
+
+
+    // jastrow factor
+
+    double jastrow = 0.0;
+    double dist;
+
+    for (int i=0;i<nParticleshalf;i++)
+    {   // equal spin, factor 1/2
+        for (int j=0;j<i;j++)
+        {
+            dist = R->get_rr(i-1,j);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+
+            dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+        }
+
+        // opposite spin, factor 1/4
+        for (int j=nParticleshalf;j<nParticles;j++)
+        {
+            dist = R->get_rr(j-1,i);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
+        }
+
+    }
+
+    result *= exp(jastrow);
+
+    return result;
 }
 
 
@@ -88,10 +125,34 @@ vec TrialFct::quantumForce(int particleNumber, positions *R)
 
     gradient/=stepwidth*getValue(R);
 
-    //cout<<stepwidth<<"  "<< stepwidthsqr<<endl;
     return gradient;
 
 }
+
+
+double TrialFct::hydrogen(int particleNumber, int orbital, positions * R)
+{
+    double result = 0;
+
+    if (orbital==0)
+    {
+        result = exp(-funcParameters[0]*R->get_r(particleNumber));
+    }
+
+    else if(orbital==1)
+    {
+        result = ( 1.0 - 0.5* funcParameters[0] * R->get_r(particleNumber) )
+                 * exp( -0.5* funcParameters[0] * R->get_r(particleNumber) );
+    }
+    else if(orbital==2 || orbital==3 || orbital==4)
+    {
+        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
+                *exp(-0.5*funcParameters[0]*R->get_r(particleNumber));
+    }
+
+    return result;
+}
+
 
 
 // set and get private variables

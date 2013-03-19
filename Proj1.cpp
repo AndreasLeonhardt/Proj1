@@ -27,7 +27,14 @@ int main()
     Config * parameters = &conf_parameters;
     parameters->readFile("../Proj1/parameters.cfg");
 
-
+    int checkforevenparticlenumber = parameters->lookup("nParticles");
+    checkforevenparticlenumber = checkforevenparticlenumber%2;
+    if (checkforevenparticlenumber)
+    {
+        cout << "Programm does not run properly for an odd number of Particles." << endl
+                << "Change  \"nParticles\" in \"parameters.config\" to an even number" << endl;
+        cout << checkforevenparticlenumber <<endl;
+    }
 
     // seed for rand0
     long  idum;
@@ -50,9 +57,7 @@ int main()
     else
     {
         H = new hamilton_analytical(parameters);
-
         fun = new TrialFct_analytical(parameters);
-
     }
 
     // create instance of mcInt
@@ -89,11 +94,11 @@ int main()
             fun->setParameter(a,0);
 
             fun->setParameter(b,1);
-
+            // find initial position thorugh thermalisation
             positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
-
+            // actual calculation
             MC.integrate(fun,H, Rinitial,idumadress, parameters);
-
+            // write results
             results << a << "\t"
                     << b << "\t"
                     << MC.get_value()  << "\t"
@@ -104,7 +109,7 @@ int main()
             // status of calculation
             c++;
             int counter = 100*c/c_n;
-            // clear screen (kind of)
+            // clear screen quick and dirty by inserting blank lines.
             for (int i=0;i<10;i++)
                  cout<<"\n\n\n\n"<<endl;
             // create string for status bar
