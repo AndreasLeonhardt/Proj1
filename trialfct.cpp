@@ -19,14 +19,13 @@ TrialFct::TrialFct(Config * parameters) : function(parameters)
 }
 
 
-// calculate the value of the trial function the position given in the private variable position.
-// Here the trial function is defined, currently
-// f(r)=e^(-alpha(|r_1|+|r_2|) * e^(|r_1-r_2|/2*(1+beta|r_1-r_2|))
+// calculate the value of the trial function the position given in the variable position.
+// Uses hydrogen-like wave functions.
+
 double TrialFct::getValue(positions * R)
 {
     double result = 0.0;
 
-    int nParticleshalf = nParticles/2;
 
     // create Slater matrix
     mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
@@ -38,8 +37,8 @@ double TrialFct::getValue(positions * R)
     {
         for (int j=0;j<nParticleshalf;j++)
         {
-            Slaterup(i,j)   = hydrogen(j,               i,R);
-            Slaterdown(i,j) = hydrogen(j+nParticleshalf,i,R);
+            Slaterup(i,j)   = hydrogen(i,               j,R);
+            Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
         }
     }
 
@@ -71,7 +70,7 @@ double TrialFct::getValue(positions * R)
 
     }
 
-    result *= exp(jastrow);
+    //result *= exp(jastrow);
 
     return result;
 }
@@ -82,11 +81,11 @@ double TrialFct::getValue(positions * R)
 // derivatives act on the postion of particle n according to the given argument
 // uses the position given in the privat variable position.
 // using the numerical derivative: f''(x) = 1/h^2 * (f(x+h) + f(x-h) -2*f(x))
-double TrialFct::getDivGrad(int particleNumber, positions * R)
+double TrialFct::getDivGradOverFct(int particleNumber, positions * R)
 {
 
-
-    double value =-2*ndim*getValue(R);
+    double currentValue = getValue(R);
+    double value =-2*ndim*currentValue;
     for (int i = 0; i<ndim; i++)
     {
         // move forward: r+h*e_i
@@ -102,7 +101,7 @@ double TrialFct::getDivGrad(int particleNumber, positions * R)
 
     }
     //cout << "h=" << stepwidth << "    h^2=" << stepwidthsqr << endl;
-    return value/(stepwidthsqr);
+    return value/(stepwidthsqr*currentValue);
 
 }
 
@@ -129,7 +128,45 @@ vec TrialFct::quantumForce(int particleNumber, positions *R)
 
 }
 
+//=============================================================================================
+// calculate the ratio brut-force
+double TrialFct::SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)
+{
+    return getValue(Rnew)/getValue(Rold);
+}
 
+
+void TrialFct::setSlaterinv(positions * R)
+{
+    // create Slater matrix
+    mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
+    mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
+
+
+
+    for (int i=0;i<nParticleshalf;i++)
+    {
+        for (int j=0;j<nParticleshalf;j++)
+        {
+            Slaterup(i,j)   = hydrogen(i,               j,R);
+            Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
+        }
+    }
+
+    // calculate the inverse of the Slatermatrix for spin up and down
+    // respectively. This is used for later updates of the position.
+    inverseSlaterDown = inv(Slaterdown);
+    inverseSlaterUp   = inv(Slaterup);
+}
+
+
+void TrialFct::updateSlaterinv(int particleNumber, positions* Rnew, double ratio)
+{
+    // nothing to do here, since the numerical derivative doesn't use the inverse Slater matrix
+}
+
+
+//==============================================================================================
 double TrialFct::hydrogen(int particleNumber, int orbital, positions * R)
 {
     double result = 0;
@@ -155,24 +192,15 @@ double TrialFct::hydrogen(int particleNumber, int orbital, positions * R)
 
 
 
-// set and get private variables
-
-//void TrialFct::setParameter(double newParameter, int parameterNumber)
-//{
-//    funcParameters[parameterNumber] = newParameter;
-//}
-
-//double TrialFct::getParameter(int parameterNumber)
-//{
-//    return funcParameters[parameterNumber];
-
-//}
-
-
-void TrialFct::set_stepwidth(double new_stepwidth)
+vec TrialFct::gradhydrogen(int particleNumber, int orbital, positions *R)
 {
-    stepwidth = new_stepwidth;
-    stepwidthsqr = stepwidth*stepwidth;
-
+    // is not used at the moment
+    vec whatever = zeros(ndim);
+    return whatever;
 }
 
+double TrialFct::divgradhydrogen(int particleNumber, int orbital, positions* R)
+{
+    // is not used here
+    return 0.0;
+}

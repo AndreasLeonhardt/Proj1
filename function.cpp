@@ -4,6 +4,11 @@ function::function()
 {
     ndim = 3;
     nParticles = 2;
+    nParticleshalf =1;
+
+    inverseSlaterDown = zeros(nParticles,nParticles);
+    inverseSlaterUp   = zeros(nParticles,nParticles);
+
 
 }
 
@@ -12,16 +17,14 @@ function::function(Config * parameters)
 {
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
+    nParticleshalf = nParticles/2;
+
+    inverseSlaterDown = zeros(nParticles,nParticles);
+    inverseSlaterUp   = zeros(nParticles,nParticles);
+
 }
 
 
-//void function::setParameter(double newParameter, int parameterNumber)
-//{
-//}
-
-//double function::getParameter(int parameterNumber)
-//{
-//}
 
 
 // calculate values of the function and its derivatives at the positon &R,
@@ -61,4 +64,37 @@ void function::setParameter(double newParameter, int parameterNumber)
 double function::getParameter(int parameterNumber)
 {
     return funcParameters[parameterNumber];
+}
+
+
+void function::setndim(int newvalue)
+{
+    ndim =newvalue;
+}
+
+int function::getndim()
+{
+    return ndim;
+}
+
+void function::setnParticles(int numberofParticles)
+{
+    nParticles=numberofParticles;
+    nParticleshalf =nParticles/2;
+}
+
+int function::getnParticles()
+{
+    return nParticles;
+}
+
+mat function::getinvslatermatrix(int i)
+{   if(i)
+    {
+        return inverseSlaterUp;
+    }
+    else
+    {
+        return inverseSlaterDown;
+    }
 }

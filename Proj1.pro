@@ -9,8 +9,6 @@ SOURCES += \
     hamilton.cpp \
     mcint.cpp \
     positions.cpp \
-    hamilton_analytical.cpp \
-    hamilton_numerical.cpp \
     function.cpp \
     trialfct_analytical.cpp \
     lib.cpp
@@ -22,8 +20,6 @@ HEADERS += \
     hamilton.h \
     mcint.h \
     positions.h \
-    hamilton_analytical.h \
-    hamilton_numerical.h \
     function.h \
     trialfct_analytical.h \
     lib.h

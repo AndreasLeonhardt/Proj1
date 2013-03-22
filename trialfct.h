@@ -34,16 +34,21 @@ public:
 
 
     // calculate the sum of the second derivatives acting on the trial function
-    double getDivGrad(int particleNumber, positions * R);
+    double getDivGradOverFct(int particleNumber, positions * R);
     // calculate the quantum force defined by grad(f)/f of the function numerically
     vec quantumForce(int particleNumber, positions *R);
 
+    double SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew);
+    // double JastrowRatio(i,Rold,Rnew);//TODO
 
-    void setParameter(double newParameter, int parameterNumber);
-    double getParameter(int parameterNumber);
+
+    void setSlaterinv(positions * R);
+    void updateSlaterinv(int particleNumber, positions* Rnew, double ratio);
+
+
     double hydrogen(int particleNumber, int orbital, positions * R);
-
-    void set_stepwidth(double new_stepwidth);
+    vec gradhydrogen(int particleNumber, int orbital, positions *R);
+    double divgradhydrogen(int particleNumber, int orbital, positions* R);
 
 
 };

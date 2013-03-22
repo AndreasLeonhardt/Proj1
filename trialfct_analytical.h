@@ -16,12 +16,6 @@ class TrialFct_analytical : public function
 {
 
 
-    // parameters of the trial function
-    double alpha, beta;
-
-
-
-
 public:
     // constructor, takes the above parameters
     TrialFct_analytical(Config * parameters);
@@ -30,23 +24,23 @@ public:
 
     // calculate the value of the trial function at a certain position
     double getValue(positions * R);
-
-
     // calculate the sum of the second derivatives acting on the trial function
-    double getDivGrad(int particleNumber, positions * R);
+    double getDivGradOverFct(int particleNumber, positions * R);
     // calculate the quantum force defined by grad(f)/f of the function numerically
     vec quantumForce(int particleNumber, positions *R);
 
-//    void set_alpha(double new_alpha);
-//    double get_alpha();
 
-//    void set_beta(double new_beta);
-//    double get_beta();
+    double SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew);
+    // double JastrowRatio(i,Rold,Rnew);//TODO
 
-    void setParameter(double newParameter, int parameterNumber);
 
-    double getParameter(int parameterNumber);
+    void setSlaterinv(positions * R);
+    void updateSlaterinv(int particleNumber, positions* Rnew, double ratio);
 
+
+    double hydrogen(int particleNumber, int orbital, positions * R);
+    vec gradhydrogen(int particleNumber, int orbital, positions *R);
+    double divgradhydrogen(int particleNumber, int orbital, positions* R);
 
 
 };

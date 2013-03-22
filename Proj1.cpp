@@ -8,8 +8,6 @@
 #include "trialfct.h"
 #include "trialfct_analytical.h"
 #include "hamilton.h"
-#include "hamilton_analytical.h"
-#include "hamilton_numerical.h"
 #include "mcint.h"
 
 using namespace std;
@@ -38,25 +36,23 @@ int main()
 
     // seed for rand0
     long  idum;
-    idum =-100;
+    idum =-92;
     long int * idumadress = &idum;
 
 
     // create instance of TrialFct
      function * fun;
     // create instance of hamilton
-    hamilton * H;
+     hamilton * H =new hamilton(parameters);
 
     int schalter = parameters->lookup("analytical_energy_density");
     if (!schalter)
     {   
-        H = new hamilton_numerical(parameters);
         fun = new TrialFct(parameters);
 
     }
     else
     {
-        H = new hamilton_analytical(parameters);
         fun = new TrialFct_analytical(parameters);
     }
 
@@ -97,7 +93,7 @@ int main()
             // find initial position thorugh thermalisation
             positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
             // actual calculation
-            MC.integrate(fun,H, Rinitial,idumadress, parameters);
+            MC.integrate(fun,H, Rinitial,idumadress);
             // write results
             results << a << "\t"
                     << b << "\t"

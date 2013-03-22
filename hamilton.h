@@ -21,7 +21,7 @@ public:
 
     hamilton(Config * parameters);
 
-    virtual double localEnergy(function *fct, positions * R)=0;
+    double localEnergy(function *fct, positions * R);
 
 };
 

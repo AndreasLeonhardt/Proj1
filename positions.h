@@ -18,7 +18,7 @@ protected:
     mat rr;
 
 public:
-    positions(Config * parameters, long *idumadress);
+    positions(Config * parameters);
 
     double get_r(int i);
     double get_rr(int i, int j);

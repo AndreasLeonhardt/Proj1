@@ -2,32 +2,15 @@
 
 
 
-positions::positions(Config * parameters,long int * idumadress)
+positions::positions(Config * parameters)
 {
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
     r = zeros(nParticles);
     rr= zeros(nParticles-1,nParticles-1);
     pos=zeros(ndim,nParticles);
-    for (int i = 0; i<ndim; i++)
-    {
-        for(int j=0;j<nParticles;j++)
-        {
-            pos(i,j)=ran0(idumadress);
-        }
-    }
 
-
-    for (int i=0;i<nParticles;i++)
-    {
-        // length of position vector
-        r(i) = norm(pos.col(i),2);
-        // relative distance
-        for (int j=0; j<i;j++)
-        {
-            rr(i-1,j) = norm(pos.col(i)-pos.col(j),2);
-        }
-    }
+    set_pos(randn(ndim,nParticles));
 
 }
 
