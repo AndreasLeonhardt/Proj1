@@ -100,7 +100,7 @@ void TrialFct_analytical::setSlaterinv(positions * R)
 // set up from the new position with teh above function setSlaterinv.
 void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, double ratio)
 {
-
+    mat newslatermat = zeros(nParticleshalf,nParticleshalf);
     double sum;
     // if particle has spin up, just update SlaterUp
     if(particleNumber<nParticleshalf)
@@ -111,7 +111,7 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
             {
                 if(particleNumber==j)
                 {
-                    inverseSlaterUp(k,j)/=ratio;
+                    newslatermat(k,j)=inverseSlaterUp(k,j)/ratio;
                 }
                 else
                 {   sum=0.0;
@@ -119,10 +119,11 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
                     {
                         sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterUp(l,j);
                     }
-                    inverseSlaterUp(k,j) += -inverseSlaterUp(k,particleNumber)*sum/ratio;
+                    newslatermat(k,j) =inverseSlaterUp(k,j) -inverseSlaterUp(k,particleNumber)*sum/ratio;
                 }
             }
         }
+        inverseSlaterUp = newslatermat;
     }
     // if it has spind down, just update spin down
     else
@@ -133,7 +134,7 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
             {
                 if(particleNumber==j+nParticleshalf)
                 {
-                    inverseSlaterDown(k,j)/=ratio;
+                    newslatermat(k,j)=inverseSlaterDown(k,j)/ratio;
                 }
                 else
                 {   sum=0.0;
@@ -141,12 +142,12 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
                     {
                         sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterDown(l,j);
                     }
-                    inverseSlaterDown(k,j)+=-inverseSlaterDown(k,particleNumber-nParticleshalf)/ratio*sum;
+                    newslatermat(k,j)=inverseSlaterDown(k,j)-inverseSlaterDown(k,particleNumber-nParticleshalf)/ratio*sum;
                 }
             }
         }
+        inverseSlaterDown = newslatermat;
     }
-
 }
 
 

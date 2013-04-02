@@ -33,30 +33,18 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
     vec Fold(ndim);
     vec Fnew(ndim);
 
-
-// compare two functions
-    TrialFct* fctII = new TrialFct();
-    fctII->setParameter(fct->getParameter(0),0);
-    fctII->setParameter(fct->getParameter(1),1);
-    fctII->setnParticles(fct->getnParticles());
-
-
-
     // perform step one particles at the time
     for (int i =0; i<nParticles; i++)
     {
         // calculate quantum Force at old position
         Fold = fct->quantumForce(i,Rold);
-        // test difference
-        //cout << "quantum force analytical: "<<endl<<Fold<<"qf  num: "<<endl<<fctII->quantumForce(i,Rold)<<endl;
-        //cout << i<<"================" <<endl;
+
         // calculate proposal for new position
         newPosition = Rold->get_singlePos(i) + randn(ndim)*sqrtTimeStep +0.5*Fold*timeStep;
         Rnew->set_singlePos(newPosition,i);
 
         // calculate quantum force at new position
         Fnew = fct->quantumForce(i,Rnew);
-        //cout << "quantum force: "<<endl<< Fold <<endl <<Fnew<<endl;
 
         // Greens function CHECK FOR SIGN ERROR
         // there might be a sign errror in calculating the exponent
@@ -69,7 +57,7 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
 
-        // NEW: calculate the shortcut for the ratio
+        // calculate the shortcut for the ratio
         double ratioSlater = fct->SlaterRatio(i,Rold,Rnew);
         //double ratioJastrow = fct->JastrowRatio(i,Rold,Rnew); without Jastrow factor for a start
 
@@ -82,11 +70,7 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
            // update inverse slater matrix
-           //fct->updateSlaterinv(i,Rold,ratioSlater);
-           //mat test = fct->getinvslatermatrix(1);
-           fct->setSlaterinv(Rold);
-           //mat testII = fctII->getinvslatermatrix(1);
-           //cout << test/testII<<endl;
+           fct->updateSlaterinv(i,Rold,ratioSlater);
 
             // increase accepted steps
             acceptedSteps++;
@@ -99,10 +83,8 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
     } // end loop over particles.
-    delete fctII;
+
     return Rold;
-
-
 }
 
 
