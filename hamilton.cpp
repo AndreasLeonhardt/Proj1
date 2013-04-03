@@ -11,8 +11,7 @@ hamilton::hamilton(Config * parameters)
 
 double hamilton::localEnergy(function *fct, positions *R)
 {
-
-    double dens = 0;
+    double dens = 0.0;
 
     for (int i=0;i<nParticles;i++)
     {
@@ -24,7 +23,7 @@ double hamilton::localEnergy(function *fct, positions *R)
 
         // kinetic energy
         dens += -0.5*(fct->getDivGradOverFct(i,R));
-
+     //   cout <<"kinetic energy = "<<fct->getDivGradOverFct(i,R)<<endl;
 
         // two paricle part
         for (int j=0; j<i;j++)

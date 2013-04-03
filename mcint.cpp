@@ -25,15 +25,13 @@ mcInt::mcInt(Config * parameters)
 
 
 
-positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress, Config * parameters)
+positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress)
 {
     positions Rnewposition = positions(*Rold);
     positions * Rnew = &Rnewposition;
     vec newPosition(ndim);
     vec Fold(ndim);
     vec Fnew(ndim);
-
-    // TrialFct* test = new TrialFct(parameters);
 
 
     // perform step one particles at the time
@@ -49,7 +47,7 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
         // calculate the shortcut for the ratio
         double ratioSlater = fct->SlaterRatio(i,Rold,Rnew);
-
+        double ratio = ratioSlater*fct->JastrowRatio(i,Rold,Rnew);
 
         // update inverse Slater matrix.
         // save old Slaterinv first, in case the step is not accepted.
@@ -76,7 +74,7 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
         // test acceptance
         double Zufallszahl = ran0(idumadress);
-        if( Zufallszahl <= ratioGreensfunction*ratioSlater*ratioSlater )
+        if( Zufallszahl <= ratioGreensfunction*ratio*ratio )
         {
 
            Rold->set_singlePos(newPosition,i);
@@ -108,14 +106,14 @@ positions * mcInt::thermalise(function * fct, long int * idumadress, Config * pa
 
     for (int i=0;i<thermalisationSteps;i++)
     {
-        Rold=Step(fct, Rold,idumadress,parameters);
+        Rold=Step(fct, Rold,idumadress);
     }
 
     return Rold;
 }
 
 
-void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress, Config *parameters)
+void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress)
 {
 
     value = 0.0;
@@ -124,7 +122,7 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
     for(int n = 0; n<nSamples; n++)
     {
         // perform step
-        Rold = Step(fct, Rold, idumadress,parameters);
+        Rold = Step(fct, Rold, idumadress);
 
 
         // add energy value

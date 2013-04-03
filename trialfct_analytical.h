@@ -31,7 +31,7 @@ public:
 
 
     double SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew);
-    // double JastrowRatio(i,Rold,Rnew);//TODO
+    double JastrowRatio(int particleNumber, positions * Rold, positions * Rnew);
 
 
     void setSlaterinv(positions * R);

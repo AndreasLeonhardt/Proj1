@@ -42,32 +42,32 @@ double TrialFct::getValue(positions * R)
     }
     result = det(Slaterup)*det(Slaterdown);
 
+
     // jastrow factor
+    double jastrow = 0.0;
+    double dist;
 
-//    double jastrow = 0.0;
-//    double dist;
+    for (int i=0;i<nParticleshalf;i++)
+    {   // equal spin, factor 1/2
+        for (int j=0;j<i;j++)
+        {
+            dist = R->get_rr(i-1,j);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
 
-//    for (int i=0;i<nParticleshalf;i++)
-//    {   // equal spin, factor 1/2
-//        for (int j=0;j<i;j++)
-//        {
-//            dist = R->get_rr(i-1,j);
-//            jastrow += dist/(2+2*funcParameters[1]*dist);
+            dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+        }
 
-//            dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-//            jastrow += dist/(2+2*funcParameters[1]*dist);
-//        }
+        // opposite spin, factor 1/4
+        for (int j=nParticleshalf;j<nParticles;j++)
+        {
+            dist = R->get_rr(j-1,i);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
+        }
 
-//        // opposite spin, factor 1/4
-//        for (int j=nParticleshalf;j<nParticles;j++)
-//        {
-//            dist = R->get_rr(j-1,i);
-//            jastrow += dist/(4+4*funcParameters[1]*dist);
-//        }
+    }
 
-//    }
-
-    //result *= exp(jastrow);
+    result *= exp(jastrow);
 
     return result;
 }
@@ -154,6 +154,63 @@ void TrialFct::setSlaterinv(positions * R)
     // respectively. This is used for later updates of the position.
     inverseSlaterDown = inv(Slaterdown);
     inverseSlaterUp   = inv(Slaterup);
+}
+
+
+
+// Ratio of Jastrow factors, also Brut-Force.
+double TrialFct::JastrowRatio(int particleNumber, positions * Rold, positions * Rnew)
+{
+    // jastrow factor new
+    double jastrow_new = 0.0;
+    double dist;
+
+    for (int i=0;i<nParticleshalf;i++)
+    {   // equal spin, factor 1/2
+        for (int j=0;j<i;j++)
+        {
+            dist = Rnew->get_rr(i-1,j);
+            jastrow_new += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rnew->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+            jastrow_new += dist/(2+2*funcParameters[1]*dist);
+        }
+
+        // opposite spin, factor 1/4
+        for (int j=nParticleshalf;j<nParticles;j++)
+        {
+            dist = Rnew->get_rr(j-1,i);
+            jastrow_new += dist/(4+4*funcParameters[1]*dist);
+        }
+
+    }
+
+
+    // jastrow factor old
+    double jastrow_old = 0.0;
+
+
+    for (int i=0;i<nParticleshalf;i++)
+    {   // equal spin, factor 1/2
+        for (int j=0;j<i;j++)
+        {
+            dist = Rold->get_rr(i-1,j);
+            jastrow_old += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+            jastrow_old += dist/(2+2*funcParameters[1]*dist);
+        }
+
+        // opposite spin, factor 1/4
+        for (int j=nParticleshalf;j<nParticles;j++)
+        {
+            dist = Rold->get_rr(j-1,i);
+            jastrow_old += dist/(4+4*funcParameters[1]*dist);
+        }
+
+    }
+
+    return exp(jastrow_new-jastrow_old);
 }
 
 

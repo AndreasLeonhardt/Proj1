@@ -49,7 +49,7 @@ public:
 
 
     virtual double SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)=0;
-    // double JastrowRatio(i,Rold,Rnew);//TODO
+    virtual double JastrowRatio(int particleNumber, positions * Rold, positions * Rnew)=0;
 
 
     virtual void setSlaterinv(positions * R)=0;

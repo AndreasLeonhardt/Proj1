@@ -36,32 +36,32 @@ double TrialFct_analytical::getValue(positions * R)
         result = det(Slaterup)*det(Slaterdown);
 
 
-        // jastrow factor
+       //  jastrow factor
 
-//        double jastrow = 0.0;
-//        double dist;
+        double jastrow = 0.0;
+        double dist;
 
-//        for (int i=0;i<nParticleshalf;i++)
-//        {   // equal spin, factor 1/2
-//            for (int j=0;j<i;j++)
-//            {
-//                dist = R->get_rr(i-1,j);
-//                jastrow += dist/(2+2*funcParameters[1]*dist);
+        for (int i=0;i<nParticleshalf;i++)
+        {   // equal spin, factor 1/2
+            for (int j=0;j<i;j++)
+            {
+                dist = R->get_rr(i-1,j);
+                jastrow += dist/(2+2*funcParameters[1]*dist);
 
-//                dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-//                jastrow += dist/(2+2*funcParameters[1]*dist);
-//            }
+                dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+                jastrow += dist/(2+2*funcParameters[1]*dist);
+            }
 
-//            // opposite spin, factor 1/4
-//            for (int j=nParticleshalf;j<nParticles;j++)
-//            {
-//                dist = R->get_rr(j-1,i);
-//                jastrow += dist/(4+4*funcParameters[1]*dist);
-//            }
+            // opposite spin, factor 1/4
+            for (int j=nParticleshalf;j<nParticles;j++)
+            {
+                dist = R->get_rr(j-1,i);
+                jastrow += dist/(4+4*funcParameters[1]*dist);
+            }
 
-//        }
+        }
 
-        //result *= exp(jastrow); disable Jastrow factor for a moment
+        result *= exp(jastrow);
 
         return result;
 }
@@ -151,7 +151,13 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
 
 
 //================================================================================================
-// (laplace |D|)/|D|
+// (laplace \Psi)/\Psi
+// This includes several parts:
+//   (laplace |D|) / |D|
+// + div((grad Jastrow)/Jastrow)
+// + ((grad Jastrow)/Jastrow)^2
+// + 2* (grad |D|)/|D| * (grad Jastrow)/Jastrow
+
 double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
 {
     double result =0.0;
@@ -175,7 +181,47 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
         }
     }
 
-// with Jastrow factor: gradient of Jastrow factor and product of the gradients.
+
+    // div( grad(Jastrow)/ Jastrow)
+    double result = 0.0;
+    double A;
+    if(particleNumber<nParticleshalf)
+    {
+        A = 0.125;
+    }
+    else
+    {
+        A = -0.125;
+    }
+
+
+    for (int i=0;i<nParticleshalf;i++)
+        {
+            if(i!=particleNumber)
+            {
+                double rr=R->get_rr(particleNumber-1,i);
+                double b = funcParameters(1);
+                result += 2*(0.375+A) / (1+b*rr)
+                            * (  1/rr - b/( (1+b*rr)*(1+b*rr) )  );
+            }
+        }
+    for (int i=nParticleshalf;i<nParticles;i++)
+        {
+            if(i!=particleNumber)
+            {
+                double rr=R->get_rr(particleNumber-1,i);
+                double b = funcParameters(1);
+                result += 2*(0.375-A) / (1+b*rr)
+                            * (  1/rr - b/( (1+b*rr)*(1+b*rr) )  );
+            }
+        }
+
+
+    vec jastrowdivergence = JastrowDiv(particleNumber,R);
+
+    result += dot(jastrowdivergence,jastrowdivergenc);
+
+    result += 2*dot(SlaterDiv(particleNumber,R),jastrowdivergence);
 
 
 
@@ -196,51 +242,9 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
 vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 {
     vec result = zeros(ndim);
-    //double beta = funcParameters[1];
 
-
-    // particle has spin up
-    if (particleNumber<nParticleshalf)
-    {   // loop over spin up
-        for (int j=0;j<nParticleshalf;j++)
-        {
-            // add slater determinant up part
-            result += gradhydrogen(particleNumber,j,R)*inverseSlaterUp(j,particleNumber);
-            // add jastrow factor part
-            if(j!=particleNumber)
-            {
-               // results += rhat/(1+beta*r)/(1+beta*r)*0.5; skip Jastrow factor
-            }
-        }
-        // jastrow factor for spin down particles
-        for (int j=nParticleshalf;j<nParticles;j++)
-        {
-            //results += rhat/(1+beta*r)/(1+beta*r)*.25; skip jastrow factor
-        }
-    }
-
-    // particle has spin down
-    else
-    {
-
-        for(int j=0;j<nParticleshalf;j++)
-        {
-            // add slater determinant down part
-            result += gradhydrogen(particleNumber,j,R)
-                       *inverseSlaterDown(j,particleNumber-nParticleshalf);
-            // add Jastrow factor part with oppositen spin
-          //  results += rhat/(1+beta*r)/(1+beta*r)*.25;
-        }
-        // Jastrow factor for particles with the same spin
-        for(int j=nParticleshalf;j<nParticles;j++)
-        {
-            if(j!=particleNumber)
-            {
-            //    results += rhat/(1+beta*r)/(1+beta*r)*0.5;
-            }
-        }
-    }
-
+    result = SlaterDiv(particleNumber,R);
+    result += JastrowDiv(particleNumber,R);
     return 2*result;
 }
 
@@ -272,3 +276,117 @@ double TrialFct_analytical::SlaterRatio(int particleNumber ,positions * Rold,pos
 }
 
 
+double TrialFct_analytical::JastrowRatio(int particleNumber, positions * Rold, positions * Rnew)
+{
+    // jastrow factor new
+    double jastrow = 0.0;
+    double dist;
+
+    for (int i=0;i<nParticleshalf;i++)
+    {   // equal spin, factor 1/2
+        for (int j=0;j<i;j++)
+        {
+            if(i==particleNumber || j==particleNumber)
+            {
+                dist = Rnew->get_rr(i-1,j);
+                jastrow += dist/(2+2*funcParameters[1]*dist);
+
+                dist = Rold->get_rr(i-1,j);
+                jastrow -= dist/(2+2*funcParameters[1]*dist);
+
+
+
+                dist = Rnew->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+                jastrow += dist/(2+2*funcParameters[1]*dist);
+
+                dist = Rold->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+                jastrow -= dist/(2+2*funcParameters[1]*dist);
+            }
+        }
+
+        // opposite spin, factor 1/4
+        for (int j=nParticleshalf;j<nParticles;j++)
+        {
+            if(i==particleNumber || j==particleNumber)
+            {
+                dist = Rnew->get_rr(j-1,i);
+                jastrow += dist/(4+4*funcParameters[1]*dist);
+
+                dist = Rold->get_rr(j-1,i);
+                jastrow -= dist/(4+4*funcParameters[1]*dist);
+            }
+        }
+
+    }
+
+    return exp(jastrow);
+}
+
+// calculates the divergence of the Jastrow factor divided by the jastrow factor
+// That is sum_{i!=k} \frac{a}{ (1+\beta*r_{ki})^2 }  \frac{ \vec{r}_{ki} }{ r_{ki} }
+// where a is 0.5 for spin_i = spin_k and
+//            0.25 for spin_i!=spin_k
+vec TrialFct_analytical::JastrowDiv(int particleNumber, positions * R)
+{
+    vec result = zeros(ndim);
+    double A;
+    if(particleNumber<nParticleshalf)
+    {
+        A = 0.125;
+    }
+    else
+    {
+        A = -0.125;
+    }
+
+
+    for (int i=0;i<nParticleshalf;i++)
+        {
+            if(i!=particleNumber)
+            {
+                double rr=R->get_rr(particleNumber-1,i);
+                double b = funcParameters(1);
+                result += (0.375+A) *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                        /((1+b*rr)*(1+b*rr)*rr);
+            }
+        }
+    for (int i=nParticleshalf;i<nParticles;i++)
+        {
+            if(i!=particleNumber)
+            {
+                double rr=R->get_rr(particleNumber-1,i);
+                double b = funcParameters(1);
+                result += (0.375-A) *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                        /((1+b*rr)*(1+b*rr)*rr);
+            }
+        }
+
+}
+
+
+vec TrialFct_analytical::SlaterDiv(int particleNumber, positions * R)
+{
+    vec result = zeros(ndim);
+
+    // particle has spin up
+    if (particleNumber<nParticleshalf)
+    {   // loop over spin up
+        for (int j=0;j<nParticleshalf;j++)
+        {
+            // add slater determinant up part
+            result += gradhydrogen(particleNumber,j,R)*inverseSlaterUp(j,particleNumber);
+        }
+
+    }
+
+    // particle has spin down
+    else
+    {
+        for(int j=0;j<nParticleshalf;j++)
+        {
+            // add slater determinant down part
+            result += gradhydrogen(particleNumber,j,R)
+                       *inverseSlaterDown(j,particleNumber-nParticleshalf);
+        }
+    }
+}

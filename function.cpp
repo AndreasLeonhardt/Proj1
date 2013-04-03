@@ -166,8 +166,8 @@ vec function::gradhydrogen(int particleNumber, int orbital, positions *R)
 
     else if(orbital==2 || orbital==3 || orbital==4)
     {
-        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital);
-        result(orbital)+= -2*r;
+        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital-2);
+        result(orbital-2)+= -2*r;
         result *= -a/(2*r)*exp(-a*r/2);
     }
 
@@ -201,7 +201,7 @@ double function::divgradhydrogen(int particleNumber, int orbital, positions* R)
         vec RR = R->get_singlePos(particleNumber);
         RR *= a*a/(4*r)*(a*r-8)*exp(-a*r/2);
 
-        result = RR(orbital);
+        result = RR(orbital-2);
     }
 
     return result;
