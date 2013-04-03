@@ -25,7 +25,7 @@ mcInt::mcInt(Config * parameters)
 
 
 
-positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress)
+positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress, Config * parameters)
 {
     positions Rnewposition = positions(*Rold);
     positions * Rnew = &Rnewposition;
@@ -33,22 +33,35 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
     vec Fold(ndim);
     vec Fnew(ndim);
 
+    // TrialFct* test = new TrialFct(parameters);
+
+
     // perform step one particles at the time
     for (int i =0; i<nParticles; i++)
     {
         // calculate quantum Force at old position
         Fold = fct->quantumForce(i,Rold);
 
+
         // calculate proposal for new position
         newPosition = Rold->get_singlePos(i) + randn(ndim)*sqrtTimeStep +0.5*Fold*timeStep;
         Rnew->set_singlePos(newPosition,i);
 
-        // calculate quantum force at new position
+        // calculate the shortcut for the ratio
+        double ratioSlater = fct->SlaterRatio(i,Rold,Rnew);
+
+
+        // update inverse Slater matrix.
+        // save old Slaterinv first, in case the step is not accepted.
+        mat oldSlaterinv = fct->getinvslatermatrix(i);
+        fct->updateSlaterinv(i,Rnew,ratioSlater);
+        // calculate quantum force at new position,
         Fnew = fct->quantumForce(i,Rnew);
+
 
         // Greens function CHECK FOR SIGN ERROR
         // there might be a sign errror in calculating the exponent
-        double ratioGreensfunction = -0.5*dot(
+        double ratioGreensfunction = 0.5*dot(
                                              (Fold+Fnew),
                                              ( Rold->get_singlePos(i) - Rnew->get_singlePos(i) + 0.5*timeStep*(Fold-Fnew))
                                             );
@@ -57,8 +70,8 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
 
-        // calculate the shortcut for the ratio
-        double ratioSlater = fct->SlaterRatio(i,Rold,Rnew);
+
+
         //double ratioJastrow = fct->JastrowRatio(i,Rold,Rnew); without Jastrow factor for a start
 
         // test acceptance
@@ -67,25 +80,21 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
         {
 
            Rold->set_singlePos(newPosition,i);
-
-
-           // update inverse slater matrix
-           fct->updateSlaterinv(i,Rold,ratioSlater);
-
             // increase accepted steps
             acceptedSteps++;
         }
         else
         {
             Rnew->set_singlePos(Rold->get_singlePos(i),i);
-           // Rnew->set_pos(Rold->get_pos());
+            fct->setSlaterinv(i,oldSlaterinv);
         }
-
 
     } // end loop over particles.
 
     return Rold;
 }
+
+
 
 
 positions * mcInt::thermalise(function * fct, long int * idumadress, Config * parameters)
@@ -99,14 +108,14 @@ positions * mcInt::thermalise(function * fct, long int * idumadress, Config * pa
 
     for (int i=0;i<thermalisationSteps;i++)
     {
-        Rold=Step(fct, Rold,idumadress);
+        Rold=Step(fct, Rold,idumadress,parameters);
     }
 
     return Rold;
 }
 
 
-void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress)
+void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress, Config *parameters)
 {
 
     value = 0.0;
@@ -115,7 +124,7 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
     for(int n = 0; n<nSamples; n++)
     {
         // perform step
-        Rold = Step(fct, Rold, idumadress);
+        Rold = Step(fct, Rold, idumadress,parameters);
 
 
         // add energy value

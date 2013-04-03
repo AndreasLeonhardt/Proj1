@@ -26,7 +26,6 @@ double TrialFct::getValue(positions * R)
 {
     double result = 0.0;
 
-
     // create Slater matrix
     mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
     mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
@@ -37,38 +36,36 @@ double TrialFct::getValue(positions * R)
     {
         for (int j=0;j<nParticleshalf;j++)
         {
-            Slaterup(i,j)   = hydrogen(i,               j,R);
+            Slaterup(i,j)   = hydrogen(i,j,R);
             Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
         }
     }
-
     result = det(Slaterup)*det(Slaterdown);
-
 
     // jastrow factor
 
-    double jastrow = 0.0;
-    double dist;
+//    double jastrow = 0.0;
+//    double dist;
 
-    for (int i=0;i<nParticleshalf;i++)
-    {   // equal spin, factor 1/2
-        for (int j=0;j<i;j++)
-        {
-            dist = R->get_rr(i-1,j);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
+//    for (int i=0;i<nParticleshalf;i++)
+//    {   // equal spin, factor 1/2
+//        for (int j=0;j<i;j++)
+//        {
+//            dist = R->get_rr(i-1,j);
+//            jastrow += dist/(2+2*funcParameters[1]*dist);
 
-            dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
-        }
+//            dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+//            jastrow += dist/(2+2*funcParameters[1]*dist);
+//        }
 
-        // opposite spin, factor 1/4
-        for (int j=nParticleshalf;j<nParticles;j++)
-        {
-            dist = R->get_rr(j-1,i);
-            jastrow += dist/(4+4*funcParameters[1]*dist);
-        }
+//        // opposite spin, factor 1/4
+//        for (int j=nParticleshalf;j<nParticles;j++)
+//        {
+//            dist = R->get_rr(j-1,i);
+//            jastrow += dist/(4+4*funcParameters[1]*dist);
+//        }
 
-    }
+//    }
 
     //result *= exp(jastrow);
 
@@ -100,8 +97,8 @@ double TrialFct::getDivGradOverFct(int particleNumber, positions * R)
         R->step(stepwidth,i,particleNumber);
 
     }
-    //cout << "h=" << stepwidth << "    h^2=" << stepwidthsqr << endl;
-    return value/(stepwidthsqr*currentValue);
+    value /=stepwidthsqr*currentValue;
+    return value;
 
 }
 
@@ -165,42 +162,3 @@ void TrialFct::updateSlaterinv(int particleNumber, positions* Rnew, double ratio
     // nothing to do here, since the numerical derivative doesn't use the inverse Slater matrix
 }
 
-
-//==============================================================================================
-double TrialFct::hydrogen(int particleNumber, int orbital, positions * R)
-{
-    double result = 0;
-
-    if (orbital==0)
-    {
-        result = exp(-funcParameters[0]*R->get_r(particleNumber));
-    }
-
-    else if(orbital==1)
-    {
-        result = ( 1.0 - 0.5* funcParameters[0] * R->get_r(particleNumber) )
-                 * exp( -0.5* funcParameters[0] * R->get_r(particleNumber) );
-    }
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
-                *exp(-0.5*funcParameters[0]*R->get_r(particleNumber));
-    }
-
-    return result;
-}
-
-
-
-vec TrialFct::gradhydrogen(int particleNumber, int orbital, positions *R)
-{
-    // is not used at the moment
-    vec whatever = zeros(ndim);
-    return whatever;
-}
-
-double TrialFct::divgradhydrogen(int particleNumber, int orbital, positions* R)
-{
-    // is not used here
-    return 0.0;
-}

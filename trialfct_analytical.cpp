@@ -33,34 +33,33 @@ double TrialFct_analytical::getValue(positions * R)
                 Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
             }
         }
-
         result = det(Slaterup)*det(Slaterdown);
 
 
         // jastrow factor
 
-        double jastrow = 0.0;
-        double dist;
+//        double jastrow = 0.0;
+//        double dist;
 
-        for (int i=0;i<nParticleshalf;i++)
-        {   // equal spin, factor 1/2
-            for (int j=0;j<i;j++)
-            {
-                dist = R->get_rr(i-1,j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
+//        for (int i=0;i<nParticleshalf;i++)
+//        {   // equal spin, factor 1/2
+//            for (int j=0;j<i;j++)
+//            {
+//                dist = R->get_rr(i-1,j);
+//                jastrow += dist/(2+2*funcParameters[1]*dist);
 
-                dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
-            }
+//                dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
+//                jastrow += dist/(2+2*funcParameters[1]*dist);
+//            }
 
-            // opposite spin, factor 1/4
-            for (int j=nParticleshalf;j<nParticles;j++)
-            {
-                dist = R->get_rr(j-1,i);
-                jastrow += dist/(4+4*funcParameters[1]*dist);
-            }
+//            // opposite spin, factor 1/4
+//            for (int j=nParticleshalf;j<nParticles;j++)
+//            {
+//                dist = R->get_rr(j-1,i);
+//                jastrow += dist/(4+4*funcParameters[1]*dist);
+//            }
 
-        }
+//        }
 
         //result *= exp(jastrow); disable Jastrow factor for a moment
 
@@ -125,7 +124,7 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
         }
         inverseSlaterUp = newslatermat;
     }
-    // if it has spind down, just update spin down
+    // if it has spin down, just update spin down
     else
     {
         for (int k=0;k<nParticleshalf;k++)
@@ -192,7 +191,7 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
 
 //===========================================================================================
 // returns the quantum force. using closed form expressions
-// and the inverse slater determinant matrix. Be carefull, that this matrix is
+// and the inverse slater determinant matrix. Be careful, that this matrix is
 // set to the right value.
 vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 {
@@ -273,99 +272,3 @@ double TrialFct_analytical::SlaterRatio(int particleNumber ,positions * Rold,pos
 }
 
 
-//===========================================================================================================
-// hydrogen like wave functions, with parameter alpha
-// hard coded for the first levels up to n=2, l=1, m_l = -1,0,1
-// not including spin degeneracy.
-double TrialFct_analytical::hydrogen(int particleNumber, int orbital, positions * R)
-{
-    double r=R->get_r(particleNumber);
-
-    double result;
-
-    if (orbital==0)
-    {
-        result = exp(-funcParameters[0]*r);
-    }
-
-    else if(orbital==1)
-    {
-        result = ( 1.0 - 0.5* funcParameters[0] * r )
-                 * exp( -0.5* funcParameters[0] * r );
-    }
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
-                *exp(-0.5*funcParameters[0]*r);
-    }
-    else
-    {
-        cout << "single particle wave function undefined"<<endl;
-    }
-
-    return result;
-}
-
-// gradient of hydrogen like wave functions
-// hard coded as above
-vec TrialFct_analytical::gradhydrogen(int particleNumber, int orbital, positions *R)
-{
-    vec result =zeros(ndim);
-    double a = funcParameters[0];
-    double r = R->get_r(particleNumber);
-
-    if (orbital==0)
-    {
-        result = R->get_singlePos(particleNumber);
-        result *=  -a/r *exp(-a*r);
-    }
-
-    else if(orbital==1)
-    {
-        result = R->get_singlePos(particleNumber);
-        result *= a/(4*r)*(a*r-4)*exp(-a*r/2);
-    }
-
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital);
-        result(orbital)+= -2*r;
-        result *= -a/(2*r)*exp(-a*r/2);
-    }
-
-
-    return result;
-}
-
-
-//laplace on hydrogen like wave functions
-// closed form expressions, hard coded
-double TrialFct_analytical::divgradhydrogen(int particleNumber, int orbital, positions* R)
-{
-
-    double result;
-    double a = funcParameters[0];
-    double r = R->get_r(particleNumber);
-
-    if (orbital==0)
-    {
-
-        result = a/r*(a*r-2) * exp(-a*r);
-    }
-
-    else if(orbital==1)
-    {
-        result = -a/(8*r)*(a*a*r*r-10*a*r+18)*exp(-a*r/2);
-    }
-
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        vec RR = R->get_singlePos(particleNumber);
-        RR *= a*a/(4*r)*(a*r-8)*exp(-a*r/2);
-
-        result = RR(orbital);
-    }
-
-    return result;
-
-}

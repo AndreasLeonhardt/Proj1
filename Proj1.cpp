@@ -93,7 +93,7 @@ int main()
             // find initial position thorugh thermalisation
             positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
             // actual calculation
-            MC.integrate(fun,H, Rinitial,idumadress);
+            MC.integrate(fun,H, Rinitial,idumadress,parameters );
             // write results
             results << a << "\t"
                     << b << "\t"

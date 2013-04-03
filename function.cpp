@@ -88,8 +88,8 @@ int function::getnParticles()
     return nParticles;
 }
 
-mat function::getinvslatermatrix(int i)
-{   if(i)
+mat function::getinvslatermatrix(int particleNumber)
+{   if(particleNumber<nParticleshalf)
     {
         return inverseSlaterUp;
     }
@@ -97,4 +97,113 @@ mat function::getinvslatermatrix(int i)
     {
         return inverseSlaterDown;
     }
+}
+
+void function::setSlaterinv(int particleNumber, mat newSlaterInv)
+{
+    if (particleNumber<nParticleshalf)
+    {
+        inverseSlaterUp = newSlaterInv;
+    }
+    else
+    {
+        inverseSlaterDown = newSlaterInv;
+    }
+}
+
+//===========================================================================================================
+// hydrogen like wave functions, with parameter alpha
+// hard coded for the first levels up to n=2, l=1, m_l = -1,0,1
+// not including spin degeneracy.
+double function::hydrogen(int particleNumber, int orbital, positions * R)
+{
+    double r=R->get_r(particleNumber);
+
+    double result;
+
+    if (orbital==0)
+    {
+        result = exp(-funcParameters[0]*r);
+    }
+
+    else if(orbital==1)
+    {
+        result = ( 1.0 - 0.5* funcParameters[0] * r )
+                 * exp( -0.5* funcParameters[0] * r );
+    }
+    else if(orbital==2 || orbital==3 || orbital==4)
+    {
+        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
+                *exp(-0.5*funcParameters[0]*r);
+    }
+    else
+    {
+        cout << "single particle wave function undefined"<<endl;
+    }
+
+    return result;
+}
+
+// gradient of hydrogen like wave functions
+// hard coded as above
+vec function::gradhydrogen(int particleNumber, int orbital, positions *R)
+{
+    vec result =zeros(ndim);
+    double a = funcParameters[0];
+    double r = R->get_r(particleNumber);
+
+    if (orbital==0)
+    {
+        result = R->get_singlePos(particleNumber);
+        result *=  -a/r *exp(-a*r);
+    }
+
+    else if(orbital==1)
+    {
+        result = R->get_singlePos(particleNumber);
+        result *= a/(4*r)*(a*r-4)*exp(-a*r/2);
+    }
+
+    else if(orbital==2 || orbital==3 || orbital==4)
+    {
+        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital);
+        result(orbital)+= -2*r;
+        result *= -a/(2*r)*exp(-a*r/2);
+    }
+
+
+    return result;
+}
+
+
+//laplace on hydrogen like wave functions
+// closed form expressions, hard coded
+double function::divgradhydrogen(int particleNumber, int orbital, positions* R)
+{
+
+    double result;
+    double a = funcParameters[0];
+    double r = R->get_r(particleNumber);
+
+    if (orbital==0)
+    {
+
+        result = a/r*(a*r-2) * exp(-a*r);
+    }
+
+    else if(orbital==1)
+    {
+        result = -a/(8*r)*(a*a*r*r-10*a*r+18)*exp(-a*r/2);
+    }
+
+    else if(orbital==2 || orbital==3 || orbital==4)
+    {
+        vec RR = R->get_singlePos(particleNumber);
+        RR *= a*a/(4*r)*(a*r-8)*exp(-a*r/2);
+
+        result = RR(orbital);
+    }
+
+    return result;
+
 }

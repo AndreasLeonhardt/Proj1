@@ -46,11 +46,6 @@ public:
     void updateSlaterinv(int particleNumber, positions* Rnew, double ratio);
 
 
-    double hydrogen(int particleNumber, int orbital, positions * R);
-    vec gradhydrogen(int particleNumber, int orbital, positions *R);
-    double divgradhydrogen(int particleNumber, int orbital, positions* R);
-
-
 };
 
 #endif // TRIALFCT_H

@@ -56,9 +56,9 @@ public:
     virtual void updateSlaterinv(int particleNumber, positions* Rnew, double ratio)=0;
 
 
-    virtual double hydrogen(int particleNumber, int orbital, positions * R)=0;
-    virtual vec gradhydrogen(int particleNumber, int orbital, positions *R)=0;
-    virtual double divgradhydrogen(int particleNumber, int orbital, positions* R)=0;
+    double hydrogen(int particleNumber, int orbital, positions * R);
+    vec gradhydrogen(int particleNumber, int orbital, positions *R);
+    double divgradhydrogen(int particleNumber, int orbital, positions* R);
 
 
     // get parameter for numerical derivatives.
@@ -76,7 +76,8 @@ public:
     void setnParticles(int numberofParticles);
     int getnParticles();
 
-    mat getinvslatermatrix(int i);
+    mat getinvslatermatrix(int particleNumber);
+    void setSlaterinv(int particleNumber, mat newSlaterInv);
 
 
 
