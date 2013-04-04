@@ -34,9 +34,9 @@ public:
     mcInt();
     mcInt(Config * parameters);
 
-    positions * Step(function * fct, positions *Rold, long * idumadress);
+    positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
     positions * thermalise(function * fct, long * idumadress, Config *parameters);
-    void integrate(function * fct, hamilton *H, positions * Rold, long * idumadress);
+    void integrate(function * fct, hamilton *H, positions * Rold, long * idumadress, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();

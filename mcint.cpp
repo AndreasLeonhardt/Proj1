@@ -25,14 +25,13 @@ mcInt::mcInt(Config * parameters)
 
 
 
-positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress)
+positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress, Config * parameters)
 {
     positions Rnewposition = positions(*Rold);
     positions * Rnew = &Rnewposition;
     vec newPosition(ndim);
     vec Fold(ndim);
     vec Fnew(ndim);
-
 
     // perform step one particles at the time
     for (int i =0; i<nParticles; i++)
@@ -69,9 +68,6 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
 
-
-        //double ratioJastrow = fct->JastrowRatio(i,Rold,Rnew); without Jastrow factor for a start
-
         // test acceptance
         double Zufallszahl = ran0(idumadress);
         if( Zufallszahl <= ratioGreensfunction*ratio*ratio )
@@ -106,15 +102,18 @@ positions * mcInt::thermalise(function * fct, long int * idumadress, Config * pa
 
     for (int i=0;i<thermalisationSteps;i++)
     {
-        Rold=Step(fct, Rold,idumadress);
+        Rold=Step(fct, Rold,idumadress,parameters);
     }
 
     return Rold;
 }
 
 
-void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress)
+void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress,Config * parameters)
 {
+
+
+
 
     value = 0.0;
     double stabw = 0.0;
@@ -122,11 +121,14 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
     for(int n = 0; n<nSamples; n++)
     {
         // perform step
-        Rold = Step(fct, Rold, idumadress);
+        Rold = Step(fct, Rold, idumadress,parameters);
 
 
         // add energy value
          double ede = H->localEnergy(fct,Rold);
+
+
+
 
          value += ede;
          stabw += ede*ede;

@@ -107,11 +107,11 @@ double TrialFct::getDivGradOverFct(int particleNumber, positions * R)
 // particle number refers to the particle, on whichs position the derivatives act.
 vec TrialFct::quantumForce(int particleNumber, positions *R)
 {
-    vec gradient = vec(ndim);
+    vec gradient = zeros(ndim);
     for (int i =0; i<ndim; i++)
     {
         R->step(stepwidth,i,particleNumber);
-        gradient(i)=getValue(R);
+        gradient(i)+=getValue(R);
 
         R->step(-2*stepwidth,i,particleNumber);
         gradient(i)-=getValue(R);
@@ -129,7 +129,34 @@ vec TrialFct::quantumForce(int particleNumber, positions *R)
 // calculate the ratio brut-force
 double TrialFct::SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)
 {
-    return getValue(Rnew)/getValue(Rold);
+    mat Slaternew  = zeros(nParticleshalf,nParticleshalf);
+    mat Slaterold  = zeros(nParticleshalf,nParticleshalf);
+
+    if (particleNumber<nParticleshalf)
+    {
+         for (int i=0;i<nParticleshalf;i++)
+         {
+             for (int j=0;j<nParticleshalf;j++)
+             {
+                 Slaternew(i,j) = hydrogen(i,j,Rnew);
+                 Slaterold(i,j) = hydrogen(i,j,Rold);
+             }
+         }
+    }
+    else
+    {
+        for (int i=0;i<nParticleshalf;i++)
+        {
+            for (int j=0;j<nParticleshalf;j++)
+            {
+                Slaternew(i,j) = hydrogen(i+nParticleshalf,j,Rnew);
+                Slaterold(i,j) = hydrogen(i+nParticleshalf,j,Rold);
+            }
+        }
+    }
+
+   return det(Slaternew)/det(Slaterold);
+
 }
 
 

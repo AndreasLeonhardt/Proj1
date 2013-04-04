@@ -37,6 +37,8 @@ public:
     void setSlaterinv(positions * R);
     void updateSlaterinv(int particleNumber, positions* Rnew, double ratio);
 
+    vec GradJastrow(int particleNumber, positions * R);
+    vec GradSlater(int particleNumber, positions * R);
 
 };
 

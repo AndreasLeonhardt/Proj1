@@ -163,7 +163,7 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
     double result =0.0;
 
 
-    // gradient
+    // div grad Slaterdet -------------------------------------------------------
     if(particleNumber<nParticleshalf)
     {
         for(int j=0;j<nParticleshalf;j++)
@@ -181,49 +181,61 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
         }
     }
 
-
+    //-------------------------------------------------------------------------------
     // div( grad(Jastrow)/ Jastrow)
-    double result = 0.0;
-    double A;
+
+    double b = funcParameters[1];
+    double rr;
     if(particleNumber<nParticleshalf)
     {
-        A = 0.125;
+        int i;
+        for (i=0;i<particleNumber;i++)
+        {
+            rr=R->get_rr(particleNumber-1,i);
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
+
+        for (i=particleNumber+1;i<nParticleshalf;i++)
+        {
+            rr=R->get_rr(i-1,particleNumber);
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
+
+        for (i=nParticleshalf;i<nParticles;i++)
+        {
+            rr=R->get_rr(i-1,particleNumber);
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
     }
+
     else
     {
-        A = -0.125;
+        int i;
+        for (int i=0;i<nParticleshalf;i++)
+        {
+            rr=R->get_rr(particleNumber-1,i);
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
+        for (i=nParticleshalf;i<particleNumber;i++)
+        {
+            rr=R->get_rr(particleNumber-1,i);
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
+
+        for (i=particleNumber+1;i<nParticles;i++)
+        {
+            rr=R->get_rr(i-1,particleNumber);
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+        }
     }
+    //------------------------------------------------------------------
 
+    // (div Jastrow)^2
+    vec jastrowgradient = GradJastrow(particleNumber,R);
+    result += dot(jastrowgradient,jastrowgradient);
 
-    for (int i=0;i<nParticleshalf;i++)
-        {
-            if(i!=particleNumber)
-            {
-                double rr=R->get_rr(particleNumber-1,i);
-                double b = funcParameters(1);
-                result += 2*(0.375+A) / (1+b*rr)
-                            * (  1/rr - b/( (1+b*rr)*(1+b*rr) )  );
-            }
-        }
-    for (int i=nParticleshalf;i<nParticles;i++)
-        {
-            if(i!=particleNumber)
-            {
-                double rr=R->get_rr(particleNumber-1,i);
-                double b = funcParameters(1);
-                result += 2*(0.375-A) / (1+b*rr)
-                            * (  1/rr - b/( (1+b*rr)*(1+b*rr) )  );
-            }
-        }
-
-
-    vec jastrowdivergence = JastrowDiv(particleNumber,R);
-
-    result += dot(jastrowdivergence,jastrowdivergenc);
-
-    result += 2*dot(SlaterDiv(particleNumber,R),jastrowdivergence);
-
-
+    // 2*(div Jastrow) * (div SlaterDet)
+    result += 2*dot(GradSlater(particleNumber,R),jastrowgradient);
 
     return result;
 }
@@ -243,8 +255,12 @@ vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 {
     vec result = zeros(ndim);
 
-    result = SlaterDiv(particleNumber,R);
-    result += JastrowDiv(particleNumber,R);
+    result = GradSlater(particleNumber,R);
+    //cout <<result<<endl;
+
+    result += GradJastrow(particleNumber,R);
+   // cout <<result << endl;
+
     return 2*result;
 }
 
@@ -282,42 +298,64 @@ double TrialFct_analytical::JastrowRatio(int particleNumber, positions * Rold, p
     double jastrow = 0.0;
     double dist;
 
-    for (int i=0;i<nParticleshalf;i++)
-    {   // equal spin, factor 1/2
-        for (int j=0;j<i;j++)
+
+
+    if (particleNumber<nParticleshalf)
+    {
+        for (int i=0;i<particleNumber;i++)
         {
-            if(i==particleNumber || j==particleNumber)
-            {
-                dist = Rnew->get_rr(i-1,j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
+            dist = Rnew->get_rr(particleNumber-1,i);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
 
-                dist = Rold->get_rr(i-1,j);
-                jastrow -= dist/(2+2*funcParameters[1]*dist);
-
-
-
-                dist = Rnew->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
-
-                dist = Rold->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-                jastrow -= dist/(2+2*funcParameters[1]*dist);
-            }
+            dist = Rold->get_rr(particleNumber-1,i);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
         }
-
-        // opposite spin, factor 1/4
-        for (int j=nParticleshalf;j<nParticles;j++)
+        for (int i=particleNumber+1;i<nParticleshalf;i++)
         {
-            if(i==particleNumber || j==particleNumber)
-            {
-                dist = Rnew->get_rr(j-1,i);
-                jastrow += dist/(4+4*funcParameters[1]*dist);
+            dist = Rnew->get_rr(i-1,particleNumber);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
 
-                dist = Rold->get_rr(j-1,i);
-                jastrow -= dist/(4+4*funcParameters[1]*dist);
-            }
+            dist = Rold->get_rr(i-1,particleNumber);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
         }
+        for (int i=nParticleshalf;i<nParticles;i++)
+        {
+            dist = Rnew->get_rr(i-1,particleNumber);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
 
+            dist = Rold->get_rr(i-1,particleNumber);
+            jastrow -= dist/(4+4*funcParameters[1]*dist);
+        }
     }
+    else
+    {
+        for (int i=0;i<nParticleshalf;i++)
+        {
+            dist = Rnew->get_rr(particleNumber-1,i);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(particleNumber-1,i);
+            jastrow -= dist/(4+4*funcParameters[1]*dist);
+        }
+        for (int i=nParticleshalf;i<particleNumber;i++)
+        {
+            dist = Rnew->get_rr(particleNumber-1,i);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(particleNumber-1,i);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
+        }
+        for (int i=particleNumber+1;i<nParticles;i++)
+        {
+            dist = Rnew->get_rr(i-1,particleNumber);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(i-1,particleNumber);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
+        }
+    }
+
+
 
     return exp(jastrow);
 }
@@ -326,45 +364,68 @@ double TrialFct_analytical::JastrowRatio(int particleNumber, positions * Rold, p
 // That is sum_{i!=k} \frac{a}{ (1+\beta*r_{ki})^2 }  \frac{ \vec{r}_{ki} }{ r_{ki} }
 // where a is 0.5 for spin_i = spin_k and
 //            0.25 for spin_i!=spin_k
-vec TrialFct_analytical::JastrowDiv(int particleNumber, positions * R)
+vec TrialFct_analytical::GradJastrow(int particleNumber, positions * R)
 {
     vec result = zeros(ndim);
-    double A;
+    double b = funcParameters[1];
+    double rr;
     if(particleNumber<nParticleshalf)
     {
-        A = 0.125;
+        for (int i=0;i<particleNumber;i++)
+            {
+            rr=R->get_rr(particleNumber-1,i);
+            result += 0.5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                    /((1+b*rr)*(1+b*rr)*rr);
+            }
+
+        for (int i=particleNumber+1;i<nParticleshalf;i++)
+        {
+            rr=R->get_rr(i-1,particleNumber);
+            result += .5 *( R->get_singlePos(particleNumber) - R->get_singlePos(i) )
+                                    /((1+b*rr)*(1+b*rr)*rr);
+        }
+
+
+        for (int i=nParticleshalf;i<nParticles;i++)
+            {
+                    rr=R->get_rr(i-1,particleNumber);
+                    result += .25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                            /((1+b*rr)*(1+b*rr)*rr);
+            }
     }
+
     else
     {
-        A = -0.125;
+        for (int i=0;i<nParticleshalf;i++)
+            {
+                    rr=R->get_rr(particleNumber-1,i);
+                    result += .25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                            /((1+b*rr)*(1+b*rr)*rr);
+            }
+        for (int i=nParticleshalf;i<particleNumber;i++)
+            {
+            rr=R->get_rr(particleNumber-1,i);
+            result += 0.5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                    /((1+b*rr)*(1+b*rr)*rr);
+            }
+
+        for (int i=particleNumber+1;i<nParticles;i++)
+        {
+            rr=R->get_rr(i-1,particleNumber);
+            result += .5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                                    /((1+b*rr)*(1+b*rr)*rr);
+        }
     }
 
-
-    for (int i=0;i<nParticleshalf;i++)
-        {
-            if(i!=particleNumber)
-            {
-                double rr=R->get_rr(particleNumber-1,i);
-                double b = funcParameters(1);
-                result += (0.375+A) *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
-                                        /((1+b*rr)*(1+b*rr)*rr);
-            }
-        }
-    for (int i=nParticleshalf;i<nParticles;i++)
-        {
-            if(i!=particleNumber)
-            {
-                double rr=R->get_rr(particleNumber-1,i);
-                double b = funcParameters(1);
-                result += (0.375-A) *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
-                                        /((1+b*rr)*(1+b*rr)*rr);
-            }
-        }
-
+    return result;
 }
 
 
-vec TrialFct_analytical::SlaterDiv(int particleNumber, positions * R)
+
+
+
+
+vec TrialFct_analytical::GradSlater(int particleNumber, positions * R)
 {
     vec result = zeros(ndim);
 
@@ -389,4 +450,6 @@ vec TrialFct_analytical::SlaterDiv(int particleNumber, positions * R)
                        *inverseSlaterDown(j,particleNumber-nParticleshalf);
         }
     }
+
+    return result;
 }
