@@ -68,169 +68,26 @@ int main()
 
     //loop over different parameters alpha, bet
     int nParams = parameters->lookup("nParameters");
-    double resLimit = parameters->lookup("ResidualLimit");
-    double NewtonLimit = parameters->lookup("NewtonLimit");
-    int Newtoncounterlimit =parameters->lookup("NewtonCounterLimit");
+//    double resLimit = parameters->lookup("ResidualLimit");
+//    double NewtonLimit = parameters->lookup("NewtonLimit");
+//    int Newtoncounterlimit =parameters->lookup("NewtonCounterLimit");
 
-        double a[nParams];
-        double here;
-        vec forward(nParams);
-        double E,Em,Ep;
-        vec d(nParams);
-        vec r(nParams);
+    vec a=zeros(nParams);
         vec gradient(nParams);
-        double s,sold, t;
-        double resLength =1000;
-        double Newtondiff = 1000;
         for (int i=0;i<nParams;i++)
         {
-            a[i]=parameters->lookup("Parameters.[i]");
+            a(i)=parameters->lookup("Parameters.[i]");
         }
-    int maxcounter = parameters->lookup("maxIterations");
-    int counter = 0;
-    int Newtoncounter;
-    double h = parameters->lookup("paramstepwidth");
 
 
-    // set initial conditions
-    // calculate -gradient
-    MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-    here = MC.get_value();
-    for(int i=0;i<nParams;i++)
-    {
-        // move on step forward
-        fun->setParameter(a[i]+h,i);
-        MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-        forward[i]=MC.get_value();
-
-        // set back to initial value
-        fun->setParameter(a[i],i);
-    }
-
-
-
-    r = ( -forward + ones(nParams)*here )/h;
-    d=r;
-
-    while (counter<maxcounter)
-    {
-
-        cout<<"outer loop, cycle number: "<<counter<<endl;
-
-        // set parameters
-        for(int i=0;i<nParams;i++)
+        // without adaptive stepsize
+        for(int i=1;i<parameterIterations;i++)
         {
-            fun->setParameter(a[i],i);
-        }
 
-        // find initial position thorugh thermalisation
-        positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
-        // actual calculation
-        MC.integrate(fun,H, Rinitial,idumadress,parameters);
-
-        // write results
-        results << a[1] << "\t"
-                << a[2] << "\t"
-                << MC.get_value()  << "\t"
-                << MC.get_variance() << "\t"
-                << MC.get_acceptanceRatio()*100 << "%"
-                <<endl;
-
-
-        // minimize E(x+s*r)
-        s=0.0;
-        sold = 1000.0;
-        Newtoncounter=0;
-
-        while (Newtondiff>NewtonLimit && Newtoncounter<Newtoncounterlimit)
-        {
-            cout<<"Inner loop, cycle number: "<<Newtoncounter<<endl;
-
-            for(int i=0;i<nParams;i++)
-            {
-
-                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-                E=MC.get_value();
-
-                fun->setParameter(a[i]+h*d[i],i);
-                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-                Ep = MC.get_value();
-
-                fun->setParameter(a[i]-h*d[i],i);
-                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-                Em = MC.get_value();
-
-                fun->setParameter(a[i],i);
-            }
-
-            cout << "E="<<E<<",  Ep="<<Ep<<",  Em="<<Em<<endl;
-            s=h*(Em-Ep)/(2*Ep+2*Em-4*E);
-
-            // TEST
-            cout << "s: "<<s<<endl;
-
-
-            // set new value a
-            for(int i=0;i<nParams;i++)
-            {
-                a[i]+=s*d[i];
-                fun->setParameter(a[i],i);
-            }
-
-
-            Newtondiff=fabs(sold-s);
-            cout<<"Newtondiff="<<Newtondiff<<endl;
-            sold = s;
-            Newtoncounter++;
+            a -= MC.StatGrad(fun,H,idumadress,parameters)/i;
         }
 
 
-
-
-        // calculate -gradient            cout<<"s="<<s<<endl<<"d="<<endl<<d<<endl;
-
-        MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
-        here = MC.get_value();
-        for(int i=0;i<nParams;i++)
-        {
-            // move on step forward
-            fun->setParameter(a[i]+h,i);
-            Rinitial =MC.thermalise(fun,idumadress,parameters);
-            MC.integrate(fun,H,Rinitial,idumadress,parameters);
-            forward[i]=MC.get_value();
-
-            // set back to initial value
-            fun->setParameter(a[i],i);
-        }
-        gradient = ( -forward + ones(nParams)*here )/h;
-
-        //TEST
-        cout<<"Gradient: "<<endl<<ones(nParams)*here<<"-"<<forward<<"/"<<h<<"="<<gradient<<endl;
-
-        resLength = dot(gradient,gradient);
-        cout<<"ResLength="<<resLength<<endl;
-        if (resLength<resLimit)
-        {
-            break;
-        }
-
-        if (!(counter%nParams))
-        {
-            t=0.0;
-            //TEST
-            cout << "outer loop resetet"<<endl;
-        }
-        else
-        {
-            t=dot(gradient,gradient-r)/resLength;
-            t=max(0.0,t);
-            r=gradient;
-        }
-        d=r+t*d;
-
-
-        counter++;
-    }
 
     delete fun;
     delete H;

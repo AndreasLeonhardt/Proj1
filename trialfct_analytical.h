@@ -32,7 +32,7 @@ public:
 
     double SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew);
     double JastrowRatio(int particleNumber, positions * Rold, positions * Rnew);
-
+    double ParamDerivativeOverFct(positions *R, int parameterNumber);
 
     void setSlaterinv(positions * R);
     void updateSlaterinv(int particleNumber, positions* Rnew, double ratio);

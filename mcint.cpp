@@ -144,6 +144,60 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
 
 
 
+
+
+vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, Config *parameters)
+{
+    // This parameters can be brought to the config file later
+    int thermalSteps = 1000;
+    int miniMCSteps = 1000;
+
+
+    vec store1 = zeros(nParams);
+    vec store2 = zeros(nParams);
+    double storeEnergy=0.0;
+    double E,derfct;
+
+
+    // thermalization
+    positions * Rold = new positions(parameters);
+    fct->setSlaterinv(Rold);
+    for (int n=0;n<thermalSteps;n++)
+    {
+        Rold=Step(fct, Rold,idumadress,parameters);
+    }
+
+
+    // mini MC integration
+    for(int n = 0; n<miniMCSteps; n++)
+    {
+        // perform step
+        Rold = Step(fct, Rold, idumadress,parameters);
+
+        // add energy value
+         E = H->localEnergy(fct,Rold);
+         for (int d=0;d<nParams;d++)
+         {
+             derfct=fct->ParamDerivativeOverFct(Rold,d);
+             store1[d]+=derfct;
+             store2[d]+=derfct*E;
+         }
+
+         storeEnergy +=E;
+    }
+
+
+    return 2.0/miniMCSteps*(store2-store1*storeEnergy);
+}
+
+
+
+
+
+
+
+
+
 void mcInt::set_nSamples(int NewnSamples)
 {
     nSamples = NewnSamples;

@@ -209,3 +209,35 @@ double function::divgradhydrogen(int particleNumber, int orbital, positions* R)
     return result;
 
 }
+
+
+
+double function::dhydrogenda(int particleNumber, int orbital, positions *R)
+{
+    double result;
+    double a = funcParameters[0];
+    double r = R->get_r(particleNumber);
+
+    if (orbital==0)
+    {
+        result = -r * exp(-a*r);
+    }
+
+    else if(orbital==1)
+    {
+        result = (a/4*r*r-r)*exp(-a*r/2);
+    }
+
+
+    else if(orbital==2 || orbital==3 || orbital==4)
+    {
+        vec RR = R->get_singlePos(particleNumber);
+        RR *= (1-a*r/2)*exp(-a*r/2);
+
+        result = RR(orbital-2);
+    }
+
+    return result;
+
+}
+

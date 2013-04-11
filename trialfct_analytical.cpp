@@ -453,3 +453,49 @@ vec TrialFct_analytical::GradSlater(int particleNumber, positions * R)
 
     return result;
 }
+
+
+
+
+double TrialFct_analytical::ParamDerivativeOverFct(positions * R,int parameterNumber)
+{
+    double result =0.0;
+
+    // if parameter is alpha, calculate only Slaterdet part
+    if (parameterNumber==0)
+    {
+        for (int i=0;i<nParticleshalf;i++)
+        {
+            for(int j=0;j<nParticleshalf;j++)
+            {
+                result+=inverseSlaterUp(i,j)*dhydrogenda(j,i,R);
+                result+=inverseSlaterDown(i,j)*dhydrogenda(j+nParticleshalf,i,R);
+            }
+        }
+
+    }
+
+    // if parameter is beta, calculate only Jastrow factor part
+    else if(parameterNumber ==1)
+    {
+        double rr;
+        for (int i=0;i<nParticles;i++)
+        {
+            for(int j=0;j<i;j++)
+            {
+                rr = R->get_rr(i-1,j);
+                result -=   rr/(  (1+funcParameters[parameterNumber]*rr)
+                                 *(1+funcParameters[parameterNumber]*rr) ) ;
+            }
+        }
+    }
+
+    // if parameter is neither alpha or beta, there is something wrong.
+    // might be the distance between the nuclei in molecule calculations though.
+    else
+    {
+        cout <<"ParamDerivativeOvecFct::Unknown parameter number"<<endl;
+    }
+
+    return result;
+}

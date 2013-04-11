@@ -54,11 +54,14 @@ public:
 
     virtual void setSlaterinv(positions * R)=0;
     virtual void updateSlaterinv(int particleNumber, positions* Rnew, double ratio)=0;
-
+    virtual double ParamDerivativeOverFct(positions *R,int parameterNumber)=0;
 
     double hydrogen(int particleNumber, int orbital, positions * R);
     vec gradhydrogen(int particleNumber, int orbital, positions *R);
     double divgradhydrogen(int particleNumber, int orbital, positions* R);
+    double dhydrogenda(int particleNumber, int orbital,positions* R);
+
+
 
 
     // get parameter for numerical derivatives.

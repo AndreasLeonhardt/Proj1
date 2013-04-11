@@ -37,6 +37,7 @@ public:
     positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
     positions * thermalise(function * fct, long * idumadress, Config *parameters);
     void integrate(function * fct, hamilton *H, positions * Rold, long * idumadress, Config *parameters);
+    vec StatGrad(function * fct, hamilton *H,long * idumadress, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();
