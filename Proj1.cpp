@@ -29,7 +29,7 @@ int main()
     checkforevenparticlenumber = checkforevenparticlenumber%2;
     if (checkforevenparticlenumber)
     {
-        cout << "Programm does not run properly for an odd number of Particles." << endl
+        cout << "Programm might not run properly for an odd number of Particles." << endl
                 << "Change  \"nParticles\" in \"parameters.config\" to an even number" << endl;
         cout << checkforevenparticlenumber <<endl;
     }
@@ -66,57 +66,170 @@ int main()
             << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
     results << "alpha\tbeta\tE\tdE\tacceptance_ratio" << endl ;
 
-    //loop over different parameters alpha, beta
-    double a_min = parameters->lookup("a_min");
-    double a_step = parameters->lookup("a_step");
-    double a_max = parameters->lookup("a_max");
-    a_max += 0.000001*a_step; // rather dirty way to get rid of rounding errors.
-    double a_n = floor((a_max-a_min)/a_step) +1;
+    //loop over different parameters alpha, bet
+    int nParams = parameters->lookup("nParameters");
+    double resLimit = parameters->lookup("ResidualLimit");
+    double NewtonLimit = parameters->lookup("NewtonLimit");
+    int Newtoncounterlimit =parameters->lookup("NewtonCounterLimit");
 
-    double b_min = parameters->lookup("b_min");
-    double b_step = parameters->lookup("b_step");
-    double b_max = parameters->lookup("b_max");
-    b_max += 0.000001*b_step; // rather dirty way to get rid of rounding errors.
-    int b_n = floor((b_max-b_min)/b_step) +1;
-
-    double c_n=b_n*a_n;
-    int c = 0;
-    string bar;
-
-    for (double a = a_min; a<a_max ; a+=a_step)
-    {
-        for(double b = b_min; b<b_max; b+=b_step)
+        double a[nParams];
+        double here;
+        vec forward(nParams);
+        double E,Em,Ep;
+        vec d(nParams);
+        vec r(nParams);
+        vec gradient(nParams);
+        double s,sold, t;
+        double resLength =1000;
+        double Newtondiff = 1000;
+        for (int i=0;i<nParams;i++)
         {
-            fun->setParameter(a,0);
+            a[i]=parameters->lookup("Parameters.[i]");
+        }
+    int maxcounter = parameters->lookup("maxIterations");
+    int counter = 0;
+    int Newtoncounter;
+    double h = parameters->lookup("paramstepwidth");
 
-            fun->setParameter(b,1);
-            // find initial position thorugh thermalisation
-            positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
-            // actual calculation
-            MC.integrate(fun,H, Rinitial,idumadress,parameters);
-            // write results
-            results << a << "\t"
-                    << b << "\t"
-                    << MC.get_value()  << "\t"
-                    << MC.get_variance() << "\t"
-                    << MC.get_acceptanceRatio()*100 << "%"
-                    <<endl;
 
-            // status of calculation
-            c++;
-            int counter = 100*c/c_n;
-            // clear screen quick and dirty by inserting blank lines.
-            for (int i=0;i<10;i++)
-                 cout<<"\n\n\n\n"<<endl;
-            // create string for status bar
-            bar.assign(counter/1.5151,'X');
-            bar.append((100-counter)/1.5151,'_');
-            // write status, percentage and status bar
-            cout << "progress = " << counter << "%" << endl;
-            cout << bar << endl;
+    // set initial conditions
+    // calculate -gradient
+    MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+    here = MC.get_value();
+    for(int i=0;i<nParams;i++)
+    {
+        // move on step forward
+        fun->setParameter(a[i]+h,i);
+        MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+        forward[i]=MC.get_value();
 
+        // set back to initial value
+        fun->setParameter(a[i],i);
+    }
+
+
+
+    r = ( -forward + ones(nParams)*here )/h;
+    d=r;
+
+    while (counter<maxcounter)
+    {
+
+        cout<<"outer loop, cycle number: "<<counter<<endl;
+
+        // set parameters
+        for(int i=0;i<nParams;i++)
+        {
+            fun->setParameter(a[i],i);
         }
 
+        // find initial position thorugh thermalisation
+        positions * Rinitial = MC.thermalise(fun, idumadress, parameters);
+        // actual calculation
+        MC.integrate(fun,H, Rinitial,idumadress,parameters);
+
+        // write results
+        results << a[1] << "\t"
+                << a[2] << "\t"
+                << MC.get_value()  << "\t"
+                << MC.get_variance() << "\t"
+                << MC.get_acceptanceRatio()*100 << "%"
+                <<endl;
+
+
+        // minimize E(x+s*r)
+        s=0.0;
+        sold = 1000.0;
+        Newtoncounter=0;
+
+        while (Newtondiff>NewtonLimit && Newtoncounter<Newtoncounterlimit)
+        {
+            cout<<"Inner loop, cycle number: "<<Newtoncounter<<endl;
+
+            for(int i=0;i<nParams;i++)
+            {
+
+                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+                E=MC.get_value();
+
+                fun->setParameter(a[i]+h*d[i],i);
+                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+                Ep = MC.get_value();
+
+                fun->setParameter(a[i]-h*d[i],i);
+                MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+                Em = MC.get_value();
+
+                fun->setParameter(a[i],i);
+            }
+
+            cout << "E="<<E<<",  Ep="<<Ep<<",  Em="<<Em<<endl;
+            s=h*(Em-Ep)/(2*Ep+2*Em-4*E);
+
+            // TEST
+            cout << "s: "<<s<<endl;
+
+
+            // set new value a
+            for(int i=0;i<nParams;i++)
+            {
+                a[i]+=s*d[i];
+                fun->setParameter(a[i],i);
+            }
+
+
+            Newtondiff=fabs(sold-s);
+            cout<<"Newtondiff="<<Newtondiff<<endl;
+            sold = s;
+            Newtoncounter++;
+        }
+
+
+
+
+        // calculate -gradient            cout<<"s="<<s<<endl<<"d="<<endl<<d<<endl;
+
+        MC.integrate(fun,H,MC.thermalise(fun,idumadress,parameters),idumadress,parameters);
+        here = MC.get_value();
+        for(int i=0;i<nParams;i++)
+        {
+            // move on step forward
+            fun->setParameter(a[i]+h,i);
+            Rinitial =MC.thermalise(fun,idumadress,parameters);
+            MC.integrate(fun,H,Rinitial,idumadress,parameters);
+            forward[i]=MC.get_value();
+
+            // set back to initial value
+            fun->setParameter(a[i],i);
+        }
+        gradient = ( -forward + ones(nParams)*here )/h;
+
+        //TEST
+        cout<<"Gradient: "<<endl<<ones(nParams)*here<<"-"<<forward<<"/"<<h<<"="<<gradient<<endl;
+
+        resLength = dot(gradient,gradient);
+        cout<<"ResLength="<<resLength<<endl;
+        if (resLength<resLimit)
+        {
+            break;
+        }
+
+        if (!(counter%nParams))
+        {
+            t=0.0;
+            //TEST
+            cout << "outer loop resetet"<<endl;
+        }
+        else
+        {
+            t=dot(gradient,gradient-r)/resLength;
+            t=max(0.0,t);
+            r=gradient;
+        }
+        d=r+t*d;
+
+
+        counter++;
     }
 
     delete fun;

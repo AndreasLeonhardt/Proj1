@@ -12,8 +12,8 @@ TrialFct::TrialFct()
 // constructor taking parameters from the config file
 TrialFct::TrialFct(Config * parameters) : function(parameters)
 {
-    funcParameters[0] = parameters->lookup("a_min");
-    funcParameters[1] = parameters->lookup("b_min");
+    funcParameters[0] = parameters->lookup("Parameters.[0]");
+    funcParameters[1] = parameters->lookup("Parameters.[1]");
     stepwidth = parameters->lookup("stepwidth");
     stepwidthsqr = stepwidth*stepwidth;
 }

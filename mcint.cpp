@@ -123,7 +123,6 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
         // perform step
         Rold = Step(fct, Rold, idumadress,parameters);
 
-
         // add energy value
          double ede = H->localEnergy(fct,Rold);
 

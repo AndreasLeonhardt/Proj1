@@ -61,6 +61,8 @@ void function::setParameter(double newParameter, int parameterNumber)
     funcParameters[parameterNumber]=newParameter;
 }
 
+
+
 double function::getParameter(int parameterNumber)
 {
     return funcParameters[parameterNumber];
