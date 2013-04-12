@@ -68,24 +68,33 @@ int main()
 
     //loop over different parameters alpha, bet
     int nParams = parameters->lookup("nParameters");
-//    double resLimit = parameters->lookup("ResidualLimit");
-//    double NewtonLimit = parameters->lookup("NewtonLimit");
-//    int Newtoncounterlimit =parameters->lookup("NewtonCounterLimit");
+    int parameterIterations = parameters->lookup("parameterIterations");
 
-    vec a=zeros(nParams);
-        vec gradient(nParams);
+        vec a=zeros(nParams);
         for (int i=0;i<nParams;i++)
         {
             a(i)=parameters->lookup("Parameters.[i]");
+            fun->setParameter(a(i),i);
         }
+        // set alpha to Z for a start
+        int Z = parameters->lookup("Z");
+        a(0)=Z;
+        fun->setParameter(a(0),0);
 
 
-        // without adaptive stepsize
-        for(int i=1;i<parameterIterations;i++)
+        // without adaptive stepsize, using 1/i
+        for(int i=1;i<parameterIterations+1;i++)
         {
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;
+            fun->setParameter(a);
+            cout<< "Parameters: "<<a<<endl;
+            MC.integrate(fun,H,idumadress,parameters);
+            results << a(0)<<"\t"<<a(1)<<"\t"<<MC.get_value()<<"\t"<<MC.get_variance()<<"\t"<<MC.get_acceptanceRatio()<<endl;
+            cout <<"energy: "<<MC.get_value()<<endl;
 
-            a -= MC.StatGrad(fun,H,idumadress,parameters)/i;
         }
+
+
 
 
 

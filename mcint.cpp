@@ -4,6 +4,8 @@ mcInt::mcInt()
 {
     nSamples = 1000;
     thermalisationSteps = 100;
+    SCnSamples=1000;
+    SCthermalisationSteps =100;
     timeStep = 1;
     ndim = 3;
     nParticles = 2;
@@ -15,6 +17,8 @@ mcInt::mcInt(Config * parameters)
 {
     nSamples = parameters->lookup("nSamples");
     thermalisationSteps = parameters->lookup("thermalisationSteps");
+    SCnSamples=parameters->lookup("SCnSamples");
+    SCthermalisationSteps = parameters->lookup("SCthermalisationSteps");
     timeStep = parameters->lookup("timeStep");
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
@@ -91,29 +95,23 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
 
-positions * mcInt::thermalise(function * fct, long int * idumadress, Config * parameters)
+
+
+void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters)
 {
+
+
     acceptedSteps=0;
 
-    positions * Rold = new positions(parameters);
+    positions * R = new positions(parameters);
 
-    fct->setSlaterinv(Rold);
+    fct->setSlaterinv(R);
 
 
     for (int i=0;i<thermalisationSteps;i++)
     {
-        Rold=Step(fct, Rold,idumadress,parameters);
+        R=Step(fct, R,idumadress,parameters);
     }
-
-    return Rold;
-}
-
-
-void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idumadress,Config * parameters)
-{
-
-
-
 
     value = 0.0;
     double stabw = 0.0;
@@ -121,10 +119,10 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
     for(int n = 0; n<nSamples; n++)
     {
         // perform step
-        Rold = Step(fct, Rold, idumadress,parameters);
+        R = Step(fct, R, idumadress,parameters);
 
         // add energy value
-         double ede = H->localEnergy(fct,Rold);
+         double ede = H->localEnergy(fct,R);
 
 
 
@@ -148,9 +146,6 @@ void mcInt::integrate(function * fct, hamilton * H, positions *Rold, long * idum
 
 vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, Config *parameters)
 {
-    // This parameters can be brought to the config file later
-    int thermalSteps = 1000;
-    int miniMCSteps = 1000;
 
 
     vec store1 = zeros(nParams);
@@ -160,25 +155,25 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
 
 
     // thermalization
-    positions * Rold = new positions(parameters);
-    fct->setSlaterinv(Rold);
-    for (int n=0;n<thermalSteps;n++)
+    positions * R = new positions(parameters);
+    fct->setSlaterinv(R);
+    for (int n=0;n<SCthermalisationSteps;n++)
     {
-        Rold=Step(fct, Rold,idumadress,parameters);
+        R=Step(fct, R,idumadress,parameters);
     }
 
 
     // mini MC integration
-    for(int n = 0; n<miniMCSteps; n++)
+    for(int n = 0; n<SCnSamples; n++)
     {
         // perform step
-        Rold = Step(fct, Rold, idumadress,parameters);
+        R = Step(fct, R, idumadress,parameters);
 
         // add energy value
-         E = H->localEnergy(fct,Rold);
+         E = H->localEnergy(fct,R);
          for (int d=0;d<nParams;d++)
          {
-             derfct=fct->ParamDerivativeOverFct(Rold,d);
+             derfct=fct->ParamDerivativeOverFct(R,d);
              store1[d]+=derfct;
              store2[d]+=derfct*E;
          }
@@ -186,8 +181,8 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
          storeEnergy +=E;
     }
 
-
-    return 2.0/miniMCSteps*(store2-store1*storeEnergy);
+    storeEnergy/=SCnSamples;
+    return 2.0/SCnSamples*(store2-store1*storeEnergy);
 }
 
 

@@ -22,6 +22,8 @@ class mcInt
     int ndim;
     int nSamples;
     int thermalisationSteps;
+    int SCnSamples;
+    int SCthermalisationSteps;
     double timeStep;
     double sqrtTimeStep;
     int acceptedSteps;
@@ -35,9 +37,8 @@ public:
     mcInt(Config * parameters);
 
     positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
-    positions * thermalise(function * fct, long * idumadress, Config *parameters);
-    void integrate(function * fct, hamilton *H, positions * Rold, long * idumadress, Config *parameters);
-    vec StatGrad(function * fct, hamilton *H,long * idumadress, Config *parameters);
+    void integrate(function * fct, hamilton *H, long * idumadress, Config *parameters);
+    vec StatGrad(function * fct, hamilton *H, long * idumadress, int nParams, Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();

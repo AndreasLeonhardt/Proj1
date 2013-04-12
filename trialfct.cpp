@@ -246,3 +246,9 @@ void TrialFct::updateSlaterinv(int particleNumber, positions* Rnew, double ratio
     // nothing to do here, since the numerical derivative doesn't use the inverse Slater matrix
 }
 
+
+// to be done later
+double TrialFct::ParamDerivativeOverFct(positions *R,int parameterNumber)
+{
+    return 0.0;
+}

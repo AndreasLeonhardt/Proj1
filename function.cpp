@@ -5,6 +5,7 @@ function::function()
     ndim = 3;
     nParticles = 2;
     nParticleshalf =1;
+    nParams =2;
 
     inverseSlaterDown = zeros(nParticles,nParticles);
     inverseSlaterUp   = zeros(nParticles,nParticles);
@@ -18,6 +19,7 @@ function::function(Config * parameters)
     ndim = parameters->lookup("ndim");
     nParticles = parameters->lookup("nParticles");
     nParticleshalf = nParticles/2;
+    nParams = parameters->lookup("nParameters");
 
     inverseSlaterDown = zeros(nParticles,nParticles);
     inverseSlaterUp   = zeros(nParticles,nParticles);
@@ -61,7 +63,13 @@ void function::setParameter(double newParameter, int parameterNumber)
     funcParameters[parameterNumber]=newParameter;
 }
 
-
+void function::setParameter(vec newParameters)
+{
+    for (int i =0;i<nParams;i++)
+    {
+        funcParameters[i] = newParameters[i];
+    }
+}
 
 double function::getParameter(int parameterNumber)
 {
