@@ -96,10 +96,19 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
 
 
-
+// performs the Monte Carlo integration
+// calculating the mean and writing the samples to a file for later analysis.
+// direct calculation might be removed due to speed issue and inaccuracy concerning the error.
 void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters)
 {
+    // opening file for sample storage
+    ofstream outfile;
 
+    // when running program in paralell, we need different names here.
+    // (adding numbers and so on)
+
+
+    outfile.open("sample.bin",ios::out | ios::binary);
 
     acceptedSteps=0;
 
@@ -113,31 +122,44 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
         R=Step(fct, R,idumadress,parameters);
     }
 
-    value = 0.0;
-    double stabw = 0.0;
+    // store samples to write blockwise
+    double samples[10000];
+    // loop over steps in blocks of 10000
+    for(int n=0;n<nSamples/10000;n++)
+    {
+        for(int m = 0; m<10000; m++)
+        {
+        // perform step
+        R = Step(fct, R, idumadress,parameters);
 
-    for(int n = 0; n<nSamples; n++)
+        // add energy value
+         double ede = H->localEnergy(fct,R);
+         samples[m]=ede;
+        }
+
+        // write sample to file
+        outfile.write((char*) &samples, sizeof(double)*10000);
+    }
+    // do the rest, that didn't fit in the last block
+    for (int n=0;n<nSamples%10000;n++)
     {
         // perform step
         R = Step(fct, R, idumadress,parameters);
 
         // add energy value
          double ede = H->localEnergy(fct,R);
+         samples[n]=ede;
 
-
-
-
-         value += ede;
-         stabw += ede*ede;
     }
 
-    value /= nSamples;
-    stabw /= nSamples;
 
-    variance = sqrt ((stabw-value*value) / nSamples);
-
+    // write sample to file but only the new values
+    outfile.write((char*) &samples, sizeof(double)*nSamples%10000);
 
     acceptedSteps/=nParticles;
+
+    // close sample close
+    outfile.close();
 }
 
 
@@ -183,10 +205,91 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
 
     storeEnergy/=SCnSamples;
     return 2.0/SCnSamples*(store2-store1*storeEnergy);
+
 }
 
 
 
+
+mat mcInt::blocking(Config *parameters)
+{
+
+    int bmin = parameters->lookup("minBlockSize");
+    int bmax = parameters->lookup("maxBlockSize");
+    int bsteps= parameters->lookup("BlockSteps");
+
+    // opening file for sample storage
+    ifstream infile;
+    // when running program in paralell, we need different names here.
+    // (adding numbers and so on)
+
+    infile.open("sample.bin",ios::in | ios::binary);
+
+    // get size of data block
+    int NumberOfSamples=0;
+    struct stat fileproperties;
+    if (stat("sample.bin",&fileproperties)==0)
+    {
+        NumberOfSamples = fileproperties.st_size/sizeof(double);
+    }
+    // allocate data block
+    double data[NumberOfSamples];
+
+    // write data into array
+    infile.read((char*)&data,fileproperties.st_size);
+
+
+    value = 0.0;
+    for(int i=0;i<NumberOfSamples;i++)
+    {
+        value+=data[i];
+    }
+    value /=NumberOfSamples;
+
+
+    // intialize useful stuff for the loop
+    mat std=zeros(2,bsteps);
+    double newSample;
+    double av,sqrav;
+    int b=bmin;
+    int n;
+
+    // loop over different block sizes
+    int blockstepsize = (bmax-bmin)/bsteps;
+    for (int i=0;i<bsteps;i++)
+    {
+        // get number of blocks
+        n= NumberOfSamples/b;
+        // reset storage for average and squareaverage
+        av=0.0;
+        sqrav=0.0;
+
+        // loop over all blocks
+        for (int j=0;j<n;j++)
+        {
+            newSample=0.0;
+            // calculate averages over blocks
+            for(int i = 0;i<b;i++)
+            {
+                newSample+=data[j*b+i];
+            }
+            newSample/=b;
+
+            // add value of each block
+            av+=newSample;
+            sqrav+=newSample*newSample;
+        }
+
+        av/=n;
+        sqrav/=n;
+        std(0,i)=b;
+        std(1,i)=sqrt( (sqrav-av*av)/n );
+        b+=blockstepsize;
+    }
+
+    return std;
+
+}
 
 
 

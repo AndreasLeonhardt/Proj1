@@ -4,10 +4,14 @@
 
 #include <armadillo>
 #include <libconfig.h++>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #include "function.h"
 #include "hamilton.h"
 #include "positions.h"
+
 
 
 
@@ -39,6 +43,7 @@ public:
     positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
     void integrate(function * fct, hamilton *H, long * idumadress, Config *parameters);
     vec StatGrad(function * fct, hamilton *H, long * idumadress, int nParams, Config *parameters);
+    mat blocking(Config *parameters);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();

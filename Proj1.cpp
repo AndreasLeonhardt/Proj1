@@ -64,7 +64,7 @@ int main()
     results.open(parameters->lookup("outputfile"));
     results << "Integration points: " << (int) parameters->lookup("nSamples") << "  Z=" << (int) parameters->lookup("Z")
             << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
-    results << "alpha\tbeta\tE\tdE\tacceptance_ratio" << endl ;
+    results << "alpha\tbeta\tE\tacceptance_ratio" << endl ;
 
     //loop over different parameters alpha, bet
     int nParams = parameters->lookup("nParameters");
@@ -87,20 +87,37 @@ int main()
         {
             a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;
             fun->setParameter(a);
-            cout<< "Parameters: "<<a<<endl;
-            MC.integrate(fun,H,idumadress,parameters);
-            results << a(0)<<"\t"<<a(1)<<"\t"<<MC.get_value()<<"\t"<<MC.get_variance()<<"\t"<<MC.get_acceptanceRatio()<<endl;
-            cout <<"energy: "<<MC.get_value()<<endl;
-
         }
 
+        // perform Monte Carlo integration
+        MC.integrate(fun,H,idumadress,parameters);
 
+        // analyse the result via blocking
+
+        mat blockingResult = MC.blocking(parameters).t();
+
+        // write results
+        results << a(0)<<"\t"<<a(1)<<"\t"<<MC.get_value()<<"\t"<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
+
+        results<<"blocking result:"<<endl
+               <<"blocksize\tvariance"<<endl
+               <<blockingResult<<endl;
 
 
 
     delete fun;
     delete H;
     results.close();
+
+    // might call a (python)script from here that plots the data in the result file
+    // using matplotlib for python for example
+    // call the script using the system() function
+
+    char* command=new char[50];
+    const char* outputfile = parameters->lookup("outputfile");
+    sprintf(command,"python ../Proj1/plot.py %s", outputfile);
+
+    system(command);
 
     return 0;
 }
