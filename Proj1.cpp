@@ -20,6 +20,7 @@ using namespace libconfig;
 
 int main()
 {
+    cout << "initialization "<<endl;
     // read parameters from file
     Config conf_parameters;
     Config * parameters = &conf_parameters;
@@ -66,7 +67,7 @@ int main()
             << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
     results << "alpha\tbeta\tE\tacceptance_ratio" << endl ;
 
-    //loop over different parameters alpha, bet
+    //loop over different parameters alpha, beta
     int nParams = parameters->lookup("nParameters");
     int parameterIterations = parameters->lookup("parameterIterations");
 
@@ -76,10 +77,14 @@ int main()
             a(i)=parameters->lookup("Parameters.[i]");
             fun->setParameter(a(i),i);
         }
+
+        cout<<"parameter optimization "<<endl;
+
         // set alpha to Z for a start
         int Z = parameters->lookup("Z");
         a(0)=Z;
         fun->setParameter(a(0),0);
+
 
 
         // without adaptive stepsize, using 1/i
@@ -89,20 +94,27 @@ int main()
             fun->setParameter(a);
         }
 
+
+        cout <<"integration "<<endl;
+
         // perform Monte Carlo integration
         MC.integrate(fun,H,idumadress,parameters);
 
-        // analyse the result via blocking
 
+
+        // analyse the result via blocking
+        cout<<"blocking "<<endl;
         mat blockingResult = MC.blocking(parameters).t();
 
+
+
         // write results
+        cout<<"write results ";
         results << a(0)<<"\t"<<a(1)<<"\t"<<MC.get_value()<<"\t"<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
 
         results<<"blocking result:"<<endl
                <<"blocksize\tvariance"<<endl
                <<blockingResult<<endl;
-
 
 
     delete fun;

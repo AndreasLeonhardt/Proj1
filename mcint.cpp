@@ -252,10 +252,12 @@ mat mcInt::blocking(Config *parameters)
     double newSample;
     double av,sqrav;
     int b=bmin;
+    double bb=bmin;
     int n;
 
     // loop over different block sizes
-    int blockstepsize = (bmax-bmin)/bsteps;
+    double blockstepsize = (double) (bmax-bmin)/bsteps;
+
     for (int i=0;i<bsteps;i++)
     {
         // get number of blocks
@@ -284,7 +286,8 @@ mat mcInt::blocking(Config *parameters)
         sqrav/=n;
         std(0,i)=b;
         std(1,i)=sqrt( (sqrav-av*av)/n );
-        b+=blockstepsize;
+        bb+=blockstepsize;
+        b=round(bb);
     }
 
     return std;
