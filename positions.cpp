@@ -34,7 +34,7 @@ void positions::set_pos(mat  NewPositions)
 }
 
 vec positions::get_singlePos(int particleNumber)
-{
+{   
     return pos.col(particleNumber);
 }
 

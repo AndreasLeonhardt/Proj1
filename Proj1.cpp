@@ -20,7 +20,9 @@ using namespace libconfig;
 
 int main()
 {
-    cout << "initialization "<<endl;
+    // INITIALIZATION ----------------------------------------------------------------------
+    cout << "initialization "<<flush;
+
     // read parameters from file
     Config conf_parameters;
     Config * parameters = &conf_parameters;
@@ -41,7 +43,7 @@ int main()
     long int * idumadress = &idum;
 
 
-    // create instance of TrialFct
+    // create pointer to function
      function * fun;
     // create instance of hamilton
      hamilton * H =new hamilton(parameters);
@@ -63,45 +65,49 @@ int main()
 
     ofstream results;
     results.open(parameters->lookup("outputfile"));
-    results << "Integration points: " << (int) parameters->lookup("nSamples") << "  Z=" << (int) parameters->lookup("Z")
+    results << "Integration points: " << (int) parameters->lookup("nSamples")
             << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
-    results << "alpha\tbeta\tE\tacceptance_ratio" << endl ;
+    results << "alpha\tbeta\tR_0\tE\tacceptance_ratio" << endl ;
 
-    //loop over different parameters alpha, beta
+    //loop over different parameters alpha, beta and R_0
     int nParams = parameters->lookup("nParameters");
     int parameterIterations = parameters->lookup("parameterIterations");
 
         vec a=zeros(nParams);
-        for (int i=0;i<nParams;i++)
-        {
-            a(i)=parameters->lookup("Parameters.[i]");
-            fun->setParameter(a(i),i);
-        }
+        a(0)=parameters->lookup("Parameters.[0]");
+        a(1)=parameters->lookup("Parameters.[1]");
 
-        cout<<"parameter optimization "<<endl;
+        cout << "..... done."<<endl;
+
+
+        // PARAMETER OPTIMIZATION ---------------------------------------------------------------------------
+        cout<<"parameter optimization "<<flush;
 
         // set alpha to Z for a start
-        int Z = parameters->lookup("Z");
+        int Z = parameters->lookup("Z.[0]");
         a(0)=Z;
         fun->setParameter(a(0),0);
 
 
 
-        // without adaptive stepsize, using 1/i
+        // without adaptive stepsize, using 1/i as factor
         for(int i=1;i<parameterIterations+1;i++)
         {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;
-            fun->setParameter(a);
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;          
+                fun->setParameter(a);
         }
 
+        cout << "..... done."<<endl;
 
+
+        // INTEGRATION ---------------------------------------------------------------------------------------
         cout <<"integration "<<endl;
 
         // perform Monte Carlo integration
         MC.integrate(fun,H,idumadress,parameters);
 
 
-
+        // BLOCKING AND WRITING OF RESULTS --------------------------------------------------------------------
         // analyse the result via blocking
         cout<<"blocking "<<endl;
         mat blockingResult = MC.blocking(parameters).t();
@@ -109,8 +115,8 @@ int main()
 
 
         // write results
-        cout<<"write results ";
-        results << a(0)<<"\t"<<a(1)<<"\t"<<MC.get_value()<<"\t"<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
+        cout<<"write results "<<endl;
+        results << a(0)<<"\t"<<a(1)<<"\t"<<fun->get_R0()<<"\t"<<MC.get_value()<<"\t"<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
 
         results<<"blocking result:"<<endl
                <<"blocksize\tvariance"<<endl
@@ -127,7 +133,7 @@ int main()
 
     char* command=new char[50];
     const char* outputfile = parameters->lookup("outputfile");
-    sprintf(command,"python ../Proj1/plot.py %s", outputfile);
+    sprintf(command,"python ../Proj1/plot.py %s &", outputfile);
 
     system(command);
 

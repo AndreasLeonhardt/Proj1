@@ -16,24 +16,31 @@ TrialFct_analytical::TrialFct_analytical(Config * parameters) : function(paramet
 // Slater determinant of hydrogen wave functions and Jastrow factor.
 double TrialFct_analytical::getValue(positions * R)
 {
-
         double result = 0.0;
 
-        // create Slater matrix
-        mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
-        mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
-
-
-
-        for (int i=0;i<nParticleshalf;i++)
+        for(int i=0;i<nParticles;i++)
         {
-            for (int j=0;j<nParticleshalf;j++)
-            {
-                Slaterup(i,j)   = hydrogen(i,j,R);
-                Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
-            }
+            result += hydrogen(i,0,R);
         }
-        result = det(Slaterup)*det(Slaterdown);
+
+
+
+// SLATER DETERMINANT FOR SINGLE ATOM
+//        // create Slater matrix
+//        mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
+//        mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
+
+
+
+//        for (int i=0;i<nParticleshalf;i++)
+//        {
+//            for (int j=0;j<nParticleshalf;j++)
+//            {
+//                Slaterup(i,j)   = hydrogen(i,j,R);
+//                Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
+//            }
+//        }
+//        result = det(Slaterup)*det(Slaterdown);
 
 
        //  jastrow factor
@@ -67,29 +74,29 @@ double TrialFct_analytical::getValue(positions * R)
 }
 
 
-
+// not used for hydrogen molecule
 void TrialFct_analytical::setSlaterinv(positions * R)
 {
 
-    // create Slater matrix
-    mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
-    mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
+//    // create Slater matrix
+//    mat Slaterup  = zeros(nParticleshalf,nParticleshalf);
+//    mat Slaterdown  = zeros(nParticleshalf,nParticleshalf);
 
 
 
-    for (int i=0;i<nParticleshalf;i++)
-    {
-        for (int j=0;j<nParticleshalf;j++)
-        {
-            Slaterup(i,j)   = hydrogen(i,               j,R);
-            Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
-        }
-    }
+//    for (int i=0;i<nParticleshalf;i++)
+//    {
+//        for (int j=0;j<nParticleshalf;j++)
+//        {
+//            Slaterup(i,j)   = hydrogen(i,               j,R);
+//            Slaterdown(i,j) = hydrogen(i+nParticleshalf,j,R);
+//        }
+//    }
 
-    // calculate the inverse of the Slatermatrix for spin up and down
-    // respectively. This is used for later updates of the position.
-    inverseSlaterDown = inv(Slaterdown);
-    inverseSlaterUp   = inv(Slaterup);
+//    // calculate the inverse of the Slatermatrix for spin up and down
+//    // respectively. This is used for later updates of the position.
+//    inverseSlaterDown = inv(Slaterdown);
+//    inverseSlaterUp   = inv(Slaterup);
 
 }
 
@@ -97,56 +104,57 @@ void TrialFct_analytical::setSlaterinv(positions * R)
 // after moving one particle, this updates the inverse of the Slater matrix,
 // however, there are some issues, since the updatet matrix differs from the one
 // set up from the new position with teh above function setSlaterinv.
+// not used for hydrogen molecule
 void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, double ratio)
 {
-    mat newslatermat = zeros(nParticleshalf,nParticleshalf);
-    double sum;
-    // if particle has spin up, just update SlaterUp
-    if(particleNumber<nParticleshalf)
-    {
-        for (int k=0;k<nParticleshalf;k++)
-        {
-            for (int j=0;j<nParticleshalf;j++)
-            {
-                if(particleNumber==j)
-                {
-                    newslatermat(k,j)=inverseSlaterUp(k,j)/ratio;
-                }
-                else
-                {   sum=0.0;
-                    for (int l=0;l<nParticleshalf;l++)
-                    {
-                        sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterUp(l,j);
-                    }
-                    newslatermat(k,j) =inverseSlaterUp(k,j) -inverseSlaterUp(k,particleNumber)*sum/ratio;
-                }
-            }
-        }
-        inverseSlaterUp = newslatermat;
-    }
-    // if it has spin down, just update spin down
-    else
-    {
-        for (int k=0;k<nParticleshalf;k++)
-        {
-            for (int j=0;j<nParticleshalf;j++)
-            {
-                if(particleNumber==j+nParticleshalf)
-                {
-                    newslatermat(k,j)=inverseSlaterDown(k,j)/ratio;
-                }
-                else
-                {   sum=0.0;
-                    for (int l=0;l<nParticleshalf;l++)
-                    {
-                        sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterDown(l,j);
-                    }
-                    newslatermat(k,j)=inverseSlaterDown(k,j)-inverseSlaterDown(k,particleNumber-nParticleshalf)/ratio*sum;
-                }
-            }
-        }
-        inverseSlaterDown = newslatermat;
-    }
+//    mat newslatermat = zeros(nParticleshalf,nParticleshalf);
+//    double sum;
+//    // if particle has spin up, just update SlaterUp
+//    if(particleNumber<nParticleshalf)
+//    {
+//        for (int k=0;k<nParticleshalf;k++)
+//        {
+//            for (int j=0;j<nParticleshalf;j++)
+//            {
+//                if(particleNumber==j)
+//                {
+//                    newslatermat(k,j)=inverseSlaterUp(k,j)/ratio;
+//                }
+//                else
+//                {   sum=0.0;
+//                    for (int l=0;l<nParticleshalf;l++)
+//                    {
+//                        sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterUp(l,j);
+//                    }
+//                    newslatermat(k,j) =inverseSlaterUp(k,j) -inverseSlaterUp(k,particleNumber)*sum/ratio;
+//                }
+//            }
+//        }
+//        inverseSlaterUp = newslatermat;
+//    }
+//    // if it has spin down, just update spin down
+//    else
+//    {
+//        for (int k=0;k<nParticleshalf;k++)
+//        {
+//            for (int j=0;j<nParticleshalf;j++)
+//            {
+//                if(particleNumber==j+nParticleshalf)
+//                {
+//                    newslatermat(k,j)=inverseSlaterDown(k,j)/ratio;
+//                }
+//                else
+//                {   sum=0.0;
+//                    for (int l=0;l<nParticleshalf;l++)
+//                    {
+//                        sum+= hydrogen(particleNumber,l,Rnew)*inverseSlaterDown(l,j);
+//                    }
+//                    newslatermat(k,j)=inverseSlaterDown(k,j)-inverseSlaterDown(k,particleNumber-nParticleshalf)/ratio*sum;
+//                }
+//            }
+//        }
+//        inverseSlaterDown = newslatermat;
+//    }
 }
 
 
@@ -160,26 +168,7 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
 
 double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
 {
-    double result =0.0;
-
-
-    // div grad Slaterdet -------------------------------------------------------
-    if(particleNumber<nParticleshalf)
-    {
-        for(int j=0;j<nParticleshalf;j++)
-        {
-            result += divgradhydrogen(particleNumber,j,R)*inverseSlaterUp(j,particleNumber);
-            // calculate gradient here, if Jastrow
-        }
-    }
-    else
-    {
-        for(int j=0;j<nParticleshalf;j++)
-        {
-            result += divgradhydrogen(particleNumber,j,R)*inverseSlaterDown(j,particleNumber-nParticleshalf);
-            // calculate gradient here, if Jastrow included.
-        }
-    }
+    double result = divgradhydrogen(particleNumber,0,R)/hydrogen(particleNumber,0,R);
 
     //-------------------------------------------------------------------------------
     // div( grad(Jastrow)/ Jastrow)
@@ -267,27 +256,9 @@ vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 //=====================================================================================================
 // calculate the ratio of two Slaterdeterminants, that differ only in one particle
 double TrialFct_analytical::SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)
-{    double result = 0;
-
-    // calculate spin up part, if only spin up particle moved
-    if(particleNumber<nParticleshalf)
-    {
-
-        for (int j=0;j<nParticleshalf;j++)
-        {
-            result += hydrogen(particleNumber, j, Rnew)*inverseSlaterUp(j,particleNumber);
-        }
-    }
-    // calculate spin down ration, if only spin down particle moved
-    else
-    {
-        for (int j=0;j<nParticleshalf;j++)
-        {
-            result += hydrogen(particleNumber, j, Rnew)
-                    *inverseSlaterDown(j,particleNumber-nParticleshalf);
-        }
-    }
-
+{
+     double result = hydrogen(particleNumber, 0, Rnew);
+     result /= hydrogen(particleNumber,0,Rold);
     return result;
 }
 
@@ -428,28 +399,8 @@ vec TrialFct_analytical::GradJastrow(int particleNumber, positions * R)
 vec TrialFct_analytical::GradSlater(int particleNumber, positions * R)
 {
     vec result = zeros(ndim);
+    result += gradhydrogen(particleNumber,0,R)/hydrogen(particleNumber,0,R);
 
-    // particle has spin up
-    if (particleNumber<nParticleshalf)
-    {   // loop over spin up
-        for (int j=0;j<nParticleshalf;j++)
-        {
-            // add slater determinant up part
-            result += gradhydrogen(particleNumber,j,R)*inverseSlaterUp(j,particleNumber);
-        }
-
-    }
-
-    // particle has spin down
-    else
-    {
-        for(int j=0;j<nParticleshalf;j++)
-        {
-            // add slater determinant down part
-            result += gradhydrogen(particleNumber,j,R)
-                       *inverseSlaterDown(j,particleNumber-nParticleshalf);
-        }
-    }
 
     return result;
 }
@@ -464,13 +415,9 @@ double TrialFct_analytical::ParamDerivativeOverFct(positions * R,int parameterNu
     // if parameter is alpha, calculate only Slaterdet part
     if (parameterNumber==0)
     {
-        for (int i=0;i<nParticleshalf;i++)
+        for(int i=0;i<nParticles;i++)
         {
-            for(int j=0;j<nParticleshalf;j++)
-            {
-                result+=inverseSlaterUp(i,j)*dhydrogenda(j,i,R);
-                result+=inverseSlaterDown(i,j)*dhydrogenda(j+nParticleshalf,i,R);
-            }
+            result += dhydrogenda(i,0,R)/hydrogen(i,0,R);
         }
 
     }
@@ -490,7 +437,9 @@ double TrialFct_analytical::ParamDerivativeOverFct(positions * R,int parameterNu
         }
     }
 
-    // if parameter is neither alpha or beta, there is something wrong.
+
+
+    // if parameter is neither alpha, beta or R_0 there is something wrong.
     // might be the distance between the nuclei in molecule calculations though.
     else
     {

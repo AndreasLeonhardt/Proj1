@@ -6,9 +6,15 @@ function::function()
     nParticles = 2;
     nParticleshalf =1;
     nParams =2;
+    R0=1.4;
 
     inverseSlaterDown = zeros(nParticles,nParticles);
     inverseSlaterUp   = zeros(nParticles,nParticles);
+
+    for (int i=0;i<nParams;i++)
+    {
+        funcParameters[i]=1.0;
+    }
 
 
 }
@@ -24,27 +30,13 @@ function::function(Config * parameters)
     inverseSlaterDown = zeros(nParticles,nParticles);
     inverseSlaterUp   = zeros(nParticles,nParticles);
 
+    funcParameters[0]=parameters->lookup("Parameters.[0]");
+    funcParameters[1]=parameters->lookup("Parameters.[1]");
+    R0=parameters->lookup("R0");
 }
 
 
 
-
-// calculate values of the function and its derivatives at the positon &R,
-// derivatives acting on the coordinates of particle particleNumber
-
-//// value of the function
-//double function::getValue(positions * R)
-//{}
-
-//// sum of the second derivatives, div(grad(f))
-//double function::getDivGrad(int particleNumber, positions * R)
-//{}
-
-//// quantum force defined by g*grad(f)/f
-//// g to be specified (1/2 for fermionic wave functions
-//vec function::quantumForce(int particleNumber, positions *R)
-//{
-//}
 
 
 double function::get_stepwidth()
@@ -98,6 +90,18 @@ int function::getnParticles()
     return nParticles;
 }
 
+
+void function::set_R0(double R)
+{
+    R0=R;
+}
+
+double function::get_R0()
+{
+    return R0;
+}
+
+
 mat function::getinvslatermatrix(int particleNumber)
 {   if(particleNumber<nParticleshalf)
     {
@@ -125,31 +129,42 @@ void function::setSlaterinv(int particleNumber, mat newSlaterInv)
 // hydrogen like wave functions, with parameter alpha
 // hard coded for the first levels up to n=2, l=1, m_l = -1,0,1
 // not including spin degeneracy.
+// modified in the lowest level to fit Hydrogen molecule.
 double function::hydrogen(int particleNumber, int orbital, positions * R)
 {
-    double r=R->get_r(particleNumber);
-
     double result;
 
-    if (orbital==0)
-    {
-        result = exp(-funcParameters[0]*r);
-    }
+    vec pos = R->get_singlePos(particleNumber);
+    pos[2] -= R0/2;
 
-    else if(orbital==1)
-    {
-        result = ( 1.0 - 0.5* funcParameters[0] * r )
-                 * exp( -0.5* funcParameters[0] * r );
-    }
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
-                *exp(-0.5*funcParameters[0]*r);
-    }
-    else
-    {
-        cout << "single particle wave function undefined"<<endl;
-    }
+    double r = norm(pos,2);
+
+    result = exp(-funcParameters[0]*r);
+
+    pos[2] +=R0;
+    r=norm(pos,2);
+    result += exp(-funcParameters[0]*r);
+
+
+//    if (orbital==0)
+//    {
+
+//    }
+
+//    else if(orbital==1)
+//    {
+//        result = ( 1.0 - 0.5* funcParameters[0] * r )
+//                 * exp( -0.5* funcParameters[0] * r );
+//    }
+//    else if(orbital==2 || orbital==3 || orbital==4)
+//    {
+//        result = funcParameters[0]*R->get_singlePos(particleNumber)(orbital-2)
+//                *exp(-0.5*funcParameters[0]*r);
+//    }
+//    else
+//    {
+//        cout << "single particle wave function undefined"<<endl;
+//    }
 
     return result;
 }
@@ -159,27 +174,35 @@ double function::hydrogen(int particleNumber, int orbital, positions * R)
 vec function::gradhydrogen(int particleNumber, int orbital, positions *R)
 {
     vec result =zeros(ndim);
+    vec pos = zeros(ndim);
     double a = funcParameters[0];
-    double r = R->get_r(particleNumber);
 
-    if (orbital==0)
-    {
-        result = R->get_singlePos(particleNumber);
-        result *=  -a/r *exp(-a*r);
-    }
+    pos = R->get_singlePos(particleNumber);
+    pos[2]-=R0/2;
+    double r = norm(pos,2);
+    result =  -a/r *exp(-a*r)*pos;
 
-    else if(orbital==1)
-    {
-        result = R->get_singlePos(particleNumber);
-        result *= a/(4*r)*(a*r-4)*exp(-a*r/2);
-    }
+    pos[2]+=R0;
+    r = norm(pos,2);
+    result +=  -a/r *exp(-a*r)*pos;
 
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital-2);
-        result(orbital-2)+= -2*r;
-        result *= -a/(2*r)*exp(-a*r/2);
-    }
+//    if (orbital==0)
+//    {
+
+//    }
+
+//    else if(orbital==1)
+//    {
+//        result = R->get_singlePos(particleNumber);
+//        result *= a/(4*r)*(a*r-4)*exp(-a*r/2);
+//    }
+
+//    else if(orbital==2 || orbital==3 || orbital==4)
+//    {
+//        result = R->get_singlePos(particleNumber)*a*R->get_singlePos(particleNumber)(orbital-2);
+//        result(orbital-2)+= -2*r;
+//        result *= -a/(2*r)*exp(-a*r/2);
+//    }
 
 
     return result;
@@ -193,26 +216,34 @@ double function::divgradhydrogen(int particleNumber, int orbital, positions* R)
 
     double result;
     double a = funcParameters[0];
-    double r = R->get_r(particleNumber);
+    vec pos = R->get_singlePos(particleNumber);
+    pos[2]-=R0/2;
+    double r = norm(pos,2);
+    result = a/r*(a*r-2) * exp(-a*r);
 
-    if (orbital==0)
-    {
+    pos[2]+=R0;
+    r=norm(pos,2);
+    result += a/r*(a*r-2) * exp(-a*r);
 
-        result = a/r*(a*r-2) * exp(-a*r);
-    }
 
-    else if(orbital==1)
-    {
-        result = -a/(8*r)*(a*a*r*r-10*a*r+18)*exp(-a*r/2);
-    }
+//    if (orbital==0)
+//    {
 
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        vec RR = R->get_singlePos(particleNumber);
-        RR *= a*a/(4*r)*(a*r-8)*exp(-a*r/2);
 
-        result = RR(orbital-2);
-    }
+//    }
+
+//    else if(orbital==1)
+//    {
+//        result = -a/(8*r)*(a*a*r*r-10*a*r+18)*exp(-a*r/2);
+//    }
+
+//    else if(orbital==2 || orbital==3 || orbital==4)
+//    {
+//        vec RR = R->get_singlePos(particleNumber);
+//        RR *= a*a/(4*r)*(a*r-8)*exp(-a*r/2);
+
+//        result = RR(orbital-2);
+//    }
 
     return result;
 
@@ -224,26 +255,33 @@ double function::dhydrogenda(int particleNumber, int orbital, positions *R)
 {
     double result;
     double a = funcParameters[0];
-    double r = R->get_r(particleNumber);
+    vec pos = R->get_singlePos(particleNumber);
+    pos[2]-=R0/2;
+    double r = norm(pos,2);
+    result = -r * exp(-a*r);
 
-    if (orbital==0)
-    {
-        result = -r * exp(-a*r);
-    }
+    pos[2]+=R0;
+    r=norm(pos,2);
+    result += -r * exp(-a*r);
 
-    else if(orbital==1)
-    {
-        result = (a/4*r*r-r)*exp(-a*r/2);
-    }
+//    if (orbital==0)
+//    {
+
+//    }
+
+//    else if(orbital==1)
+//    {
+//        result = (a/4*r*r-r)*exp(-a*r/2);
+//    }
 
 
-    else if(orbital==2 || orbital==3 || orbital==4)
-    {
-        vec RR = R->get_singlePos(particleNumber);
-        RR *= (1-a*r/2)*exp(-a*r/2);
+//    else if(orbital==2 || orbital==3 || orbital==4)
+//    {
+//        vec RR = R->get_singlePos(particleNumber);
+//        RR *= (1-a*r/2)*exp(-a*r/2);
 
-        result = RR(orbital-2);
-    }
+//        result = RR(orbital-2);
+//    }
 
     return result;
 

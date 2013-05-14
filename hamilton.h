@@ -15,7 +15,8 @@ class hamilton
 {
 protected:
 
-    int ndim, nParticles, Z;
+    int ndim, nParticles;
+    int Z[2];
 
 public:
 

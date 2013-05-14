@@ -165,7 +165,12 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
 
 
 
-
+// function StatGrad (statistical gradient)
+// returns the gradient of the trial wave function according to the parameters
+// R0 is not treated as a parameter any longer, because it is a part of the system
+// and not only the trial wave funciton.
+// the 'statistical' is due to the big noise in the Monte Carlo calculation
+// because only a few cycles are used. This is actually used in the statistical gradient approach.
 vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, Config *parameters)
 {
 
@@ -204,7 +209,9 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
     }
 
     storeEnergy/=SCnSamples;
-    return 2.0/SCnSamples*(store2-store1*storeEnergy);
+    vec result =2.0/SCnSamples*(store2-store1*storeEnergy);
+
+    return result;
 
 }
 

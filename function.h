@@ -18,6 +18,7 @@ protected:
 
     // more general parameters (position vector, number of spacial dimensions, number of particles.
     int ndim, nParticles, nParticleshalf,nParams;
+    double R0;
     // number of parameters for the function needs obviously to be fixed here.
     // in the case of varying parameters setting this to the maximal value would be
     // the quick and dirty solution. So far, 2 parameter seem to be sufficient.
@@ -79,6 +80,9 @@ public:
 
     void setnParticles(int numberofParticles);
     int getnParticles();
+
+    void set_R0(double R);
+    double get_R0();
 
     mat getinvslatermatrix(int particleNumber);
     void setSlaterinv(int particleNumber, mat newSlaterInv);

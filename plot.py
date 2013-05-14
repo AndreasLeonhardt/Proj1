@@ -23,7 +23,7 @@ f.readline();
 energystring = f.readline()
 f.close()
 El=energystring.split('\t')
-E=El[2];
+E=El[3];
 
 f = figure();
 ad = f.add_subplot(111);
@@ -39,3 +39,4 @@ text(.85,.1,'Energy: '+E,horizontalalignment='right',verticalalignment='center',
 
 show()
 
+quit()
