@@ -41,9 +41,9 @@ public:
     mcInt(Config * parameters);
 
     positions * Step(function * fct, positions *Rold, long * idumadress, Config *parameters);
-    void integrate(function * fct, hamilton *H, long * idumadress, Config *parameters);
+    void integrate(function * fct, hamilton *H, long * idumadress, Config *parameters, char *samplefile);
     vec StatGrad(function * fct, hamilton *H, long * idumadress, int nParams, Config *parameters);
-    mat blocking(Config *parameters);
+    mat blocking(Config *parameters, char *samplefile, int rmax);
 
     void set_nSamples(int NewnSamples);
     int  get_nSamples();

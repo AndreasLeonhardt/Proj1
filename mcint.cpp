@@ -99,16 +99,13 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 // performs the Monte Carlo integration
 // calculating the mean and writing the samples to a file for later analysis.
 // direct calculation might be removed due to speed issue and inaccuracy concerning the error.
-void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters)
+void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters,char * samplefile)
 {
     // opening file for sample storage
     ofstream outfile;
 
-    // when running program in paralell, we need different names here.
-    // (adding numbers and so on)
 
-
-    outfile.open("sample.bin",ios::out | ios::binary);
+    outfile.open(samplefile,ios::out | ios::binary);
 
     acceptedSteps=0;
 
@@ -181,7 +178,7 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
     double E,derfct;
 
 
-    // thermalization
+    // thermalization  (could avoided if old position is used again for the next optimization step.)
     positions * R = new positions(parameters);
     fct->setSlaterinv(R);
     for (int n=0;n<SCthermalisationSteps;n++)
@@ -218,33 +215,48 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
 
 
 
-mat mcInt::blocking(Config *parameters)
+mat mcInt::blocking(Config *parameters,char * samplefilebody, int rmax)
 {
 
     int bmin = parameters->lookup("minBlockSize");
     int bmax = parameters->lookup("maxBlockSize");
     int bsteps= parameters->lookup("BlockSteps");
 
+
+
     // opening file for sample storage
+    char * file = new char[50];
     ifstream infile;
+    int NumberOfSamples=0;
+
     // when running program in paralell, we need different names here.
     // (adding numbers and so on)
-
-    infile.open("sample.bin",ios::in | ios::binary);
-
-    // get size of data block
-    int NumberOfSamples=0;
-    struct stat fileproperties;
-    if (stat("sample.bin",&fileproperties)==0)
+            struct stat fileproperties;
+    for (int r=0;r<rmax;r++)
     {
-        NumberOfSamples = fileproperties.st_size/sizeof(double);
+        sprintf(file,"%s_%u.dat",samplefilebody,r);
+        // get size of data block
+
+
+        if (stat(file,&fileproperties)==0)
+        {
+            NumberOfSamples += fileproperties.st_size/sizeof(double);
+        }
+
     }
+
     // allocate data block
     double data[NumberOfSamples];
 
-    // write data into array
-    infile.read((char*)&data,fileproperties.st_size);
-
+    for (int r=0;r<rmax;r++)
+    {
+        sprintf(file,"%s_%u.dat",samplefilebody,r);
+        stat(file,&fileproperties);
+        infile.open(file,ios::in | ios::binary);
+        // write data into array
+        infile.read((char*)&data,fileproperties.st_size);
+        infile.close();
+    }
 
     value = 0.0;
     for(int i=0;i<NumberOfSamples;i++)

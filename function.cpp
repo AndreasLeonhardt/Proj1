@@ -32,7 +32,7 @@ function::function(Config * parameters)
 
     funcParameters[0]=parameters->lookup("Parameters.[0]");
     funcParameters[1]=parameters->lookup("Parameters.[1]");
-    R0=parameters->lookup("R0");
+    R0=parameters->lookup("R_Start");
 }
 
 
