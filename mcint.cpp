@@ -120,38 +120,38 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
     }
 
     // store samples to write blockwise
-    double samples[10000];
+    int buffersize = 10000;
+    double buffer[buffersize];
     // loop over steps in blocks of 10000
-    for(int n=0;n<nSamples/10000;n++)
+    for(int n=0;n<nSamples/buffersize;n++)
     {
-        for(int m = 0; m<10000; m++)
+        for(int m = 0; m<buffersize; m++)
         {
         // perform step
         R = Step(fct, R, idumadress,parameters);
 
         // add energy value
-         double ede = H->localEnergy(fct,R);
-         samples[m]=ede;
+         buffer[m] = H->localEnergy(fct,R);
+
         }
 
         // write sample to file
-        outfile.write((char*) &samples, sizeof(double)*10000);
+        outfile.write((char*) &buffer, sizeof(double)*buffersize);
     }
     // do the rest, that didn't fit in the last block
-    for (int n=0;n<nSamples%10000;n++)
+    for (int n=0;n<nSamples%buffersize;n++)
     {
         // perform step
         R = Step(fct, R, idumadress,parameters);
 
         // add energy value
-         double ede = H->localEnergy(fct,R);
-         samples[n]=ede;
+         buffer[n]= H->localEnergy(fct,R);
 
     }
 
 
     // write sample to file but only the new values
-    outfile.write((char*) &samples, sizeof(double)*nSamples%10000);
+    outfile.write((char*) &buffer, sizeof(double)*nSamples%buffersize);
 
     acceptedSteps/=nParticles;
 

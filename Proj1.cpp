@@ -76,11 +76,11 @@ int main()
 
 
         // PARAMETER OPTIMIZATION ---------------------------------------------------------------------------
-        cout<<"parameter optimization "<<flush;
+        cout<<"parameter optimization "<<endl;
 
         // set alpha to Z for a start
         int Z = parameters->lookup("Z.[0]");
-        a(0)=Z;
+        //a(0)=Z;
         fun->setParameter(a(0),0);
 
         double R_Start = parameters->lookup("R_Start");
@@ -101,8 +101,9 @@ int main()
         // without adaptive stepsize, using 1/i as factor
         for(int i=1;i<parameterIterations+1;i++)
         {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;          
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
                 fun->setParameter(a);
+                cout << a(0)<<"\t"<<a(1)<<endl;
         }
 
         cout << "..... done."<<endl;
@@ -113,6 +114,8 @@ int main()
 
         // perform Monte Carlo integration
         // allow for independent Monte Carlo calculations
+        // but has to be modified then. pnumber could be a parameter the main() is called with
+        // then the blocking and so on should be called speratly.
 
         sprintf(samplefilePR,"%s%u",samplefilebody,r);
 
