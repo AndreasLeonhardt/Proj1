@@ -251,7 +251,11 @@ The first property ensures we can reach each point in parameter space, the secon
 when multiplied with the gradient, who is supposed to get smaller as well. 
 In practice we take only a finite number of steps. There are several choices for $(k_n)$, including ones, that change the sequence dynamically whenever the gradient changes 
 direction. 
-However, since we have a rough idea what parameters to expect, we used the simplest possible sequence $k_n=\frac{1}{n}$.
+The simplest possible choice would be $k_n=\frac{1}{n}$.
+This converges quite slow, because the step size is decreased drastically after only a few steps. 
+Therefore we chose a modification, namely $k_n=\frac{A}{B+n}$. The parameters $A$ and $B$ can be chosen such,
+that we have a bigger stepsize in the beginning and the long term behavior of $\frac1n$. Depending on the inital values,
+$A=B=50$ seems to be a good choice for our application. 
 The gradient is calculated by Monte Carlo integration, but using much fewer samples than usually, getting therefore a result with big statistical fluctuations. 
 Those  cancel on average, and the multiplication with $k_n$ prevents from jumping to far away again. 
 
@@ -268,12 +272,14 @@ Therefore a simple use of the standard deviation would underestimate our error.
 However, there are not all samples correlated, they can be seen as independet after taking some steps.
 It is to expensive to calculate this so called correlation length, but we group them togheter by calculating the average over blocks with varying sizes.
 We put these averages in equation \ref{stdev} and get an estimate for the error dependent on the block size.
-Doing this we expect the estimated error to grow, until the block size reaches the correlation length. 
+Doing this we expect the estimated error to grow, until the block size reaches the correlation length, where it reaches a plateau. 
+The statistical uncertainty is given by the value of this plateau. 
 
 
 
 
-\section{Programm Stucture}
+
+\section{The Programm}
 
 
 The programs source code and all necessary files can be found in the repository on GitHub: 

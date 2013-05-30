@@ -16,10 +16,11 @@ import os
 
 filename = sys.argv[1];
 
+
+# Energy-R dependence plot ------------------------------------------------------------------------
 rmax = int(sys.argv[2]);
 R_Start = float(sys.argv[3]);
 R_Step = float(sys.argv[4]);
-
 
 
 E=[];
@@ -33,29 +34,28 @@ for r in range(0,rmax):
 	energystring = f.readline()
 	f.close()
 	El=energystring.split('\t')
-	print(E);
 	E.append(float(El[3]));
 	R.append(R_Start+R_Step*r);
 
 
-#g = plt.figure();
-#gad = g.add_subplot(111);
-#gp=plt.plot(R,E);
-#xlabel('Radius [a.u.]');
-#ylabel('Energy');
-#title('Energy dependence of distance between nuclei');
-#plt.show(block=False);
+g = plt.figure();
+gad = g.add_subplot(111);
+gp=plt.plot(R,E);
+xlabel('Radius [a.u.]');
+ylabel('Energy [a.u.]');
+title('Energy dependence of distance between nuclei');
+plt.show(block=False);
 
-#open positions (anem not dynamically)
+
+# Single particle density -------------------------------------------------------------------------
+#open positions ( not dynamically)
 r=[];
 x=[];
 z=[];
 
-
-    
-
-datapoints = os.path.getsize('../Proj1/samples_R0_positions_0.dat')/8;
-p=open('../Proj1/samples_R0_positions_0.dat',mode='rb');
+R0 = argmin(E)
+datapoints = os.path.getsize('../Proj1/samples_R{0}_positions_0.dat'.format(str(R0)))/8;
+p=open('../Proj1/samples_R{0}_positions_0.dat'.format(str(R0)),mode='rb');
 values = array.array('d');
 values.read(p,datapoints)
 
@@ -68,31 +68,52 @@ for p in range(0,datapoints/3):
 h= plt.figure();
 had=h.add_subplot(111);
 twoDhist,xedges,yedges = histogram2d(x,z,bins=200);
+twoDhist/=datapoints/3;
 twoDhist.shape, xedges.shape, yedges.shape
 extent = [yedges[0], yedges[-1], xedges[-1], xedges[0]]
 plt.imshow(twoDhist, extent=extent, interpolation='nearest')
 plt.colorbar()
-plt.show()
-
-#hp=plt.hist(r,300);
+plt.show(block=False)
+xlabel('z [a.u.]')
+ylabel('x [a.u.]')
+title('single particle density for hydrogen molecule')
 plt.show(block=False);
 
 
 
-r = argmin(E)
-A=loadtxt('{0}{1}{2}'.format(filename,str(r),'.txt'), skiprows=6);
+# Blocking plot ------------------------------------------------------------------------------------
+A=loadtxt('{0}{1}{2}'.format(filename,str(R0),'.txt'), skiprows=6);
 f = plt.figure();
 ad = f.add_subplot(111);
 
 fp=plt.plot(A[:,0],A[:,1])
 
 xlabel('blocksize');
-ylabel('standard deviation');
+ylabel('energy standard deviation [a.u.]');
 title('blocking results');
-text(.85,.1,'Energy: '+str(E[r]),horizontalalignment='right',verticalalignment='center',transform= ad.transAxes);
+text(.85,.1,'Energy: '+str(E[R0])+'a.u.',horizontalalignment='right',verticalalignment='center',transform= ad.transAxes);
+
+plt.show(block=False)
 
 
+# parameter plot ------------------------------------------------------------------------------------
 
+Parameters = loadtxt('../Proj1/optimization_R{0}.txt'.format(str(R0)));
+k =plt.figure();
+ad = k.add_subplot(111)
+kp=plt.plot(Parameters[:,0])
+xlabel('iteration')
+ylabel('alpha')
+title('parameter optimization for alpha')
+plt.show(block=False)
+
+l =plt.figure();
+ad = k.add_subplot(111)
+lp=plt.plot(Parameters[:,1])
+xlabel('iteration')
+ylabel('beta')
+title('parameter optimization for beta')
 plt.show(block=True)
+
 
 quit()

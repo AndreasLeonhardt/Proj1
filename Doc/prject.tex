@@ -255,7 +255,7 @@ The simplest possible choice would be $k_n=\frac{1}{n}$.
 This converges quite slow, because the step size is decreased drastically after only a few steps. 
 Therefore we chose a modification, namely $k_n=\frac{A}{B+n}$. The parameters $A$ and $B$ can be chosen such,
 that we have a bigger stepsize in the beginning and the long term behavior of $\frac1n$. Depending on the inital values,
-$A=B=50$ seems to be a good choice for our application. 
+$A=B=40$ seems to be a good choice for our application. 
 The gradient is calculated by Monte Carlo integration, but using much fewer samples than usually, getting therefore a result with big statistical fluctuations. 
 Those  cancel on average, and the multiplication with $k_n$ prevents from jumping to far away again. 
 
@@ -273,13 +273,14 @@ However, there are not all samples correlated, they can be seen as independet af
 It is to expensive to calculate this so called correlation length, but we group them togheter by calculating the average over blocks with varying sizes.
 We put these averages in equation \ref{stdev} and get an estimate for the error dependent on the block size.
 Doing this we expect the estimated error to grow, until the block size reaches the correlation length, where it reaches a plateau. 
-The statistical uncertainty is given by the value of this plateau. 
+The statistical uncertainty is given by the value of this plateau. The final value for the uncertainty is then evaluated manually from the plot. 
 
 
 
 
 
-\section{Programm Stucture}
+
+\section{The Programm}
 
 
 The programs source code and all necessary files can be found in the repository on GitHub: 
@@ -484,6 +485,23 @@ The programm is in principle working the same way as in the previous case. The p
 The local energy is now a function of the ``function'' class. 
 In the numerical case the derivatives and ratios are calculated straight forward, what results in the Slater determinant beeing calculated many times.
 The analytical cases makes use of the simplifications described above and has to keep track of the inverese Slater matrix. 
+
+
+\section{results}
+
+\subsection{Atoms}
+\subsubsection{Helium}
+\subsubsection{Beryllium}
+\subsubsection{Neon}
+
+\subsection{Molecules}
+\subsubsection{Hydrogen Molecule}
+
+
+\subsubsection{Beryllium Molecule}
+
+
+
 
 
 \end{document}

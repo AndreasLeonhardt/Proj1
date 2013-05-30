@@ -7,7 +7,7 @@
 \contentsline {subsection}{\numberline {2.3}Derivatives of Ratios}{4}{subsection.2.3}
 \contentsline {subsection}{\numberline {2.4}Parameter Optimization}{5}{subsection.2.4}
 \contentsline {subsection}{\numberline {2.5}Data Analysis using Blocking}{6}{subsection.2.5}
-\contentsline {section}{\numberline {3}Programm Stucture}{6}{section.3}
+\contentsline {section}{\numberline {3}The Programm}{6}{section.3}
 \contentsline {subsection}{\numberline {3.1}Classes}{6}{subsection.3.1}
 \contentsline {subsubsection}{\numberline {3.1.1}positions}{6}{subsubsection.3.1.1}
 \contentsline {subsubsection}{\numberline {3.1.2}function}{6}{subsubsection.3.1.2}

@@ -136,7 +136,7 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
         // add energy value
          buffer[m] = H->localEnergy(fct,R);
          // write radius of particle 1
-         buffer_pos[3*m]=R->get_r(0);
+         buffer_pos[3*m]=R->get_rr(0,0);
          // write x-position of particle 1
          buffer_pos[3*m+1]=R->get_singlePos(0)(0);
          // write z-position of particle 1

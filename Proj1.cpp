@@ -68,20 +68,13 @@ int main()
     int nParams = parameters->lookup("nParameters");
     int parameterIterations = parameters->lookup("parameterIterations");
 
-        vec a=zeros(nParams);
-        a(0)=parameters->lookup("Parameters.[0]");
-        a(1)=parameters->lookup("Parameters.[1]");
+    vec a=zeros(nParams);
+
 
         cout << "..... done."<<endl;
 
 
         // PARAMETER OPTIMIZATION ---------------------------------------------------------------------------
-        cout<<"parameter optimization "<<endl;
-
-        // set alpha to Z for a start
-        //int Z = parameters->lookup("Z.[0]");
-        //a(0)=Z;
-        fun->setParameter(a(0),0);
 
         double R_Start = parameters->lookup("R_Start");
         double R0=R_Start;
@@ -91,22 +84,37 @@ int main()
         // create names for different files
         char * const samplefile = new char[50];
         char *const pos_samplefile = new char[50];
-        const char * samplefilebody = parameters->lookup("SampleFileName");
+        const char * samplefilebody = parameters->lookup(("SampleFileName"));
+        const char * parameterbody =parameters->lookup("ParameterFile");
+        char * const parameterfile = new char [50];
         char * const samplefilePR =new char[50];
         char * const pos_samplefilePR =new char [50];
+
 
         for (int r=0;r<rmax;r++)
         {
 
+            cout<<"parameter optimization "<<flush;
+
             fun->set_R0(R0);
+
+            sprintf(parameterfile,"%s_R%u.txt",parameterbody,r);
+            ofstream params;
+            params.open(parameterfile);
+
+            a(0)=parameters->lookup("Parameters.[0]");
+            a(1)=parameters->lookup("Parameters.[1]");
+            fun->setParameter(a);
+
 
             // without adaptive stepsize, using 1/i as factor
             for(int i=1;i<parameterIterations+1;i++)
             {
-//                a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
-//                    fun->setParameter(a);
-//                    cout << a(0)<<"\t"<<a(1)<<endl;
+                a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
+                    fun->setParameter(a);
+                    params << a(0)<<"\t"<<a(1)<<endl;
             }
+            params.close();
 
             cout << "..... done."<<endl;
 
@@ -132,7 +140,7 @@ int main()
                 sprintf(samplefile,"%s_%u.dat",samplefilePR, pnumber);
                 sprintf(pos_samplefile,"%s_%u.dat",pos_samplefilePR, pnumber);
                 // perform the calculation writing to samplefile
-//                MC.integrate(fun,H,idumadress,parameters,samplefile,pos_samplefile);
+                MC.integrate(fun,H,idumadress,parameters,samplefile,pos_samplefile);
             }
             cout<<"..... done"<<endl;
             // BLOCKING AND WRITING OF RESULTS --------------------------------------------------------------------
@@ -168,6 +176,7 @@ int main()
 
             R0 +=R_Step;
 
+            cout <<"...done"<<endl;
 
         }
 
@@ -187,7 +196,6 @@ int main()
     sprintf(command,"python ../Proj1/plot.py %s_R %u %f %f &", outputfile,rmax,R_Start,R_Step);
     cout <<'\n'<<command<<endl;
     system(command);
-    cout <<"...done"<<endl;
 
 
     return 0;
