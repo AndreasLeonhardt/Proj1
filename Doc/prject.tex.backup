@@ -1,0 +1,483 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[retainorgcmds]{IEEEtrantools}
+\usepackage{fancyhdr}
+\usepackage[]{graphics}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usetikzlibrary{shapes,arrows}
+\renewcommand{\arraystretch}{1.5}
+\renewcommand{\tabcolsep}{0.2cm}
+\newcommand{\ud}{\mathrm{d}}
+\newcommand{\ui}{\mathrm{i}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\bra}[1]{\big\langle #1 \big|}
+\newcommand{\ket}[1]{\big| #1 \big\rangle}
+\newcommand{\braket}[2]{\big\langle #1 \big| #2 \big\rangle}
+\usepackage{hyperref}
+\usepackage{todonotes}
+
+
+%opening
+\title{FYS 4411 }
+\author{Andreas Leonhardt}
+\date{\today}
+
+
+\pagestyle{fancy}
+\setlength{\headheight}{12pt}
+\renewcommand{\footrulewidth}{0.0pt}
+\renewcommand{\headrulewidth}{0.5pt}
+\lhead{Andreas Leonhardt}
+\chead{}
+\rhead{page \thepage}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+
+\section{The System}
+
+Given some arbitrary wavefunction $\ket{\Psi}$ and the wave function of the ground state $\ket{\Psi_0}$ we notice that
+\begin{equation}
+ E_0 = \frac{\bra{\Psi_0}\hat{H}\ket{\Psi_0}}{\braket{\Psi_0}{\Psi_0}} \le \frac{\bra{\Psi}\hat{H}\ket{\Psi}}{\braket{\Psi}{\Psi}} \label{VP}
+\end{equation}
+For normalized wavefunctions the denominators will be 1. 
+The inequality allows us to set a upper limit to the ground state energy using any wavefunction as a trial function. 
+
+
+The inner product in the RHS of equation \ref{VP} is defined as an integral and can be rewritten as
+\begin{equation}
+\bra{\Psi} \hat H \ket {\Psi} = \int \ud^3 r  \Psi \hat{H} \Psi = \int \ud^3 r |\Psi|\cdot \underbrace{\frac{1}{\Psi} \hat H \Psi }_{\epsilon(\vec{r})}
+\end{equation}
+In this way it is written as an integral over the local energy $\epsilon$ multiplied with a probability density. We solve this using Monte Carlo Integration. 
+
+\subsection{ Single Atoms}
+
+We want to calculate the ground state energy of various atoms: Helium, Beryllium and Neon. 
+They all have in common that they have closed shells and an even number of electrons, which simplifies things a bit.
+
+
+The Hamilton operator in atomic units is given by
+\begin{equation}
+ \hat H = \sum_{i=1}^{N} \left( \frac12 \nabla_i^2 +  -\frac{Z}{r_i} + \sum_{j<i} \frac{1}{r_{ij}} \right),
+\end{equation}
+where $N$ is the number of electrons, $Z$ the charge of the nucleus, $r_i = |\vec{r}_i|$ and $r_{ij} = |\vec{r}_i -\vec{r}_j|$. 
+Since the first two terms alone have the hydrogen like wave functions as eigenstates, we use them for our ansatz. Taking into account that electrons are fermions, we 
+can occupy every state with two electrons. Furthermore we have to antisymmetrize the ansatz. Since the Hamilton operator is independent of the spin of the particles,
+we can split the antisymmetrization and describe the wave function by a product of two independent Slater determinants, 
+one for particles with spin up and one for all particles with spin down. 
+Furthermore we include a factor, that provides an additional parameter to  interactions, the so called Jastrow factor. 
+The complete ansatz reads then
+\begin{equation}
+ \Psi = |D_{\uparrow}|\cdot|D_{\downarrow}|\cdot\left(\prod_{i<j} \exp \left(-\frac{ar_{ij}}{1+\beta r_{ij}}\right) \right)
+\end{equation}
+with $a=\frac12$ for electrons with equal spin and $a=\frac14$ for opposite spins.
+The first two terms are the Slater determinants for spin up and down respectively, the last term is the Jastrow factor or correlation part, here also called $\Psi_C$.
+The Slater matrices are defined through
+\begin{equation} 
+ (D_{\uparrow})_{ij} = \phi_j(\vec{r}_i), \quad (D_{\downarrow})_{\left(k-N/2\right)j} = \phi_j(\vec{r}_k)
+\end{equation}
+where $j=0,\dots,N-1$; $i=0,\dots ,\frac{N}{2}-1$ and $k=\frac{N}{2},\dots, N-1$.
+
+
+\begin{table}[hbtp]
+\begin{tabular}{|c|c|c|c|}
+\hline 
+ orbital & $\phi_i$ & $\nabla \phi_i$ & $\Delta \phi_i$ \\
+ \hline
+ 1s & $\e^{-\alpha r}$& $-\alpha \frac{\vec r}{r} \e^{-\alpha r }$& $ \frac{\alpha}{r}\left( \alpha r -2\right)\e^{-\alpha r}$ \\
+ \hline
+ 2s & $ \frac12\left( 2-\alpha r \right) \e^{-\frac12 \alpha r} $&$ \frac{\alpha \vec r}{4r}\left(\alpha r- 4 \right) \e^{-\frac12 \alpha r} $&$ 
+ \frac{\alpha}{8r} \left( \alpha r -8\right) \left(2-\alpha r\right) \e^{-\frac12 \alpha r}$ \\
+ \hline
+2p &  $\alpha x \e^{-\frac 12 \alpha r}$ & $\left(\alpha e_x -\frac{\alpha^2}{2} x\frac{\vec{r}}{r} \right) \e^{-\frac12 \alpha r} $&$ 
+\frac{\alpha^2x}{4r}\left(\alpha r -8 \right) \e^{-\frac12 \alpha r } $ \\
+
+&  $\alpha y \e^{-\frac12 \alpha r}$ & $\left(\alpha  e_y -\frac{\alpha^2}{2} y\frac{\vec{r}}{r} \right) \e^{-\frac12 \alpha r} $&$ 
+\frac{\alpha^2y}{4r}\left(\alpha r -8 \right) \e^{-\frac12 \alpha r} $ \\
+
+&  $\alpha z \e^{-\frac12 \alpha r}$ & $\left(\alpha e_z -\frac{\alpha^2}{2}z\frac{\vec{r}}{r} \right) \e^{-\frac 12 \alpha r} $&$ 
+\frac{\alpha^2z}{4r}\left(\alpha r -8 \right) \e^{-\frac12 \alpha r} $ \\
+\hline
+\end{tabular}
+\caption{ unnormalized single particle wave functions and derivatives}
+\label{spwf}
+\end{table}
+
+
+
+The hydrogen like wavefunctions and their derivatives are defined in table \ref{spwf} up to the 
+2p level, so we can fill in at most 10 electrons (two for each state), which is sufficient for Neon.
+In the hydrogen case the Slater determinants reduce to the 1s function.
+$\Phi$ contains two variational paramaters, $\alpha$ in the single particle wavefunctions, $\beta$ in the Jastrow factor. 
+$\alpha$ determines the width of the hydrogen like wave functions. 
+In the situation of only one electron, where we have analytical solutions, we get $\alpha = Z$ for the exact solution. 
+Since the electron repell each other we expect $\alpha$ to be a little bit smaller.
+This can also be seen as an effect from screening, where the electrons reduce the effective charge of the nucleus due to their own charge. 
+This effect might become more important for atoms with more electrons such as Neon. 
+The second parameter $\beta$ allow for correlations between the electrons. 
+
+\subsection{Hydrogen Molecule}
+
+We now extend the program to one of the most simple molecules, $\text{H}_2$.
+We use the Born-Oppenheimer approximation, where the degrees of freedom for the nuclei are frozen, e.g. they are treated as fixed in space.
+We choose to align them along the $z$-axis, at $\pm \frac12\vec{R} = \frac12 R \vec{e_z}$. 
+The Hamilton operator reads then 
+\begin{equation}
+  \hat H = \sum_{i=1}^{N} \left( \frac12 \nabla_i^2 +  -\frac{Z}{|\vec{r}_i-\frac12\vec{R}|} 
+							 -\frac{Z}{|\vec{r}_i+\frac12\vec{R}|} + \sum_{j<i} \frac{1}{r_{ij}} \right) + \frac1{R}.
+\end{equation}
+The ansatz for the wave function is again build on the hydrogen like wave functions and contains the Jastrow factor,
+\begin{IEEEeqnarray}{rCl}
+ \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} + \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}
+\end{IEEEeqnarray}
+The parameter $R$ that fixes the distance between the nuclei alters the energy of the system. We can not treat it as a variational parameter,
+since it changes the system itself, not only the trial function. We could use another $R$ in our ansatz, but we keep it the same as in the Hamiltonian. 
+We later look how the ground state energy depends on the distance. 
+
+
+\section{ Monte Carlo Integration}
+
+
+\subsection{Variational Monte Carlo}
+
+We calculate the integral by taking samples on positions, that are proposed by a random walker and checked against the propability distribution given by $|\Psi|$. 
+A step from an old position to a new position is given by $\vec{r}_{\mathrm{new}} = \vec{r}_{\mathrm{old}} + t\cdot\vec{\eta}$, where $t$ is a steplength, 
+that has to be fixed to a reasonable value
+and $\vec{\eta}$ is a vector with random entries from the interval $(-\frac12,\frac12)$. The move to the new position is accepted if 
+\begin{equation}
+ \frac{\Psi(\mathbf{r}_{\mathrm{new}})}{\Psi(\mathbf{r}_{\mathrm{old}})} < \chi, 
+\end{equation}
+for a random number $\chi \in [0,1]$. The  only quanitites we have to calculate are thus the ratio of wave functions and the local energy, both independet of 
+the normalization of the wave function. 
+
+
+
+
+\subsection{Importance Sampling}
+
+Here we change the way, we calculate a step and decide about the acceptance of a new position. For this we introduce the quantum force, that is defined by
+\begin{equation}
+ F = 2\frac{\nabla \Phi}{\Phi} 
+\end{equation}
+This is again independet of the normalization. 
+The suggested move to a new position is then given by 
+\begin{equation}
+ \vec{r}_{\mathrm{new}} = \vec{r}_{\mathrm{old}} + \sqrt{t} \cdot \vec{\eta}_{\mathrm{g}} + \frac12 t\cdot  F(\vec{r}_{\mathrm{old}})
+\end{equation}
+Here $\vec{\eta}_{\mathrm{g}}$ is filled with normal distributed random numbers with a variance of 1. 
+We move only one particle and decide then if we accept the new position or keep the old one instead. 
+The new position is accepted if 
+\begin{equation}
+ \frac{G(\mathbf{r}_{\text{old}},\vec{r}_{\text{new}},\Delta t)}
+      {G(\mathbf{r}_{\text{new}},\vec{r}_{\text{old}},\Delta t)}
+      \cdot
+ \frac{\Psi(\mathbf{r}_{\mathrm{new}})}{\Psi(\mathbf{r}_{\mathrm{old}})} < \chi.
+\end{equation}
+$\chi$ is again a random variable from the uniform distribution on the unit intervall $[0,1]$. 
+The additional factor contains the Greeens function, given by
+\begin{equation}
+ G(\vec{x},\vec{y},\Delta t) \propto \exp \left( -\frac{\left(\vec{y}-\vec{x} -D\Delta t F(\vec{x}) \right)^2 }{4D\Delta t} \right)
+\end{equation}
+where we dropped constant prefactors since we are looking just for the ratio.
+After this has been done for all particles we evaluate the local energy. 
+ 
+
+
+\subsection{Derivatives of Ratios}
+
+We can calculate closed form expressions for the local energy instead of calculating the derivatives numerically.
+We get
+\begin{equation}
+ \epsilon = \sum_{i=1}^N -\frac{Z}{r_i} + \frac{\Delta_i |D|}{|D|} + \frac{\Delta_i \Psi_C}{\Psi_C} 
+ +2\cdot \frac{\nabla_i |D|}{|D|} \cdot \frac{\nabla_i \Psi_C}{\Psi_C}+ \sum_{j<i} \frac{1}{r_{ij}} 
+\end{equation}
+
+To increase the speed of the calculations, there are ways to avoid the calcuation of the Slater Matrix and its determinant 
+every time we want to know the value of the function,  for example after changing the postion of only one particle. 
+Because we are often interested in ratios of wave functions, we can use another procedure. 
+Therefore we the following relation for the the inverse of the Slater matrix $D^{-1}$, using the minors $C_{ij}$:
+\begin{equation}
+ D^{-1}_{ji} = \frac{C_{ij}}{|D|}, \quad D^{-1}\cdot D = D \cdot D^{-1} = \mathbf{1}.
+\end{equation}
+Putting this in the Laplace expansion of the determinant, we can write in situations, where the only one particle is moved the ratio as
+\begin{IEEEeqnarray}{rCl}
+ \frac{\Psi(\mathbf{r}_{\mathrm{new}})}{\Psi(\mathbf{r}_{\mathrm{old}})} 
+ &=&
+  \sum_i \phi_j(\vec{r}_{\mathrm{new}}) D^{-1}_{ji}
+\end{IEEEeqnarray}
+by expanding along the column with the new position and noting that then $C_{ij}(\mathrm{old}) = C_{ij}(\mathrm{new})$.
+This is done only for the part of the Slater determinant that contains the moved electron, either the spin up part or the spin down part.
+In a similar way we get for the expressions containing derivatives
+\begin{equation}
+ \frac{\nabla_i \Psi}{\Psi} = \sum_j \left( \nabla_i \phi_j(\vec{r_i})  \right) D^{-1}_{ji} 
+\end{equation}
+and similar for the laplacian. As before we calculate this only for the part containing particle $i$, since the derivative is not acting
+on the other determinant, a great advantage of having a factorized wave function as used above. 
+
+
+\subsection{Parameter Optimization}
+
+As mentioned earlier, the energy calculated using the trial wave function sets a upper limit to the ground state energy.
+Therefore we want to set the parameters such, that we minimize the energy, knowing that this brings us closer to the ground state energy. 
+This brings us to the problem of minimizing multiple parameters at the same time, where the energy depends non-linearily on those.
+The simplest approach would be to take the gradient in parameter space and go with a steplength proportional to 
+the gradient into the opposite direction. This is known as steepest descend. However this has a few disadvantages, it converges slowly, since it is possible 
+to jump over the minimum point several times and it becomes very sensitive to noise close to the minimum. 
+To compensate for the later point we modify this method to the so called 'stochastic gradient' approach. 
+Here we reduce the proportionality factor between gradient and steplenght for every step.
+The next set of parameters $\vec{\alpha}_n$ is then given by the recursive relation
+\begin{equation}
+ \vec{\alpha}_{n+1} = \vec{\alpha}_n - k_n\cdot \nabla \vec{\alpha}_n.
+\end{equation}
+$(k_n)$ is a positive sequence that has to fullfill
+\begin{equation}
+ \sum_{i=0}^n k_i \stackrel{(n \rightarrow \infty)}{\longrightarrow} \infty , \quad\quad \sum_{i=0}^{\infty} k_i^2 < \infty.
+\end{equation}
+The first property ensures we can reach each point in parameter space, the second one tells us that the steps get smaller, so the procedure converges
+when multiplied with the gradient, who is supposed to get smaller as well. 
+In practice we take only a finite number of steps. There are several choices for $(k_n)$, including ones, that change the sequence dynamically whenever the gradient changes 
+direction. 
+However, since we have a rough idea what parameters to expect, we used the simplest possible sequence $k_n=\frac{1}{n}$.
+The gradient is calculated by Monte Carlo integration, but using much fewer samples than usually, getting therefore a result with big statistical fluctuations. 
+Those  cancel on average, and the multiplication with $k_n$ prevents from jumping to far away again. 
+
+\subsection{Data Analysis using Blocking}
+
+Since Monte Carlo integration is a statistical approach, we are interested in the statistical uncertainty of our result.
+As a first approach one can calculate 
+\begin{equation}
+ \Delta E = \left\langle \left(E - \langle E\rangle\right)^2 \right\rangle^{\frac12},
+ \label{stdev}
+\end{equation}
+but this formula assumes uncorrelated data. But our samples are correlated due to the fact that we get them from a random walker.
+Therefore a simple use of the standard deviation would underestimate our error. 
+However, there are not all samples correlated, they can be seen as independet after taking some steps.
+It is to expensive to calculate this so called correlation length, but we group them togheter by calculating the average over blocks with varying sizes.
+We put these averages in equation \ref{stdev} and get an estimate for the error dependent on the block size.
+Doing this we expect the estimated error to grow, until the block size reaches the correlation length. 
+
+
+
+
+\section{Programm Stucture}
+
+
+The programs source code and all necessary files can be found in the repository on GitHub: 
+\href{https://github.com/AndreasLeonhardt/Proj1.git}{github.com/AndreasLeonhardt/Proj1.git}.
+The structure of the program and of the most important function, mcint::integrate is shown in the flow charts \ref{PAP_main} and \ref{PAP_int}.
+
+
+
+
+\begin{figure}[htbp!]
+ \label{PAP_main}
+\centering
+ 
+  
+  
+  
+ \tikzstyle{controllpoint}	=[rectangle, 	draw = green!50, 	fill = green!20, thick, rounded corners]
+  \tikzstyle{operation}		=[rectangle, 	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+  \tikzstyle{decission}		=[diamond, 	draw = red!50,		fill = red!20, thick]
+  \tikzstyle{inoutput}		=[trapezium, trapezium left angle = 60, trapezium right angle = 120,	draw = brown!50,	fill = brown!20, thick] % want paralellogram
+  \tikzstyle{for}		=[trapezium, trapezium left angle = 60, trapezium right angle =  60,	draw = blue!70,		fill = blue!10, thick]
+  \tikzstyle{rof}		=[trapezium, trapezium left angle =120, trapezium right angle = 120,	draw = blue!70,		fill = blue!10, thick ,node distance=1.5cm]
+  \tikzstyle{sub}		=[rectangle split, rectangle split parts=3, rectangle split horizontal = true,
+				  rectangle split empty part width= 1pt,minimum width =0,minimum size =0,  	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+
+  
+  
+\begin{tikzpicture}[every node/.style={node distance = 2.0cm} ]
+  \node [controllpoint]	(Start) 			{Start};
+  \node [operation] 	(init)		[below of=Start]	{Initialize}
+  edge  [<-] (Start);
+  \node [for] 		(optLoop_Start) [below of=init] 	{i=1,\dots,parameterIterations}
+  edge  [<-] 		(init);
+  \node [operation]	(statGrad)	[below of=optLoop_Start,node distance=1.5cm]	{mcint::StatGrad}
+  edge  [<-,dotted] 	(optLoop_Start);
+  \node [operation] 	(desc)		[below of=statGrad]	{$\vec{a}$ += $-\frac{\nabla \vec{a}}{i}$}
+  edge  [<-,dotted] 	(statGrad);
+  \node [rof] 		(optLoop_End)	[below of=desc] 	{\phantom{i=1,\dots,parameterIterations}}
+  edge  [<-,dotted] 	(desc);
+  \node [operation] 	(int)  		[below of=optLoop_End]	{mcint::integrate}
+  edge  [<-]		(optLoop_End);
+  \node	[operation]	(blocking)	[below of=int]		{Blocking}
+  edge  [<-]		(int);
+  \node [inoutput]	(write)		[below of=blocking]	{write result to a file}
+  edge  [<-]		(blocking);
+  \node [sub]		(plot)		[below of=write]	{\nodepart{two} run 'python plot.py'}
+  edge  [<-]		(write);
+  \node [controllpoint](Stop)		[below of=plot]		{Stop}
+  edge  [<-]		(plot);
+ \end{tikzpicture}
+\caption{flow chart of main()}
+\end{figure}
+
+\begin{figure}[htbp!]
+ \label{PAP_int}
+ \centering
+ 
+  \tikzstyle{controllpoint}	=[rectangle, 	draw = green!50, 	fill = green!20, thick, rounded corners]
+  \tikzstyle{operation}		=[rectangle, 	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+  \tikzstyle{decission}		=[diamond, 	draw = red!50,		fill = red!20, thick]
+  \tikzstyle{inoutput}		=[trapezium, trapezium left angle = 60, trapezium right angle = 120,	draw = brown!50,	fill = brown!20, thick] % want paralellogram
+  \tikzstyle{for}		=[trapezium, trapezium left angle = 60, trapezium right angle =  60,	draw = blue!70,		fill = blue!10, thick]
+  \tikzstyle{rof}		=[trapezium, trapezium left angle =120, trapezium right angle = 120,	draw = blue!70,		fill = blue!10, thick ,node distance=1.5cm]
+  \tikzstyle{sub}		=[rectangle split, rectangle split parts=3, rectangle split horizontal = true,
+				  rectangle split empty part width= 1pt,minimum width =0,minimum size =0,  	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+ 
+ 
+ \begin{tikzpicture}[every node/.style={node distance = 2.0cm} ]
+  \node [controllpoint]	(Start)					{Start};
+  \node [operation]	(fopen)		[below of=Start]	{open file}
+  edge  [<-]		(Start);
+  \node [operation]	(reset)		[below of=fopen]	{reset accepted steps}
+  edge	[<-]		(fopen);
+  \node [operation]	(pos)		[below of=reset]	{create position R}
+  edge	[<-]		(reset);
+  \node [operation]	(setSI)		[below of=pos]		{set inverse Slater matrix}
+  edge	[<-]		(pos);
+  \node [for]		(therm)		[below of=setSI]	{for i=1,\dots,thermalization steps}
+  edge	[<-]		(setSI);
+  \node [operation]	(step)		[below of=therm]	{mcint::Step, propose for every single particle, accept eventually, increase accepted steps then}
+  edge [<-,dotted]	(therm);
+  \node [rof]		(thermstop)	[below of=step]		{\phantom{for i=1,\dots,thermalization steps}}
+  edge 	[<-,dotted]	(step);
+  \node [for]		(int1)		[below of=thermstop]	{for n=1,\dots,integrations steps/buffer}
+  edge	[<-]		(thermstop);
+  \node	[for]		(int2)		[below of=int1]		{for m=1,\dots,buffer}
+  edge	[<-,dotted]	(int1);
+  \node [operation]	(istep)		[below of=int2]		{mcint::Step, as before}
+  edge 	[<-,dotted]	(int2);
+  \node [operation]	(locen)		[below of=istep]	{write hamilton::localEnergy to buffer}
+  edge 	[<-,dotted]	(istep);
+  \node [rof]		(int2end)	[below of=locen]	{\phantom{for m=1,\dots,buffersize}}
+  edge	[<-,dotted]	(locen);
+  \node [operation]	(write)		[below of=int2end]	{write buffer to file}
+  edge  [<-,dotted]	(int2end);
+  \node [rof]		(int1end)	[below of=write]	{\phantom{for n=1,\dots,integrations steps/buffer}}
+  edge	[<-,dotted]	(write);
+  \node [operation]	(accSteps)	[below of=int1end]	{accepted steps /= number of integration steps}
+  edge  [<-]		(int1end);
+  \node [operation]	(fclose)	[below of=accSteps]	{close file}
+  edge 	[<-]		(accSteps);
+  \node [controllpoint]	(Stop)		[below of=fclose]	{Stop}
+  edge  [<-]		(fclose);
+    
+ \end{tikzpicture}
+
+ 
+ 
+\caption{flow chart of mcint::integrate} 
+\end{figure}
+
+
+
+
+\subsection{Classes}
+
+The program is build on  various classes in order to keep it modular and be able to switch between different scenarios. 
+Members were kept private in all classes, but there are functions to read and write them if this is needed or useful. 
+
+\subsubsection{positions}
+
+This class holds the information about the position of the electrons. 
+The main part is a matrix, that contains all the vectors of the single electrons. 
+Since we often just use the distance to the nucleus or between them, an object of 
+this class hols additional vectors with these values, that are updated each time a particle moves. 
+For numerical derivatives it contains a step function, to move a particle in one spatial direction. 
+
+\subsubsection{function}
+
+This class is implemented as a virtual class, so one can define different classes that inherit all the properties. 
+In this way it is easyer to switch between different functions. The classes that inherit from ``function'', here calles 
+``TrialFct'' or similar define the actual trial fct.
+The most important functions take an object of the ``positions'' class and return the value of the wave function or 
+some functions build of the wave function and its derivatives, among those the quantum force $F$, the gradient over the function,
+the parameter derivative over the function
+and for two different postions the ratio of Slater determinants and Jastrow factors.
+In addition it contains functions that update the inverse Slater matrix. These are sometimes empty functions, if this matrix is not used. 
+
+
+
+\subsubsection{hamilton}
+
+Here we define only the Hamiltonian, of more precisely the energy density.
+In earlier versions there were two different versions, one that used numerical derivatives and one that had an analytical version.
+This was then moved inside the function class.
+
+
+\subsubsection{mcint}
+
+The ``mcint'' class contains the functions, that actually perform the calculations. 
+The most important ones are the ``step'' function, that proposes a new position, based on an old one, and decides if it is accepted. 
+This is used repeadetly in the thermalization and integration. 
+``integrate'' is another function, that first thermalizes according to number of steps in the parameter file, and than takes samples 
+and writes them blockwise to a file. 
+Afterwards these files are processed in the ``blocking'' function. 
+There is a function, ``StatGrad'', that calculates derivatives of the energy with respect to the variational parameters. This is used in the
+parameter optimization via the stochastical gradient method. This is done by a Monte Carlo integration over only a few samples, about 1000.
+The derivative is calculated according to the formula
+\begin{equation}
+ \partial_{\alpha} E[\alpha] = 2 \cdot \Big\langle \hat{H} \frac{\partial_{\alpha} \Psi}{\Psi} \Big\rangle 
+			       -2\cdot \Big\langle \hat{H} \Big\rangle \Big\langle \frac{\partial_{\alpha} \Psi}{\Psi} \Big\rangle,
+\end{equation}
+which an be found by tedious but straightforward calculation and holds for all parameters, as long as $\partial_{\alpha}\hat{H} =0$.
+The result is much faster and more accurate than a numerical derivation would be, especially on
+data with statistical errors. 
+
+
+
+
+\subsubsection{libconfig}
+
+Parameters are stored in a seperate configuration file, ``parameters.cfg''. 
+To get a parameter the ``libconfig\footnote{\href{http://www.hyperrealm.com/libconfig/}{hyperrealm.com/libconfig}}'' class is used. The parameter has to be written in the format
+\begin{lstlisting}
+ keyword = parameter;
+\end{lstlisting}
+The parameter can then be looked up by a instance of the configuration class given the keyword as a string. The data type is detected automatically. 
+The file contains all parameters like the charge of the nuclei, some initial values for $\alpha$ and $\beta$, 
+the number of cycles for thermalization, integration, optimization and so on. 
+
+
+
+\subsection{Structure}
+
+
+
+
+
+The Monte Carlo integration is function of the ``mcint'' class, that also has a function to suggest a new step 
+and test it. It takes a function and a position from the classes ``function'' and ``postions''. A position contains the vectors of the particles, 
+the length of the position vectors and
+the distance between them. The later ones are updated ones the position of one or all particles is changed. 
+A object from the function class has several functions that return the value of the function at a given position, 
+but also the gradient or the laplace of the function divided by the function, expressions we need often as seen above. 
+In this branch is the local energy a class for itself, called ``hamilton''. This function is in later versions included in the function class.
+The function and hamilton classes are virtual, the subclasses implement the derivatives numerically or analyticaly. 
+In this branch is the analytical version just defined for two particles. 
+Parameters are stored in a seperate file, that is read in in the beginning, using the libconfig class.
+
+The programm is in principle working the same way as in the previous case. The program is found at top on the master branch on the same repository as above,
+\href{https://github.com/AndreasLeonhardt/Proj1.git}{github.com/AndreasLeonhardt/Proj1.git}.
+The local energy is now a function of the ``function'' class. 
+In the numerical case the derivatives and ratios are calculated straight forward, what results in the Slater determinant beeing calculated many times.
+The analytical cases makes use of the simplifications described above and has to keep track of the inverese Slater matrix. 
+
+
+\end{document}
