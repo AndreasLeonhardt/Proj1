@@ -79,7 +79,7 @@ int main()
         cout<<"parameter optimization "<<endl;
 
         // set alpha to Z for a start
-        int Z = parameters->lookup("Z.[0]");
+        //int Z = parameters->lookup("Z.[0]");
         //a(0)=Z;
         fun->setParameter(a(0),0);
 
@@ -90,74 +90,83 @@ int main()
 
         // create names for different files
         char * const samplefile = new char[50];
-        const char * samplefilebody = "samples_R";
+        char *const pos_samplefile = new char[50];
+        const char * samplefilebody = parameters->lookup("SampleFileName");
         char * const samplefilePR =new char[50];
+        char * const pos_samplefilePR =new char [50];
 
         for (int r=0;r<rmax;r++)
         {
 
-        fun->set_R0(R0);
+            fun->set_R0(R0);
 
-        // without adaptive stepsize, using 1/i as factor
-        for(int i=1;i<parameterIterations+1;i++)
-        {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
-                fun->setParameter(a);
-                cout << a(0)<<"\t"<<a(1)<<endl;
-        }
+            // without adaptive stepsize, using 1/i as factor
+            for(int i=1;i<parameterIterations+1;i++)
+            {
+//                a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
+//                    fun->setParameter(a);
+//                    cout << a(0)<<"\t"<<a(1)<<endl;
+            }
 
-        cout << "..... done."<<endl;
-
-
-        // INTEGRATION ---------------------------------------------------------------------------------------
-        cout <<"integration "<<flush;
-
-        // perform Monte Carlo integration
-        // allow for independent Monte Carlo calculations
-        // but has to be modified then. pnumber could be a parameter the main() is called with
-        // then the blocking and so on should be called speratly.
-
-        sprintf(samplefilePR,"%s%u",samplefilebody,r);
-
-        for (int pnumber =0;pnumber<1;pnumber++)
-        {
-            sprintf(samplefile,"%s_%u.dat",samplefilePR, pnumber);
-            // perform the calculation writing to samplefile
-            MC.integrate(fun,H,idumadress,parameters,samplefile);
-        }
-        cout<<"..... done"<<endl;
-        // BLOCKING AND WRITING OF RESULTS --------------------------------------------------------------------
-        // analyse the result via blocking
-        cout<<"blocking "<<flush;
-
-        mat blockingResult = MC.blocking(parameters,samplefilePR,rmax).t();
-
-        cout << "...done."<<endl;
+            cout << "..... done."<<endl;
 
 
-        // write results
-        cout<<"write results "<<flush;
+            // INTEGRATION ---------------------------------------------------------------------------------------
+            cout <<"integration "<<flush;
 
-        ofstream results;
-        char * outputfile = new char[50];
-        const char * outputfilebody = parameters->lookup("outputfile");
-        sprintf(outputfile,"%s_R%u.txt",outputfilebody,r);
-        results.open(outputfile);
-        results << "Integration points: " << (int) parameters->lookup("nSamples")
-                << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
-        results << "alpha\tbeta\tR_0\tE\tacceptance_ratio" << endl ;
+            // perform Monte Carlo integration
+            // allow for independent Monte Carlo calculations
+            // but has to be modified then. pnumber could be a parameter the main() is called with
+            // then the blocking and so on should be called speratly.
+
+            sprintf(samplefilePR,"%s%u",samplefilebody,r);
+            sprintf(pos_samplefilePR,"%s%u_positions",samplefilebody,r);
+
+            // this loop allows for several random walkers, producing several files with samples.
+            // they can be collected. However, the program would have to be changes slightley,
+            // for example being called with a different number for 'pnumber'.
+            // the parameter 'threats' is more for testing purpose.
+            int threats = parameters->lookup("threats");
+            for (int pnumber =0;pnumber<threats;pnumber++)
+            {
+                sprintf(samplefile,"%s_%u.dat",samplefilePR, pnumber);
+                sprintf(pos_samplefile,"%s_%u.dat",pos_samplefilePR, pnumber);
+                // perform the calculation writing to samplefile
+//                MC.integrate(fun,H,idumadress,parameters,samplefile,pos_samplefile);
+            }
+            cout<<"..... done"<<endl;
+            // BLOCKING AND WRITING OF RESULTS --------------------------------------------------------------------
+            // analyse the result via blocking
+            cout<<"blocking "<<flush;
+
+            mat blockingResult = MC.blocking(parameters,samplefilePR,threats).t();
+
+            cout << "...done."<<endl;
+
+
+            // write results
+            cout<<"write results "<<flush;
+
+            ofstream results;
+            char * outputfile = new char[50];
+            const char * outputfilebody = parameters->lookup("outputfile");
+            sprintf(outputfile,"%s_R%u.txt",outputfilebody,r);
+            results.open(outputfile);
+            results << "Integration points: " << (int) parameters->lookup("nSamples")*(int) parameters->lookup("threats")
+                    << "  analytical: " << (int) parameters->lookup("analytical_energy_density") <<endl;
+            results << "alpha\tbeta\tR_0\tE\tacceptance_ratio" << endl ;
 
 
 
-        results << a(0)<<"\t"<<a(1)<<"\t"<<fun->get_R0()<<"\t"<<MC.get_value()<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
+            results << a(0)<<"\t"<<a(1)<<"\t"<<fun->get_R0()<<"\t"<<MC.get_value()<<"\t"<<MC.get_acceptanceRatio()<<endl<<endl;
 
-        results<<"blocking result:"<<endl
-               <<"blocksize\tvariance"<<endl
-               <<blockingResult<<endl;
+            results<<"blocking result:"<<endl
+                <<"blocksize\tvariance"<<endl
+                <<blockingResult<<endl;
 
-        results.close();
+            results.close();
 
-        R0 +=R_Step;
+            R0 +=R_Step;
 
 
         }

@@ -11,6 +11,8 @@
 from numpy import *
 from pylab import *
 import matplotlib.pyplot as plt
+import array
+import os
 
 filename = sys.argv[1];
 
@@ -36,13 +38,45 @@ for r in range(0,rmax):
 	R.append(R_Start+R_Step*r);
 
 
-g = plt.figure();
-gad = g.add_subplot(111);
-gp=plt.plot(R,E);
-xlabel('Radius [a.u.]');
-ylabel('Energy');
-title('Energy dependence of distance between nuclei');
+#g = plt.figure();
+#gad = g.add_subplot(111);
+#gp=plt.plot(R,E);
+#xlabel('Radius [a.u.]');
+#ylabel('Energy');
+#title('Energy dependence of distance between nuclei');
+#plt.show(block=False);
+
+#open positions (anem not dynamically)
+r=[];
+x=[];
+z=[];
+
+
+    
+
+datapoints = os.path.getsize('../Proj1/samples_R0_positions_0.dat')/8;
+p=open('../Proj1/samples_R0_positions_0.dat',mode='rb');
+values = array.array('d');
+values.read(p,datapoints)
+
+
+for p in range(0,datapoints/3):
+	r.append(values[3*p]);                 
+ 	x.append(values[3*p+1]);               
+ 	z.append(values[3*p+2]);
+
+h= plt.figure();
+had=h.add_subplot(111);
+twoDhist,xedges,yedges = histogram2d(x,z,bins=200);
+twoDhist.shape, xedges.shape, yedges.shape
+extent = [yedges[0], yedges[-1], xedges[-1], xedges[0]]
+plt.imshow(twoDhist, extent=extent, interpolation='nearest')
+plt.colorbar()
+plt.show()
+
+#hp=plt.hist(r,300);
 plt.show(block=False);
+
 
 
 r = argmin(E)

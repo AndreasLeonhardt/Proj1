@@ -99,13 +99,15 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 // performs the Monte Carlo integration
 // calculating the mean and writing the samples to a file for later analysis.
 // direct calculation might be removed due to speed issue and inaccuracy concerning the error.
-void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters,char * samplefile)
+void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * parameters,char * samplefile, char * sample_pos)
 {
     // opening file for sample storage
     ofstream outfile;
-
+    // open a file for position storage
+    ofstream pos_out;
 
     outfile.open(samplefile,ios::out | ios::binary);
+    pos_out.open(sample_pos,ios::out | ios::binary);
 
     acceptedSteps=0;
 
@@ -122,6 +124,7 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
     // store samples to write blockwise
     int buffersize = 10000;
     double buffer[buffersize];
+    double buffer_pos[buffersize*3];
     // loop over steps in blocks of 10000
     for(int n=0;n<nSamples/buffersize;n++)
     {
@@ -132,31 +135,46 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
 
         // add energy value
          buffer[m] = H->localEnergy(fct,R);
+         // write radius of particle 1
+         buffer_pos[3*m]=R->get_r(0);
+         // write x-position of particle 1
+         buffer_pos[3*m+1]=R->get_singlePos(0)(0);
+         // write z-position of particle 1
+         buffer_pos[3*m+2]=R->get_singlePos(0)(2);
 
         }
 
         // write sample to file
         outfile.write((char*) &buffer, sizeof(double)*buffersize);
+        pos_out.write((char*) &buffer_pos,sizeof(double)*3*buffersize);
     }
     // do the rest, that didn't fit in the last block
-    for (int n=0;n<nSamples%buffersize;n++)
+    for (int m=0;m<nSamples%buffersize;m++)
     {
         // perform step
         R = Step(fct, R, idumadress,parameters);
 
         // add energy value
-         buffer[n]= H->localEnergy(fct,R);
+         buffer[m]= H->localEnergy(fct,R);
+         buffer_pos[3*m]=R->get_r(0);
+         // write x-position of particle 1
+         buffer_pos[3*m+1]=R->get_singlePos(0)(0);
+         // write z-position of particle 1
+         buffer_pos[3*m+2]=R->get_singlePos(0)(2);
 
     }
 
 
     // write sample to file but only the new values
     outfile.write((char*) &buffer, sizeof(double)*nSamples%buffersize);
+    pos_out.write((char*) &buffer_pos,sizeof(double)*3*nSamples%buffersize);
+
 
     acceptedSteps/=nParticles;
 
     // close sample close
     outfile.close();
+    pos_out.close();
 }
 
 
@@ -215,7 +233,7 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
 
 
 
-mat mcInt::blocking(Config *parameters,char * samplefilebody, int rmax)
+mat mcInt::blocking(Config *parameters,char * samplefilebody, int threats)
 {
 
     int bmin = parameters->lookup("minBlockSize");
@@ -228,11 +246,11 @@ mat mcInt::blocking(Config *parameters,char * samplefilebody, int rmax)
     char * file = new char[50];
     ifstream infile;
     int NumberOfSamples=0;
-
+    int CombinedFileLength =0;
     // when running program in paralell, we need different names here.
     // (adding numbers and so on)
             struct stat fileproperties;
-    for (int r=0;r<rmax;r++)
+    for (int r=0;r<threats;r++)
     {
         sprintf(file,"%s_%u.dat",samplefilebody,r);
         // get size of data block
@@ -240,28 +258,32 @@ mat mcInt::blocking(Config *parameters,char * samplefilebody, int rmax)
 
         if (stat(file,&fileproperties)==0)
         {
-            NumberOfSamples += fileproperties.st_size/sizeof(double);
+            CombinedFileLength +=fileproperties.st_size;
         }
 
     }
+    NumberOfSamples += CombinedFileLength/sizeof(double);
 
     // allocate data block
-    double data[NumberOfSamples];
-
-    for (int r=0;r<rmax;r++)
+    char* data = new char[CombinedFileLength];
+    int save_position=0;
+    for (int r=0;r<threats;r++)
     {
         sprintf(file,"%s_%u.dat",samplefilebody,r);
         stat(file,&fileproperties);
         infile.open(file,ios::in | ios::binary);
         // write data into array
-        infile.read((char*)&data,fileproperties.st_size);
+        infile.read(reinterpret_cast<char*>(data+save_position),fileproperties.st_size);
         infile.close();
+        save_position +=fileproperties.st_size;
     }
+
+    double * values =reinterpret_cast<double*>(data);
 
     value = 0.0;
     for(int i=0;i<NumberOfSamples;i++)
     {
-        value+=data[i];
+        value+=values[i];
     }
     value /=NumberOfSamples;
 
@@ -292,7 +314,7 @@ mat mcInt::blocking(Config *parameters,char * samplefilebody, int rmax)
             // calculate averages over blocks
             for(int i = 0;i<b;i++)
             {
-                newSample+=data[j*b+i];
+                newSample+=values[j*b+i];
             }
             newSample/=b;
 
