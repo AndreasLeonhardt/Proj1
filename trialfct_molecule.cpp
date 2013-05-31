@@ -49,21 +49,21 @@ double TrialFct_molecule::getValue(positions * R)
         double dist;
 
         for (int i=0;i<nParticleshalf;i++)
-        {   // equal spin, factor 1/2
+        {   // equal spin, factor 1/4
             for (int j=0;j<i;j++)
             {
                 dist = R->get_rr(i-1,j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
+                jastrow += dist/(4+4*funcParameters[1]*dist);
 
                 dist = R->get_rr(nParticleshalf+i-1,nParticleshalf+j);
-                jastrow += dist/(2+2*funcParameters[1]*dist);
+                jastrow += dist/(4+4*funcParameters[1]*dist);
             }
 
-            // opposite spin, factor 1/4
+            // opposite spin, factor 1/2
             for (int j=nParticleshalf;j<nParticles;j++)
             {
                 dist = R->get_rr(j-1,i);
-                jastrow += dist/(4+4*funcParameters[1]*dist);
+                jastrow += dist/(2+2*funcParameters[1]*dist);
             }
 
         }
@@ -181,19 +181,19 @@ double TrialFct_molecule::getDivGradOverFct(int particleNumber, positions *R)
         for (i=0;i<particleNumber;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
 
         for (i=particleNumber+1;i<nParticleshalf;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
 
         for (i=nParticleshalf;i<nParticles;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
     }
 
@@ -203,18 +203,18 @@ double TrialFct_molecule::getDivGradOverFct(int particleNumber, positions *R)
         for (int i=0;i<nParticleshalf;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
         for (i=nParticleshalf;i<particleNumber;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
 
         for (i=particleNumber+1;i<nParticles;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
         }
     }
     //------------------------------------------------------------------
@@ -276,26 +276,26 @@ double TrialFct_molecule::JastrowRatio(int particleNumber, positions * Rold, pos
         for (int i=0;i<particleNumber;i++)
         {
             dist = Rnew->get_rr(particleNumber-1,i);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
 
             dist = Rold->get_rr(particleNumber-1,i);
-            jastrow -= dist/(2+2*funcParameters[1]*dist);
+            jastrow -= dist/(4+4*funcParameters[1]*dist);
         }
         for (int i=particleNumber+1;i<nParticleshalf;i++)
-        {
-            dist = Rnew->get_rr(i-1,particleNumber);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
-
-            dist = Rold->get_rr(i-1,particleNumber);
-            jastrow -= dist/(2+2*funcParameters[1]*dist);
-        }
-        for (int i=nParticleshalf;i<nParticles;i++)
         {
             dist = Rnew->get_rr(i-1,particleNumber);
             jastrow += dist/(4+4*funcParameters[1]*dist);
 
             dist = Rold->get_rr(i-1,particleNumber);
             jastrow -= dist/(4+4*funcParameters[1]*dist);
+        }
+        for (int i=nParticleshalf;i<nParticles;i++)
+        {
+            dist = Rnew->get_rr(i-1,particleNumber);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(i-1,particleNumber);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
         }
     }
     else
@@ -303,26 +303,26 @@ double TrialFct_molecule::JastrowRatio(int particleNumber, positions * Rold, pos
         for (int i=0;i<nParticleshalf;i++)
         {
             dist = Rnew->get_rr(particleNumber-1,i);
+            jastrow += dist/(2+2*funcParameters[1]*dist);
+
+            dist = Rold->get_rr(particleNumber-1,i);
+            jastrow -= dist/(2+2*funcParameters[1]*dist);
+        }
+        for (int i=nParticleshalf;i<particleNumber;i++)
+        {
+            dist = Rnew->get_rr(particleNumber-1,i);
             jastrow += dist/(4+4*funcParameters[1]*dist);
 
             dist = Rold->get_rr(particleNumber-1,i);
             jastrow -= dist/(4+4*funcParameters[1]*dist);
         }
-        for (int i=nParticleshalf;i<particleNumber;i++)
-        {
-            dist = Rnew->get_rr(particleNumber-1,i);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
-
-            dist = Rold->get_rr(particleNumber-1,i);
-            jastrow -= dist/(2+2*funcParameters[1]*dist);
-        }
         for (int i=particleNumber+1;i<nParticles;i++)
         {
             dist = Rnew->get_rr(i-1,particleNumber);
-            jastrow += dist/(2+2*funcParameters[1]*dist);
+            jastrow += dist/(4+4*funcParameters[1]*dist);
 
             dist = Rold->get_rr(i-1,particleNumber);
-            jastrow -= dist/(2+2*funcParameters[1]*dist);
+            jastrow -= dist/(4+4*funcParameters[1]*dist);
         }
     }
 
@@ -345,14 +345,14 @@ vec TrialFct_molecule::GradJastrow(int particleNumber, positions * R)
         for (int i=0;i<particleNumber;i++)
             {
             rr=R->get_rr(particleNumber-1,i);
-            result += 0.5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+            result += 0.25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
                                     /((1+b*rr)*(1+b*rr)*rr);
             }
 
         for (int i=particleNumber+1;i<nParticleshalf;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += .5 *( R->get_singlePos(particleNumber) - R->get_singlePos(i) )
+            result += .25 *( R->get_singlePos(particleNumber) - R->get_singlePos(i) )
                                     /((1+b*rr)*(1+b*rr)*rr);
         }
 
@@ -360,7 +360,7 @@ vec TrialFct_molecule::GradJastrow(int particleNumber, positions * R)
         for (int i=nParticleshalf;i<nParticles;i++)
             {
                     rr=R->get_rr(i-1,particleNumber);
-                    result += .25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                    result += .5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
                                             /((1+b*rr)*(1+b*rr)*rr);
             }
     }
@@ -370,20 +370,20 @@ vec TrialFct_molecule::GradJastrow(int particleNumber, positions * R)
         for (int i=0;i<nParticleshalf;i++)
             {
                     rr=R->get_rr(particleNumber-1,i);
-                    result += .25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+                    result += .5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
                                             /((1+b*rr)*(1+b*rr)*rr);
             }
         for (int i=nParticleshalf;i<particleNumber;i++)
             {
             rr=R->get_rr(particleNumber-1,i);
-            result += 0.5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+            result += 0.25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
                                     /((1+b*rr)*(1+b*rr)*rr);
             }
 
         for (int i=particleNumber+1;i<nParticles;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += .5 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
+            result += .25 *(R->get_singlePos(particleNumber)-R->get_singlePos(i))
                                     /((1+b*rr)*(1+b*rr)*rr);
         }
     }
@@ -426,15 +426,30 @@ double TrialFct_molecule::ParamDerivativeOverFct(positions * R,int parameterNumb
     else if(parameterNumber ==1)
     {
         double rr;
-        for (int i=0;i<nParticles;i++)
+        for (int i=0;i<nParticleshalf;i++)
         {
             for(int j=0;j<i;j++)
             {
                 rr = R->get_rr(i-1,j);
-                result -=   rr/(  (1+funcParameters[parameterNumber]*rr)
+                result -=   0.25*rr/(  (1+funcParameters[parameterNumber]*rr)
+                                 *(1+funcParameters[parameterNumber]*rr) ) ;
+
+                rr = R->get_rr(i+nParticleshalf-1,j+nParticleshalf);
+                result -=   0.25*rr/(  (1+funcParameters[parameterNumber]*rr)
                                  *(1+funcParameters[parameterNumber]*rr) ) ;
             }
+
+            for (int j=nParticleshalf;j<nParticles;j++)
+            {
+                rr= R-get_rr(j-1,i);
+                result -= 0.5*rr/(  (1+funcParameters[parameterNumber]*rr)
+                                    *(1+funcParameters[parameterNumber]*rr) ) ;
+            }
         }
+
+
+
+
     }
 
 

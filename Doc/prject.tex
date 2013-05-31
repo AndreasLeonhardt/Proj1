@@ -83,7 +83,7 @@ The complete ansatz reads then
 \begin{equation}
  \Psi = |D_{\uparrow}|\cdot|D_{\downarrow}|\cdot\left(\prod_{i<j} \exp \left(-\frac{ar_{ij}}{1+\beta r_{ij}}\right) \right)
 \end{equation}
-with $a=\frac12$ for electrons with equal spin and $a=\frac14$ for opposite spins.
+with $a=\frac14$ for electrons with equal spin and $a=\frac12$ for opposite spins.
 The first two terms are the Slater determinants for spin up and down respectively, the last term is the Jastrow factor or correlation part, here also called $\Psi_C$.
 The Slater matrices are defined through
 \begin{equation} 
@@ -523,7 +523,14 @@ onto the $x-z-$plane.
 The later one is the sum of single particle densities for both electrons multiplied with the charge.
 But the probability density is the same for both electrons, and we have therefore just a factor of $2e$. 
 This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
-nuclei, which explains the attraction. 
+nuclei, which explains the attraction, since we can think of it acting as a negative charge in between the two positive nuclei, that overcompensates for their repulsion. 
+
+In a secon approach we changed the trial wave function to
+\begin{IEEEeqnarray}{rCl}
+  \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} - \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}
+\end{IEEEeqnarray}
+
 
 
 

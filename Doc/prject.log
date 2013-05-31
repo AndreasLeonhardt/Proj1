@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  31 MAY 2013 11:45
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  31 MAY 2013 13:56
 entering extended mode
  %&-line parsing enabled.
 **prject.tex
@@ -962,12 +962,12 @@ LaTeX Warning: Marginpar on page 11 moved.
 LaTeX Warning: Marginpar on page 11 moved.
 
 [11 <../../H2_EofR.pdf>]
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 530--530
+Overfull \hbox (1.2501pt too wide) in paragraph at lines 537--537
 [][][][]\OT1/cmr/m/n/10 asymmetric 
  []
 
 
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 530--530
+Overfull \hbox (1.2501pt too wide) in paragraph at lines 537--537
 [][][][]\OT1/cmr/m/n/10 asymmetric 
  []
 
@@ -997,7 +997,7 @@ ve/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf-texlive/fonts/type
 onts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.
 pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/s
 hare/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on prject.pdf (12 pages, 256475 bytes).
+Output written on prject.pdf (12 pages, 257094 bytes).
 PDF statistics:
  337 PDF objects out of 1000 (max. 8388607)
  68 named destinations out of 1000 (max. 500000)
