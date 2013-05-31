@@ -254,10 +254,13 @@ direction.
 The simplest possible choice would be $k_n=\frac{1}{n}$.
 This converges quite slow, because the step size is decreased drastically after only a few steps. 
 Therefore we chose a modification, namely $k_n=\frac{A}{B+n}$. The parameters $A$ and $B$ can be chosen such,
-that we have a bigger stepsize in the beginning and the long term behavior of $\frac1n$. Depending on the inital values,
-$A=B=50$ seems to be a good choice for our application. 
+that we have a bigger stepsize in the beginning and still the long term behavior of $\frac1n$. Depending on the inital values,
+$A=B=40$ seems to be a good choice for our application.
 The gradient is calculated by Monte Carlo integration, but using much fewer samples than usually, getting therefore a result with big statistical fluctuations. 
 Those  cancel on average, and the multiplication with $k_n$ prevents from jumping to far away again. 
+A proplem with this method is, that it might get difficult to cover big distances in parameter space, that means 
+to go from a wrong set of parameters to the minimum. It is also possible to get stuck in the a local minimum. 
+
 
 \subsection{Data Analysis using Blocking}
 
@@ -273,7 +276,8 @@ However, there are not all samples correlated, they can be seen as independet af
 It is to expensive to calculate this so called correlation length, but we group them togheter by calculating the average over blocks with varying sizes.
 We put these averages in equation \ref{stdev} and get an estimate for the error dependent on the block size.
 Doing this we expect the estimated error to grow, until the block size reaches the correlation length, where it reaches a plateau. 
-The statistical uncertainty is given by the value of this plateau. 
+The statistical uncertainty is given by the value of this plateau. The final value for the uncertainty is then evaluated manually from the plot. 
+The correlation length could be calculated, but this would be a very expensive calculation. With this method we don't need to perform it.
 
 
 
@@ -484,6 +488,44 @@ The programm is in principle working the same way as in the previous case. The p
 The local energy is now a function of the ``function'' class. 
 In the numerical case the derivatives and ratios are calculated straight forward, what results in the Slater determinant beeing calculated many times.
 The analytical cases makes use of the simplifications described above and has to keep track of the inverese Slater matrix. 
+
+
+\section{results}
+All the results will be presented in atomic units, that means lengths are given in terms of the Bohr radius $r_0 = 0.053\text{nm}$, energys have to be multiplied with $27.6\text{eV}$ 
+to get the result in eV. 
+
+\subsection{Atoms}
+\subsubsection{Helium}
+\subsubsection{Beryllium}
+\subsubsection{Neon}
+
+\subsection{Molecules}
+\subsubsection{Hydrogen Molecule}
+As described before has the system of the hydrogen molecule $\text{H}_2$ an additional parameter, namely the distance R between the atoms. 
+We calculated the Energy for different values of R. The result can be seen in figure \ref{EofR}. 
+\todo{include picture}
+It behaves as excpected, for to small distances 
+will the energy raise, because of the repulsion of the nuclei. Around $R=1.40$ Bohr radii we find the minimum, in agreement with measured values. 
+If we move the nuclei further away, the energy raises again and approaches for large distances the energy of two isolated hydrogen atoms, -1 (=-27.6eV) as one would expect.
+Using the minimum value, $R=1.4$ we get a energy of $-1.16209(6)$, which is only 1.1\% away from the measured value, $-1.175$ \todo{find reference}.
+In figures \ref{H2_alpha} and \ref{H2_beta}
+\todo{include figures, maybe together?}
+we show the change of the trial function parameters during the optimization. Based on earlier calculations we used 
+starting points close to the final value. While calculating the energy for the final values, we also calculated the projection
+\todo{is it a projection?} 
+of the single-particle wave probability density
+onto the $x-z-$plane. This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
+nuclei, which explains the attraction. 
+
+
+
+\todo{asymmetric wave function}
+
+
+\subsubsection{Beryllium Molecule}
+
+
+
 
 
 \end{document}

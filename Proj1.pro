@@ -10,8 +10,8 @@ SOURCES += \
     mcint.cpp \
     positions.cpp \
     function.cpp \
-    trialfct_analytical.cpp \
-    lib.cpp
+    lib.cpp \
+    trialfct_molecule.cpp
 
 LIBS += -larmadillo -lconfig++
 
@@ -21,5 +21,5 @@ HEADERS += \
     mcint.h \
     positions.h \
     function.h \
-    trialfct_analytical.h \
-    lib.h
+    lib.h \
+    trialfct_molecule.h

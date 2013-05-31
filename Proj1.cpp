@@ -6,7 +6,7 @@
 #include "positions.h"
 #include "function.h"
 #include "trialfct.h"
-#include "trialfct_analytical.h"
+#include "trialfct_molecule.h"
 #include "hamilton.h"
 #include "mcint.h"
 
@@ -56,7 +56,7 @@ int main()
     }
     else
     {
-        fun = new TrialFct_analytical(parameters);
+        fun = new TrialFct_molecule(parameters);
     }
 
     // create instance of mcInt

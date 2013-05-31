@@ -1,9 +1,9 @@
-#include "trialfct_analytical.h"
+#include "trialfct_molecule.h"
 
-TrialFct_analytical::TrialFct_analytical()
+TrialFct_molecule::TrialFct_molecule()
 {
 }
-TrialFct_analytical::TrialFct_analytical(Config * parameters) : function(parameters)
+TrialFct_molecule::TrialFct_molecule(Config * parameters) : function(parameters)
 {
 }
 
@@ -14,7 +14,7 @@ TrialFct_analytical::TrialFct_analytical(Config * parameters) : function(paramet
 
 // calculate the value of the trial function the position given in the variable position.
 // Slater determinant of hydrogen wave functions and Jastrow factor.
-double TrialFct_analytical::getValue(positions * R)
+double TrialFct_molecule::getValue(positions * R)
 {
         double result = 0.0;
 
@@ -75,7 +75,7 @@ double TrialFct_analytical::getValue(positions * R)
 
 
 // not used for hydrogen molecule
-void TrialFct_analytical::setSlaterinv(positions * R)
+void TrialFct_molecule::setSlaterinv(positions * R)
 {
 
 //    // create Slater matrix
@@ -105,7 +105,7 @@ void TrialFct_analytical::setSlaterinv(positions * R)
 // however, there are some issues, since the updatet matrix differs from the one
 // set up from the new position with teh above function setSlaterinv.
 // not used for hydrogen molecule
-void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, double ratio)
+void TrialFct_molecule::updateSlaterinv(int particleNumber, positions* Rnew, double ratio)
 {
 //    mat newslatermat = zeros(nParticleshalf,nParticleshalf);
 //    double sum;
@@ -166,7 +166,7 @@ void TrialFct_analytical::updateSlaterinv(int particleNumber, positions* Rnew, d
 // + ((grad Jastrow)/Jastrow)^2
 // + 2* (grad |D|)/|D| * (grad Jastrow)/Jastrow
 
-double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
+double TrialFct_molecule::getDivGradOverFct(int particleNumber, positions *R)
 {
     double result = divgradhydrogen(particleNumber,0,R)/hydrogen(particleNumber,0,R);
 
@@ -240,7 +240,7 @@ double TrialFct_analytical::getDivGradOverFct(int particleNumber, positions *R)
 // returns the quantum force. using closed form expressions
 // and the inverse slater determinant matrix. Be careful, that this matrix is
 // set to the right value.
-vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
+vec TrialFct_molecule::quantumForce(int particleNumber, positions *R)
 {
     vec result = zeros(ndim);
 
@@ -255,7 +255,7 @@ vec TrialFct_analytical::quantumForce(int particleNumber, positions *R)
 
 //=====================================================================================================
 // calculate the ratio of two Slaterdeterminants, that differ only in one particle
-double TrialFct_analytical::SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)
+double TrialFct_molecule::SlaterRatio(int particleNumber ,positions * Rold,positions * Rnew)
 {
      double result = hydrogen(particleNumber, 0, Rnew);
      result /= hydrogen(particleNumber,0,Rold);
@@ -263,7 +263,7 @@ double TrialFct_analytical::SlaterRatio(int particleNumber ,positions * Rold,pos
 }
 
 
-double TrialFct_analytical::JastrowRatio(int particleNumber, positions * Rold, positions * Rnew)
+double TrialFct_molecule::JastrowRatio(int particleNumber, positions * Rold, positions * Rnew)
 {
     // jastrow factor new
     double jastrow = 0.0;
@@ -335,7 +335,7 @@ double TrialFct_analytical::JastrowRatio(int particleNumber, positions * Rold, p
 // That is sum_{i!=k} \frac{a}{ (1+\beta*r_{ki})^2 }  \frac{ \vec{r}_{ki} }{ r_{ki} }
 // where a is 0.5 for spin_i = spin_k and
 //            0.25 for spin_i!=spin_k
-vec TrialFct_analytical::GradJastrow(int particleNumber, positions * R)
+vec TrialFct_molecule::GradJastrow(int particleNumber, positions * R)
 {
     vec result = zeros(ndim);
     double b = funcParameters[1];
@@ -396,7 +396,7 @@ vec TrialFct_analytical::GradJastrow(int particleNumber, positions * R)
 
 
 
-vec TrialFct_analytical::GradSlater(int particleNumber, positions * R)
+vec TrialFct_molecule::GradSlater(int particleNumber, positions * R)
 {
     vec result = zeros(ndim);
     result += gradhydrogen(particleNumber,0,R)/hydrogen(particleNumber,0,R);
@@ -408,7 +408,7 @@ vec TrialFct_analytical::GradSlater(int particleNumber, positions * R)
 
 
 
-double TrialFct_analytical::ParamDerivativeOverFct(positions * R,int parameterNumber)
+double TrialFct_molecule::ParamDerivativeOverFct(positions * R,int parameterNumber)
 {
     double result =0.0;
 

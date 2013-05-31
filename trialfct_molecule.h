@@ -12,15 +12,15 @@ using namespace arma;
 using namespace libconfig;
 
 
-class TrialFct_analytical : public function
+class TrialFct_molecule : public function
 {
 
 
 public:
     // constructor, takes the above parameters
-    TrialFct_analytical(Config * parameters);
+    TrialFct_molecule(Config * parameters);
     // default constructor without parameters
-    TrialFct_analytical();
+    TrialFct_molecule();
 
     // calculate the value of the trial function at a certain position
     double getValue(positions * R);

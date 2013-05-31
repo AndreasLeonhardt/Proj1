@@ -54,8 +54,8 @@ x=[];
 z=[];
 
 R0 = argmin(E)
-datapoints = os.path.getsize('../Proj1/samples_R{0}_positions_0.dat'.format(str(R0)))/8;
-p=open('../Proj1/samples_R{0}_positions_0.dat'.format(str(R0)),mode='rb');
+datapoints = os.path.getsize('../Proj1/samplesmu_R{0}_positions_0.dat'.format(str(R0)))/8;
+p=open('../Proj1/samplesmu_R{0}_positions_0.dat'.format(str(R0)),mode='rb');
 values = array.array('d');
 values.read(p,datapoints)
 
@@ -93,27 +93,27 @@ ylabel('energy standard deviation [a.u.]');
 title('blocking results');
 text(.85,.1,'Energy: '+str(E[R0])+'a.u.',horizontalalignment='right',verticalalignment='center',transform= ad.transAxes);
 
-plt.show(block=False)
+plt.show(block=True)
 
 
 # parameter plot ------------------------------------------------------------------------------------
 
-Parameters = loadtxt('../Proj1/optimization_R{0}.txt'.format(str(R0)));
-k =plt.figure();
-ad = k.add_subplot(111)
-kp=plt.plot(Parameters[:,0])
-xlabel('iteration')
-ylabel('alpha')
-title('parameter optimization for alpha')
-plt.show(block=False)
+#Parameters = loadtxt('../Proj1/optimizationmu_R{0}.txt'.format(str(R0)));
+#k =plt.figure();
+#ad = k.add_subplot(111)
+#kp=plt.plot(Parameters[:,0])
+#xlabel('iteration')
+#ylabel('alpha')
+#title('parameter optimization for alpha')
+#plt.show(block=False)
 
-l =plt.figure();
-ad = k.add_subplot(111)
-lp=plt.plot(Parameters[:,1])
-xlabel('iteration')
-ylabel('beta')
-title('parameter optimization for beta')
-plt.show(block=True)
+#l =plt.figure();
+#ad = k.add_subplot(111)
+#lp=plt.plot(Parameters[:,1])
+#xlabel('iteration')
+#ylabel('beta')
+#title('parameter optimization for beta')
+#plt.show(block=True)
 
 
 quit()

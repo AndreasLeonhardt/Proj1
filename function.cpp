@@ -143,7 +143,7 @@ double function::hydrogen(int particleNumber, int orbital, positions * R)
 
     pos[2] +=R0;
     r=norm(pos,2);
-    result += exp(-funcParameters[0]*r);
+    result -= exp(-funcParameters[0]*r);
 
 
 //    if (orbital==0)
@@ -184,7 +184,7 @@ vec function::gradhydrogen(int particleNumber, int orbital, positions *R)
 
     pos[2]+=R0;
     r = norm(pos,2);
-    result +=  -a/r *exp(-a*r)*pos;
+    result -=  -a/r *exp(-a*r)*pos;
 
 //    if (orbital==0)
 //    {
@@ -223,7 +223,7 @@ double function::divgradhydrogen(int particleNumber, int orbital, positions* R)
 
     pos[2]+=R0;
     r=norm(pos,2);
-    result += a/r*(a*r-2) * exp(-a*r);
+    result -= a/r*(a*r-2) * exp(-a*r);
 
 
 //    if (orbital==0)
@@ -262,7 +262,7 @@ double function::dhydrogenda(int particleNumber, int orbital, positions *R)
 
     pos[2]+=R0;
     r=norm(pos,2);
-    result += -r * exp(-a*r);
+    result -= -r * exp(-a*r);
 
 //    if (orbital==0)
 //    {
