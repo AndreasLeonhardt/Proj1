@@ -90,7 +90,7 @@ int main()
         // without adaptive stepsize, using 1/i
         for(int i=1;i<parameterIterations+1;i++)
         {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)/i;
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(40/(i+40));
             fun->setParameter(a);
         }
 
