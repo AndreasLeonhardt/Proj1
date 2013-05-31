@@ -142,7 +142,7 @@ The Hamilton operator reads then
 The ansatz for the wave function is again build on the hydrogen like wave functions and contains the Jastrow factor,
 \begin{IEEEeqnarray}{rCl}
  \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
- \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} + \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} + \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|} \label{H2_twf}
 \end{IEEEeqnarray}
 The parameter $R$ that fixes the distance between the nuclei alters the energy of the system. We can not treat it as a variational parameter,
 since it changes the system itself, not only the trial function. We could use another $R$ in our ansatz, but we keep it the same as in the Hamiltonian. 
@@ -490,14 +490,45 @@ In the numerical case the derivatives and ratios are calculated straight forward
 The analytical cases makes use of the simplifications described above and has to keep track of the inverese Slater matrix. 
 
 
-\section{results}
-All the results will be presented in atomic units, that means lengths are given in terms of the Bohr radius $r_0 = 0.053\text{nm}$, energys have to be multiplied with $27.6\text{eV}$ 
+\section{Results}
+All the results will be presented in atomic units, that means lengths are given in terms of the Bohr radius $r_0 = 0.053\text{nm}$, energies have to be multiplied with $27.6\text{eV}$ 
 to get the result in eV. 
 
 \subsection{Atoms}
-\subsubsection{Helium}
-\subsubsection{Beryllium}
-\subsubsection{Neon}
+
+The results for atoms can be found in table \ref{atomtable}.
+\begin{table}[htbp]
+ \begin{tabular}{|c|c|c|c|c|}
+ \hline
+ \textbf{Atom} & \textbf{$\alpha$} & \textbf{$\beta$} & \textbf{Energy} & \textbf{deviaton from measured value} \\
+ \hline
+ Helium & & & & \\
+ Beryllium & & & & \\
+ Neon & & & & \\ 
+ \hline 
+ \end{tabular}
+\label{atomtable}
+\caption{XXX}
+\end{table}
+
+The results are quite close for all three cases, even though the Helium atom fits best. For systems with more parameters a wave function with more parameters would
+be more flexibel. For exampel could one take several values of $\alpha$ for the different orbitals.
+This is beyond what has been done in this project, and we could show that it is possible to get quite close to the 
+true value with this rather simple approach.
+
+We plotted for all types of atoms the probability density to find the electron at distance r from the nucelus. 
+The single particle probability density is defined through
+\begin{equation}
+ \phi(r) = \int |\Phi(\vec{r},\vec{r})|^2 \ud \vec{r}
+\end{equation}
+Since we have a rotationially symmetric situation we have the relation between the one-body density $\phi(\vec{r})=\phi(r,\phi,\Theta)$ 
+and the radial density $\hat{\phi}(r)$
+\begin{equation}
+ \hat{\phi}(|\vec{r}|) =4\pi |r|^2\phi(\vec{r})
+\end{equation}
+We get this from writing for every sampel the value of $\vec{r}$ for one electron and creating a histogram,
+thus effecitvely integrating out the degrees of freedom of the other electrons. 
+
 
 \subsection{Molecules}
 \subsubsection{Hydrogen Molecule}
@@ -525,11 +556,17 @@ But the probability density is the same for both electrons, and we have therefor
 This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
 nuclei, which explains the attraction, since we can think of it acting as a negative charge in between the two positive nuclei, that overcompensates for their repulsion. 
 
-In a secon approach we changed the trial wave function to
+In a second approach we changed the trial wave function to
 \begin{IEEEeqnarray}{rCl}
   \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
- \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} - \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} - \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}.
 \end{IEEEeqnarray}
+which differs from the trial function used earlier in \ref{H2_twf} by the minus sign in the two parts.
+From the variational principle we know that we can use any function as a trial function. 
+This change in sign prevents the electrons from being in between the nuclei, because $\tilde{\phi}_i=0$ for 
+$|\vec{r}_i + \frac12 \vec{R}| = |\frac12\vec{R}| = |\vec{r}_i - \frac12 \vec{R}|$. 
+Since we saw earlier, that it was very likely to find the electrons in this area, we expect a higher energy
+and eventually a repulsion between the two atoms rather than attraction. 
 
 
 

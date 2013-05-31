@@ -93,7 +93,7 @@ int main()
 
         for (int r=0;r<rmax;r++)
         {
-
+            cout <<"R0 = "<<R0<<endl;
             cout<<"parameter optimization "<<flush;
 
             fun->set_R0(R0);
@@ -107,10 +107,11 @@ int main()
             fun->setParameter(a);
 
 
+
             // without adaptive stepsize, using 1/i as factor
             for(int i=1;i<parameterIterations+1;i++)
             {
-                a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(40.0/(40.0+i));
+                a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(double)(30.0/(30.0+i));
                     fun->setParameter(a);
                     params << a(0)<<"\t"<<a(1)<<endl;
             }

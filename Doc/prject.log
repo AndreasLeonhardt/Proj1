@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  31 MAY 2013 13:56
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  31 MAY 2013 21:07
 entering extended mode
  %&-line parsing enabled.
 **prject.tex
@@ -941,46 +941,45 @@ Overfull \hbox (68.16101pt too wide) in paragraph at lines 391--392
 
 LaTeX Warning: Float too large for page by 365.93031pt on input line 396.
 
-[6] [7] [8] [9] <../../H2_EofR.pdf, id=214, 587.19376pt x 442.65375pt>
+[6] [7] [8] [9] [10] <../../H2_EofR.pdf, id=209, 587.19376pt x 442.65375pt>
 File: ../../H2_EofR.pdf Graphic file (type pdf)
 
 <use ../../H2_EofR.pdf>
 Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 514.
+ine 545.
 
 
-LaTeX Warning: Reference `H2_alpha' on page 10 undefined on input line 515.
+LaTeX Warning: Reference `H2_alpha' on page 11 undefined on input line 546.
 
 
-LaTeX Warning: Reference `H2_beta' on page 10 undefined on input line 515.
-
-[10]
-
-LaTeX Warning: Marginpar on page 11 moved.
+LaTeX Warning: Reference `H2_beta' on page 11 undefined on input line 546.
 
 
 LaTeX Warning: Marginpar on page 11 moved.
 
-[11 <../../H2_EofR.pdf>]
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 537--537
+
+LaTeX Warning: Marginpar on page 11 moved.
+
+[11]
+Overfull \hbox (1.2501pt too wide) in paragraph at lines 574--574
 [][][][]\OT1/cmr/m/n/10 asymmetric 
  []
 
 
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 537--537
+Overfull \hbox (1.2501pt too wide) in paragraph at lines 574--574
 [][][][]\OT1/cmr/m/n/10 asymmetric 
  []
 
-[12] (./prject.aux)
+[12 <../../H2_EofR.pdf>] (./prject.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 18628 strings out of 495061
- 342226 string characters out of 1182621
- 459832 words of memory out of 3000000
- 21362 multiletter control sequences out of 15000+50000
+ 18627 strings out of 495061
+ 342158 string characters out of 1182621
+ 459915 words of memory out of 3000000
+ 21361 multiletter control sequences out of 15000+50000
  12743 words of font info for 49 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  56i,13n,74p,415b,988s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -997,9 +996,9 @@ ve/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf-texlive/fonts/type
 onts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.
 pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/s
 hare/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on prject.pdf (12 pages, 257094 bytes).
+Output written on prject.pdf (12 pages, 259463 bytes).
 PDF statistics:
- 337 PDF objects out of 1000 (max. 8388607)
+ 327 PDF objects out of 1000 (max. 8388607)
  68 named destinations out of 1000 (max. 500000)
- 218 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 194 words of extra memory for PDF output out of 10000 (max. 10000000)
 

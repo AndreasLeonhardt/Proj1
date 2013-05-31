@@ -43,7 +43,6 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
         // calculate quantum Force at old position
         Fold = fct->quantumForce(i,Rold);
 
-
         // calculate proposal for new position
         newPosition = Rold->get_singlePos(i) + randn(ndim)*sqrtTimeStep +0.5*Fold*timeStep;
         Rnew->set_singlePos(newPosition,i);

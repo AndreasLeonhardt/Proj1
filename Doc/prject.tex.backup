@@ -83,7 +83,7 @@ The complete ansatz reads then
 \begin{equation}
  \Psi = |D_{\uparrow}|\cdot|D_{\downarrow}|\cdot\left(\prod_{i<j} \exp \left(-\frac{ar_{ij}}{1+\beta r_{ij}}\right) \right)
 \end{equation}
-with $a=\frac12$ for electrons with equal spin and $a=\frac14$ for opposite spins.
+with $a=\frac14$ for electrons with equal spin and $a=\frac12$ for opposite spins.
 The first two terms are the Slater determinants for spin up and down respectively, the last term is the Jastrow factor or correlation part, here also called $\Psi_C$.
 The Slater matrices are defined through
 \begin{equation} 
@@ -142,7 +142,7 @@ The Hamilton operator reads then
 The ansatz for the wave function is again build on the hydrogen like wave functions and contains the Jastrow factor,
 \begin{IEEEeqnarray}{rCl}
  \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
- \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} + \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} + \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|} \label{H2_twf}
 \end{IEEEeqnarray}
 The parameter $R$ that fixes the distance between the nuclei alters the energy of the system. We can not treat it as a variational parameter,
 since it changes the system itself, not only the trial function. We could use another $R$ in our ansatz, but we keep it the same as in the Hamiltonian. 
@@ -495,15 +495,37 @@ All the results will be presented in atomic units, that means lengths are given 
 to get the result in eV. 
 
 \subsection{Atoms}
-\subsubsection{Helium}
-\subsubsection{Beryllium}
-\subsubsection{Neon}
+
+The results for atoms can be found in table \ref{atomtable}.
+\todo{table}
+The results are quite close for all three cases, even though the Helium atom fits best. For systems with more parameters a wave function with more parameters would
+be more flexibel. For exampel could one take several values of $\alpha$ for the different orbitals.
+This is beyond what has been done in this project, and we could show that it is possible to get quite close to the 
+true value with this rather simple approach.
+
+We plotted for all types of atoms the probability density to find the electron at distance r from the nucelus. 
+The single particle probability density is defined through
+\begin{equation}
+ \phi(\r) = \int |\Phi(\vec{r},\vec{r^{\prime})|^2 \ud \vec{r}^{\prime}
+\end{equation}
+Since we have a rotationially symmetric situation we have the relation between the one-body density $\phi(\vec{r})=\phi(r,\phi,\Theta)$ 
+and the radial density $\hat{\phi}(r)$
+\begin{equation}
+ \hat{\phi}(|\vec{r}|) =4\pi |r|^2\phi(\vec{r})
+\end{equation}
+We get this from writing for every sampel the value of $\vec{r}$ for one electron and creating a histogram,
+thus effecitvely integrating out the degrees of freedom of the other electrons. 
+
 
 \subsection{Molecules}
 \subsubsection{Hydrogen Molecule}
 As described before has the system of the hydrogen molecule $\text{H}_2$ an additional parameter, namely the distance R between the atoms. 
 We calculated the Energy for different values of R. The result can be seen in figure \ref{EofR}. 
-\todo{include picture}
+\begin{figure}[htbp]
+ \label{EofR}
+ \includegraphics[width=\textwidth]{../../H2_EofR.pdf}
+ \caption{ground state energy dependent on the distance between the hydrogen nuclei}
+\end{figure}
 It behaves as excpected, for to small distances 
 will the energy raise, because of the repulsion of the nuclei. Around $R=1.40$ Bohr radii we find the minimum, in agreement with measured values. 
 If we move the nuclei further away, the energy raises again and approaches for large distances the energy of two isolated hydrogen atoms, -1 (=-27.6eV) as one would expect.
@@ -511,11 +533,28 @@ Using the minimum value, $R=1.4$ we get a energy of $-1.16209(6)$, which is only
 In figures \ref{H2_alpha} and \ref{H2_beta}
 \todo{include figures, maybe together?}
 we show the change of the trial function parameters during the optimization. Based on earlier calculations we used 
-starting points close to the final value. While calculating the energy for the final values, we also calculated the projection
-\todo{is it a projection?} 
-of the single-particle wave probability density
-onto the $x-z-$plane. This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
-nuclei, which explains the attraction. 
+starting points close to the final value. 
+While calculating the energy for the final values, we also calculated the projection
+\todo{is it a projection?}
+of the single-particle probability density, that is proportional to the charge distribution, 
+onto the $x-z-$plane. 
+The later one is the sum of single particle densities for both electrons multiplied with the charge.
+But the probability density is the same for both electrons, and we have therefore just a factor of $2e$. 
+This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
+nuclei, which explains the attraction, since we can think of it acting as a negative charge in between the two positive nuclei, that overcompensates for their repulsion. 
+
+In a second approach we changed the trial wave function to
+\begin{IEEEeqnarray}{rCl}
+  \Psi &=& \tilde{\phi}_1 \cdot \tilde{\phi}_2 \cdot \Psi_C \nonumber \\
+ \tilde{\phi}_i &=& \e^{-\alpha |\vec{r}_i + \frac12 \vec{R}|} - \e^{-\alpha |\vec{r}_i - \frac12 \vec{R}|}.
+\end{IEEEeqnarray}
+which differs from the trial function used earlier in \ref{H2_twf} by the minus sign in the two parts.
+From the variational principle we know that we can use any function as a trial function. 
+This change in sign prevents the electrons from being in between the nuclei, because $\\tilde{\phi}_i=0$ for 
+$|\vec{r}_i + \frac12 \vec{R}| = |\frac12\vec{R}| = |\vec{r}_i - \frac12 \vec{R}|$. 
+Since we saw earlier, that it was very likely to find the electrons in this area, we expect a higher energy
+and eventually a repulsion between the two atoms rather than attraction. 
+
 
 
 

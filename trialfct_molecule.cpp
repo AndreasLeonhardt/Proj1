@@ -175,25 +175,27 @@ double TrialFct_molecule::getDivGradOverFct(int particleNumber, positions *R)
 
     double b = funcParameters[1];
     double rr;
+    // in the following calculation: Why is the factor 1/rr in the brackets there?
+    // it shouldn't, but otherwis it doesn't work, with it it's perfect.
     if(particleNumber<nParticleshalf)
     {
         int i;
         for (i=0;i<particleNumber;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr- b/(1+b*rr)  );
         }
 
         for (i=particleNumber+1;i<nParticleshalf;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * ( 1/rr- b/(1+b*rr)  );
         }
 
         for (i=nParticleshalf;i<nParticles;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += 1.0 / ((1+b*rr)*(1+b*rr)) * (  1/rr- b/(1+b*rr)  );
         }
     }
 
@@ -203,18 +205,18 @@ double TrialFct_molecule::getDivGradOverFct(int particleNumber, positions *R)
         for (int i=0;i<nParticleshalf;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += 1 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += 1.0 / ((1+b*rr)*(1+b*rr)) * (  1/rr- b/(1+b*rr)  );
         }
         for (i=nParticleshalf;i<particleNumber;i++)
         {
             rr=R->get_rr(particleNumber-1,i);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result +=  .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr- b/(1+b*rr)  );
         }
 
         for (i=particleNumber+1;i<nParticles;i++)
         {
             rr=R->get_rr(i-1,particleNumber);
-            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr - b/(1+b*rr)  );
+            result += .5 / ((1+b*rr)*(1+b*rr)) * (  1/rr- b/(1+b*rr)  );
         }
     }
     //------------------------------------------------------------------
@@ -248,7 +250,6 @@ vec TrialFct_molecule::quantumForce(int particleNumber, positions *R)
     //cout <<result<<endl;
 
     result += GradJastrow(particleNumber,R);
-   // cout <<result << endl;
 
     return 2*result;
 }
@@ -431,19 +432,19 @@ double TrialFct_molecule::ParamDerivativeOverFct(positions * R,int parameterNumb
             for(int j=0;j<i;j++)
             {
                 rr = R->get_rr(i-1,j);
-                result -=   0.25*rr/(  (1+funcParameters[parameterNumber]*rr)
-                                 *(1+funcParameters[parameterNumber]*rr) ) ;
+                result -=   0.25*rr*rr/(  (1+funcParameters[parameterNumber]*rr)
+                                         *(1+funcParameters[parameterNumber]*rr) ) ;
 
                 rr = R->get_rr(i+nParticleshalf-1,j+nParticleshalf);
-                result -=   0.25*rr/(  (1+funcParameters[parameterNumber]*rr)
-                                 *(1+funcParameters[parameterNumber]*rr) ) ;
+                result -=   0.25*rr*rr/(  (1+funcParameters[parameterNumber]*rr)
+                                         *(1+funcParameters[parameterNumber]*rr) ) ;
             }
 
             for (int j=nParticleshalf;j<nParticles;j++)
             {
-                rr= R-get_rr(j-1,i);
-                result -= 0.5*rr/(  (1+funcParameters[parameterNumber]*rr)
-                                    *(1+funcParameters[parameterNumber]*rr) ) ;
+                rr= R->get_rr(j-1,i);
+                result -= 0.5*rr*rr/(  (1+funcParameters[parameterNumber]*rr)
+                                      *(1+funcParameters[parameterNumber]*rr) ) ;
             }
         }
 
