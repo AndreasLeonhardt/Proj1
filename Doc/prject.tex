@@ -59,7 +59,7 @@ The inequality allows us to set a upper limit to the ground state energy using a
 
 The inner product in the RHS of equation \ref{VP} is defined as an integral and can be rewritten as
 \begin{equation}
-\bra{\Psi} \hat H \ket {\Psi} = \int \ud^3 r  \Psi \hat{H} \Psi = \int \ud^3 r |\Psi|\cdot \underbrace{\frac{1}{\Psi} \hat H \Psi }_{\epsilon(\vec{r})}
+\bra{\Psi} \hat H \ket {\Psi} = \int \ud^3 r  \Psi \hat{H} \Psi = \int \ud^3 r |\Psi|^2\cdot \underbrace{\frac{1}{\Psi} \hat H \Psi }_{\epsilon(\vec{r})}
 \end{equation}
 In this way it is written as an integral over the local energy $\epsilon$ multiplied with a probability density. We solve this using Monte Carlo Integration. 
 
@@ -338,7 +338,6 @@ The structure of the program and of the most important function, mcint::integrat
 \end{figure}
 
 \begin{figure}[htbp!]
- \label{PAP_int}
  \centering
  
   \tikzstyle{controllpoint}	=[rectangle, 	draw = green!50, 	fill = green!20, thick, rounded corners]
@@ -377,15 +376,34 @@ The structure of the program and of the most important function, mcint::integrat
   edge 	[<-,dotted]	(istep);
   \node [rof]		(int2end)	[below of=locen]	{\phantom{for m=1,\dots,buffersize}}
   edge	[<-,dotted]	(locen);
-  \node [operation]	(write)		[below of=int2end]	{write buffer to file}
+  \node [operation] 	(ghost)		[below of=int2end,node distance = 3cm]      {}
   edge  [<-,dotted]	(int2end);
+  \end{tikzpicture}
+  \end{figure}
+  
+  \begin{figure}[!htbp]
+  \centering
+   \label{PAP_int}
+   
+    \tikzstyle{controllpoint}	=[rectangle, 	draw = green!50, 	fill = green!20, thick, rounded corners]
+  \tikzstyle{operation}		=[rectangle, 	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+  \tikzstyle{decission}		=[diamond, 	draw = red!50,		fill = red!20, thick]
+  \tikzstyle{inoutput}		=[trapezium, trapezium left angle = 60, trapezium right angle = 120,	draw = brown!50,	fill = brown!20, thick] % want paralellogram
+  \tikzstyle{for}		=[trapezium, trapezium left angle = 60, trapezium right angle =  60,	draw = blue!70,		fill = blue!10, thick]
+  \tikzstyle{rof}		=[trapezium, trapezium left angle =120, trapezium right angle = 120,	draw = blue!70,		fill = blue!10, thick ,node distance=1.5cm]
+  \tikzstyle{sub}		=[rectangle split, rectangle split parts=3, rectangle split horizontal = true,
+				  rectangle split empty part width= 1pt,minimum width =0,minimum size =0,  	draw = blue!70, 	fill = blue!10, thick ,minimum size=1.5cm]
+   
+   
+\begin{tikzpicture}[every node/.style={node distance = 2.0cm} ]
+  \node [operation]	(write)			{write buffer to file};
   \node [rof]		(int1end)	[below of=write]	{\phantom{for n=1,\dots,integrations steps/buffer}}
   edge	[<-,dotted]	(write);
   \node [operation]	(accSteps)	[below of=int1end]	{accepted steps /= number of integration steps}
   edge  [<-]		(int1end);
   \node [operation]	(fclose)	[below of=accSteps]	{close file}
   edge 	[<-]		(accSteps);
-  \node [controllpoint]	(Stop)		[below of=fclose]	{Stop}
+ \node [controllpoint]	(Stop)		[below of=fclose]	{Stop}
   edge  [<-]		(fclose);
     
  \end{tikzpicture}
@@ -498,37 +516,76 @@ to get the result in eV.
 
 The results for atoms can be found in table \ref{atomtable}.
 \begin{table}[htbp]
+ \center
  \begin{tabular}{|c|c|c|c|c|}
  \hline
- \textbf{Atom} & \textbf{$\alpha$} & \textbf{$\beta$} & \textbf{Energy} & \textbf{deviaton from measured value} \\
+ \textbf{Atom} & \textbf{$\alpha$} & \textbf{$\beta$} & \textbf{Energy} & \textbf{measured value} \\
  \hline
- Helium & & & & \\
- Beryllium & & & & \\
- Neon & & & & \\ 
+ Helium &1.838 & 0.348&-2.88(3) & -2.903 \cite{Moskowitz}\\
+ Beryllium &3.334 &5.848 &-14.28(5) & -14.6 \cite{webel}\\
+ Neon & 8.049& 4.333& -115.09(8)& -127.24 \cite{webel}\\ 
  \hline 
  \end{tabular}
 \label{atomtable}
-\caption{XXX}
+\caption{results for different atoms}
 \end{table}
 
-The results are quite close for all three cases, even though the Helium atom fits best. For systems with more parameters a wave function with more parameters would
-be more flexibel. For exampel could one take several values of $\alpha$ for the different orbitals.
+The results are quite close for all three cases, even though the Helium atom fits best. 
+The Jastrow factor gets more important the more electrons we have. From this we see, that the usage of hydrogen like wave functions is better
+for atoms with fewer electrons. 
+For systems with more parameters a wave function with more parameters would
+be more flexibel and could produce therefore better results. For exampel could one take several values of $\alpha$ for the different orbitals.
 This is beyond what has been done in this project, and we could show that it is possible to get quite close to the 
 true value with this rather simple approach.
+
+
+The uncertainties were calculated using blocking as explained above. We show the blocking results explicitly for Helium in figure \ref{HeBlock}. 
+\begin{figure}[hbtp]
+ \includegraphics[width=\textwidth]{../He_dE.pdf}
+ \caption{blocking result for the Helium atom}
+ \label{HeBlock}
+\end{figure}
+
+The change of $\alpha$ and $\beta$ during the parameter optimization is shown in figure \ref{opt}. 
+\begin{figure}[htbp]
+ \label{opt}
+  \includegraphics[width=\textwidth]{../He_alpha.pdf}
+  \includegraphics[width=\textwidth]{../He_beta.pdf}
+  \caption{optimization of the variational parameters for the Helium atom}
+\end{figure}
+
+
+
 
 We plotted for all types of atoms the probability density to find the electron at distance r from the nucelus. 
 The single particle probability density is defined through
 \begin{equation}
- \phi(r) = \int |\Phi(\vec{r},\vec{r})|^2 \ud \vec{r}
+ \rho(\vec{r}) = \int |\Psi(\vec{r},\vec{r}^{\prime})|^2 \ud \vec{r}^{\prime}
 \end{equation}
-Since we have a rotationially symmetric situation we have the relation between the one-body density $\phi(\vec{r})=\phi(r,\phi,\Theta)$ 
-and the radial density $\hat{\phi}(r)$
+Since we have a rotationially symmetric situation we have the relation between the one-body density $\rho(\vec{r})=\rho(r,\phi,\Theta)$ 
+and the radial density $\hat{\rho}(r)$
 \begin{equation}
- \hat{\phi}(|\vec{r}|) =4\pi |r|^2\phi(\vec{r})
+ \hat{\rho}(|\vec{r}|) =4\pi |r|^2\rho(\vec{r})
 \end{equation}
 We get this from writing for every sampel the value of $\vec{r}$ for one electron and creating a histogram,
 thus effecitvely integrating out the degrees of freedom of the other electrons. 
+The distribution shows the different orbitals, as one would expect form the form of the wave function we used.
+We can see the contributions from different shells when comparing for example He to Be.
 
+\begin{figure}
+ \includegraphics[width=\textwidth]{../He_spwf.pdf}
+ \caption{singel particle radial probability density for the Helium atom}
+\end{figure}
+
+\begin{figure}
+ \includegraphics[width=\textwidth]{../Be_spwf.pdf}
+ \caption{singel particle radial probability density for the Beryllium atom}
+\end{figure}
+
+\begin{figure}
+ \includegraphics[width=\textwidth]{../Ne_spwf.pdf}
+ \caption{singel particle radial probability density for the Neon atom}
+\end{figure}
 
 \subsection{Molecules}
 \subsubsection{Hydrogen Molecule}
@@ -536,21 +593,30 @@ As described before has the system of the hydrogen molecule $\text{H}_2$ an addi
 We calculated the Energy for different values of R. The result can be seen in figure \ref{EofR}. 
 \begin{figure}[htbp]
  \label{EofR}
- \includegraphics[width=\textwidth]{../../H2_EofR.pdf}
+ \includegraphics[width=\textwidth]{../H2_EofR.pdf}
  \caption{ground state energy dependent on the distance between the hydrogen nuclei}
 \end{figure}
 It behaves as excpected, for to small distances 
-will the energy raise, because of the repulsion of the nuclei. Around $R=1.40$ Bohr radii we find the minimum, in agreement with measured values. 
-If we move the nuclei further away, the energy raises again and approaches for large distances the energy of two isolated hydrogen atoms, -1 (=-27.6eV) as one would expect.
-Using the minimum value, $R=1.4$ we get a energy of $-1.16209(6)$, which is only 1.1\% away from the measured value, $-1.175$ \todo{find reference}.
-In figures \ref{H2_alpha} and \ref{H2_beta}
-\todo{include figures, maybe together?}
+will the energy increase due to the repulsion of the nuclei. Around $R=1.40$ Bohr radii we find the minimum, in agreement with measured values. 
+If we move the nuclei further away, the energy raises again and approaches for large distances the energy of two isolated hydrogen atoms, -1 (=-27.6eV).
+Using the minimum value, $R=1.4$ we get a energy of $-1.16209(6)$, which is only 1.1\% away from the measured value, $-1.1746$ \cite{Moskowitz}.
+In figure \ref{H2_alpha}
+\begin{figure}
+ \includegraphics[width=\textwidth]{../H2_alpha.pdf}
+ \includegraphics[width=\textwidth]{../H2_beta.pdf}
+ \caption{optimization of variational parameters for the hydrogen molecule}
+ \label{H2_alpha}
+\end{figure}
 we show the change of the trial function parameters during the optimization. Based on earlier calculations we used 
 starting points close to the final value. 
 While calculating the energy for the final values, we also calculated the projection
-\todo{is it a projection?}
 of the single-particle probability density, that is proportional to the charge distribution, 
 onto the $x-z-$plane. 
+\begin{figure}
+ \includegraphics[width=\textwidth]{../H2_spwf.pdf}
+ \caption{single particle probability density for the hydrogen molecule}
+\end{figure}
+
 The later one is the sum of single particle densities for both electrons multiplied with the charge.
 But the probability density is the same for both electrons, and we have therefore just a factor of $2e$. 
 This gives a impression of the spatial distribution of the electrons, showing that they probability to find a electron is higher in between the
@@ -565,19 +631,50 @@ which differs from the trial function used earlier in \ref{H2_twf} by the minus 
 From the variational principle we know that we can use any function as a trial function. 
 This change in sign prevents the electrons from being in between the nuclei, because $\tilde{\phi}_i=0$ for 
 $|\vec{r}_i + \frac12 \vec{R}| = |\frac12\vec{R}| = |\vec{r}_i - \frac12 \vec{R}|$. 
+This can be seen in the single particle probability density for this ansatz, shown in figure \ref{asy}.
+\begin{figure}[hbtp]
+ \label{asy}
+ \includegraphics[width=\textwidth]{../asymetricH2.pdf}
+ \caption{single particle probability density for the asymetrich ansatz}
+\end{figure}
+
 Since we saw earlier, that it was very likely to find the electrons in this area, we expect a higher energy
 and eventually a repulsion between the two atoms rather than attraction. 
+This setup turned out to be very unstable and for some radii the parameter optimization algortihm didn't converge.
+However, we could see  in figure \ref{Rasy} for at least some points, that the energy is above the sum of the ground state energies for two single hydrogen atoms. 
+We can't describe a bounded state using this ansatz. 
+\begin{figure}[hbtp]
+ \label{Rasy}
+ \includegraphics[width=\textwidth]{../H2m_EofR.pdf}
+ \caption{Energy as a function of R using the asymmetric ansatz}
+\end{figure}
 
-
-
-
-\todo{asymmetric wave function}
 
 
 \subsubsection{Beryllium Molecule}
 
+Beryllium does in principal not exist as a Be$_2$ molecule
+\footnote{There can be a molecule consisting of two Be, but they have to be excited. 
+Something we do not take into account in our wave function}. 
+Therefore it is not possible to use a certain value for R.
+We minimized it together with $\alpha$ and $\beta$, getting a minimum at R=4.56. 
+The minimization iterations can be found in figure \ref{minBe2}.
+\begin{figure}[hbtp]
+ \includegraphics[width=\textwidth]{../be2minimize.pdf}
+ \label{minBe2}
+ \caption{minimization of variational parameters and R for Be$_2$.}
+\end{figure}
 
+However, the energy there is -28.553(1), this is close to the energy of two free atoms, -28.56 according to our calculation earlier. 
+This tells us we don't have a stable molecule. The values seem to agree with the calculations of Filippi et al., \cite{Filippi}.
+\newpage
 
+\begin{thebibliography}{99}
+\bibitem{Moskowitz} \emph{Moskowitz and Kalos}, Int. Journal of Quantum Chemistry XX, 1107 \emph{(1981)}
+\bibitem{Filippi}  \emph{Filippi and Umrigar}, J. Chem. Phys. 105, 213 \emph{(1996)}; http://dx.doi.org/10.1063/1.471865
+\bibitem{webel}  \href{http://www.webelements.com/neon/atoms.html}{http://www.webelements.com/neon/atoms.html}, last visit: 31.5.2013, 21:30
+
+\end{thebibliography}
 
 
 \end{document}

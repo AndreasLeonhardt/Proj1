@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  31 MAY 2013 21:07
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.18)  1 JUN 2013 07:30
 entering extended mode
  %&-line parsing enabled.
 **prject.tex
@@ -934,71 +934,94 @@ Overfull \hbox (7.02039pt too wide) in paragraph at lines 96--115
  []
 
 [2] [3] [4] [5]
-Overfull \hbox (68.16101pt too wide) in paragraph at lines 391--392
+Overfull \hbox (68.16101pt too wide) in paragraph at lines 381--382
  [][] 
  []
 
 
-LaTeX Warning: Float too large for page by 365.93031pt on input line 396.
+LaTeX Warning: Float too large for page by 170.6607pt on input line 382.
 
-[6] [7] [8] [9] [10] <../../H2_EofR.pdf, id=209, 587.19376pt x 442.65375pt>
-File: ../../H2_EofR.pdf Graphic file (type pdf)
+[6] [7] [8] [9] [10] <../He_dE.pdf, id=212, 587.19376pt x 442.65375pt>
+File: ../He_dE.pdf Graphic file (type pdf)
 
-<use ../../H2_EofR.pdf>
-Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 545.
+<use ../He_dE.pdf> <../He_alpha.pdf, id=214, 587.19376pt x 442.65375pt>
+File: ../He_alpha.pdf Graphic file (type pdf)
 
+<use ../He_alpha.pdf> <../He_beta.pdf, id=215, 587.19376pt x 442.65375pt>
+File: ../He_beta.pdf Graphic file (type pdf)
 
-LaTeX Warning: Reference `H2_alpha' on page 11 undefined on input line 546.
+<use ../He_beta.pdf> [11] <../He_spwf.pdf, id=226, 587.19376pt x 442.65375pt>
+File: ../He_spwf.pdf Graphic file (type pdf)
 
+<use ../He_spwf.pdf> <../Be_spwf.pdf, id=227, 587.19376pt x 442.65375pt>
+File: ../Be_spwf.pdf Graphic file (type pdf)
 
-LaTeX Warning: Reference `H2_beta' on page 11 undefined on input line 546.
+<use ../Be_spwf.pdf> <../Ne_spwf.pdf, id=228, 587.19376pt x 442.65375pt>
+File: ../Ne_spwf.pdf Graphic file (type pdf)
 
+<use ../Ne_spwf.pdf> <../H2_EofR.pdf, id=230, 587.19376pt x 442.65375pt>
+File: ../H2_EofR.pdf Graphic file (type pdf)
 
-LaTeX Warning: Marginpar on page 11 moved.
+<use ../H2_EofR.pdf> <../H2_alpha.pdf, id=233, 587.19376pt x 442.65375pt>
+File: ../H2_alpha.pdf Graphic file (type pdf)
 
+<use ../H2_alpha.pdf> <../H2_beta.pdf, id=234, 587.19376pt x 442.65375pt>
+File: ../H2_beta.pdf Graphic file (type pdf)
 
-LaTeX Warning: Marginpar on page 11 moved.
+<use ../H2_beta.pdf> <../H2_spwf.pdf, id=235, 587.19376pt x 442.65375pt>
+File: ../H2_spwf.pdf Graphic file (type pdf)
 
-[11]
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 574--574
-[][][][]\OT1/cmr/m/n/10 asymmetric 
+<use ../H2_spwf.pdf> [12 <../He_dE.pdf>] [13 <../He_alpha.pdf> <../He_beta.pdf>
+] [14 <../He_spwf.pdf> <../Be_spwf.pdf>] [15 <../Ne_spwf.pdf> <../H2_EofR.pdf>]
+[16 <../H2_alpha.pdf> <../H2_beta.pdf>]
+<../asymetricH2.pdf, id=535, 587.19376pt x 442.65375pt>
+File: ../asymetricH2.pdf Graphic file (type pdf)
+
+<use ../asymetricH2.pdf> <../H2m_EofR.pdf, id=537, 587.19376pt x 442.65375pt>
+File: ../H2m_EofR.pdf Graphic file (type pdf)
+
+<use ../H2m_EofR.pdf> <../be2minimize.pdf, id=540, 449.68pt x 338.26375pt>
+File: ../be2minimize.pdf Graphic file (type pdf)
+
+<use ../be2minimize.pdf> [17 <../H2_spwf.pdf>] [18 <../asymetricH2.pdf> <../H2m
+_EofR.pdf>] [19 <../be2minimize.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 674--675
+[]\OT1/cmr/m/it/10 Filippi and Um-ri-gar\OT1/cmr/m/n/10 , J. Chem. Phys. 105, 2
+13 \OT1/cmr/m/it/10 (1996)\OT1/cmr/m/n/10 ;
  []
 
 
-Overfull \hbox (1.2501pt too wide) in paragraph at lines 574--574
-[][][][]\OT1/cmr/m/n/10 asymmetric 
+Underfull \hbox (badness 1990) in paragraph at lines 675--676
+[][]\OT1/cmr/m/n/10 http://www.webelements.com/neon/atoms.html[], last visit: 3
+1.5.2013,
  []
 
-[12 <../../H2_EofR.pdf>] (./prject.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+[20] (./prject.aux) ) 
 Here is how much of TeX's memory you used:
- 18627 strings out of 495061
- 342158 string characters out of 1182621
- 459915 words of memory out of 3000000
- 21361 multiletter control sequences out of 15000+50000
- 12743 words of font info for 49 fonts, out of 3000000 for 9000
+ 18672 strings out of 495061
+ 342407 string characters out of 1182621
+ 460347 words of memory out of 3000000
+ 21374 multiletter control sequences out of 15000+50000
+ 13089 words of font info for 50 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 56i,13n,74p,415b,988s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
-re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
-xlive/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts
-/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/publ
-ic/amsfonts/cm/cmmi5.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/
-cm/cmmi7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb
-></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share
-/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texli
-ve/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf-texlive/fonts/type
-1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-texlive/fonts/type1/public/amsf
-onts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.
-pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/s
-hare/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on prject.pdf (12 pages, 259463 bytes).
+ 56i,13n,60p,415b,988s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/c
+mbx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb><
+/usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/
+texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texli
+ve/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texmf-texlive/fonts/typ
+e1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-texlive/fonts/type1/public/am
+sfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cm
+r12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></us
+r/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf
+-texlive/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-texlive/font
+s/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/publi
+c/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm
+/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on prject.pdf (20 pages, 545837 bytes).
 PDF statistics:
- 327 PDF objects out of 1000 (max. 8388607)
- 68 named destinations out of 1000 (max. 500000)
- 194 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 762 PDF objects out of 1000 (max. 8388607)
+ 87 named destinations out of 1000 (max. 500000)
+ 254 words of extra memory for PDF output out of 10000 (max. 10000000)
 
