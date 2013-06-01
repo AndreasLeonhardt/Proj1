@@ -11,6 +11,8 @@
 from numpy import *
 from pylab import *
 import matplotlib.pyplot as plt
+import array
+import os;
 
 filename = sys.argv[1];
 A=loadtxt(filename, skiprows=6);
@@ -37,5 +39,61 @@ text(.85,.1,'Energy: '+E,horizontalalignment='right',verticalalignment='center',
 
 
 
-show()
+show(block=False)
+
+
+
+
+
+# parameter optimization
+
+
+Parameters = loadtxt('../Proj1/parameters.txt');
+k =plt.figure();
+ad = k.add_subplot(111)
+kp=plt.plot(Parameters[:,0])
+xlabel('iteration')
+ylabel('alpha')
+title('parameter optimization for alpha')
+plt.show(block=False)
+
+l =plt.figure();
+ad = k.add_subplot(111)
+lp=plt.plot(Parameters[:,1])
+xlabel('iteration')
+ylabel('beta')
+title('parameter optimization for beta')
+plt.show(block=False)
+
+
+# single particle density
+
+r=[];
+
+
+datapoints = os.path.getsize('../Proj1/positions.bin')/8;
+p=open('../Proj1/positions.bin',mode='rb');
+values = array.array('d');
+values.read(p,datapoints)
+
+
+for p in range(0,datapoints):
+	r.append(values[p]);                 
+
+
+h= plt.figure();
+had=h.add_subplot(111);
+n, bins, patches = hist(values, 200, normed=1,histtype='stepfilled')
+plt.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
+
+
+
+xlabel('r [a.u.]')
+ylabel('density')
+title('single particle density for hydrogen molecule')
+plt.show(block=True);
+
+quit()
+
+
 

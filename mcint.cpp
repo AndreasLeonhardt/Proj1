@@ -31,8 +31,8 @@ mcInt::mcInt(Config * parameters)
 
 positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress, Config * parameters)
 {
-    positions Rnewposition = positions(*Rold);
-    positions * Rnew = &Rnewposition;
+    //positions Rnewposition = positions(Rold);
+    positions * Rnew =  new positions(Rold);
     vec newPosition(ndim);
     vec Fold(ndim);
     vec Fnew(ndim);
@@ -89,6 +89,7 @@ positions * mcInt::Step(function * fct,  positions * Rold, long int * idumadress
 
     } // end loop over particles.
 
+    //delete Rnew;
     return Rold;
 }
 
@@ -103,12 +104,12 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
 {
     // opening file for sample storage
     ofstream outfile;
-
+    ofstream posout;
     // when running program in paralell, we need different names here.
     // (adding numbers and so on)
 
-
-    outfile.open("sample.bin",ios::out | ios::binary);
+    posout.open("../Proj1/positions.bin",ios::out | ios::binary);
+    outfile.open("../Proj1/sample.bin",ios::out | ios::binary);
 
     acceptedSteps=0;
 
@@ -124,6 +125,7 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
 
     // store samples to write blockwise
     double samples[10000];
+    double pos[10000];
     // loop over steps in blocks of 10000
     for(int n=0;n<nSamples/10000;n++)
     {
@@ -135,10 +137,12 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
         // add energy value
          double ede = H->localEnergy(fct,R);
          samples[m]=ede;
+         pos[m]=R->get_r(0);
         }
 
         // write sample to file
         outfile.write((char*) &samples, sizeof(double)*10000);
+        posout.write((char*) &pos, sizeof(double)*10000);
     }
     // do the rest, that didn't fit in the last block
     for (int n=0;n<nSamples%10000;n++)
@@ -149,17 +153,23 @@ void mcInt::integrate(function * fct, hamilton * H, long * idumadress,Config * p
         // add energy value
          double ede = H->localEnergy(fct,R);
          samples[n]=ede;
-
+         pos[n]=R->get_r(0);
     }
 
 
     // write sample to file but only the new values
     outfile.write((char*) &samples, sizeof(double)*nSamples%10000);
+    posout.write((char*) &pos, sizeof(double)*nSamples%10000);
+
+
+
+
 
     acceptedSteps/=nParticles;
 
     // close sample close
     outfile.close();
+    posout.close();
 }
 
 
@@ -201,6 +211,7 @@ vec mcInt::StatGrad(function * fct, hamilton *H,long * idumadress,int nParams, C
          }
 
          storeEnergy +=E;
+
     }
 
     storeEnergy/=SCnSamples;
@@ -219,33 +230,34 @@ mat mcInt::blocking(Config *parameters)
     int bsteps= parameters->lookup("BlockSteps");
 
     // opening file for sample storage
+    char * file = "../Proj1/sample.bin";
     ifstream infile;
-    // when running program in paralell, we need different names here.
-    // (adding numbers and so on)
-
-    infile.open("sample.bin",ios::in | ios::binary);
-
-    // get size of data block
     int NumberOfSamples=0;
+    int CombinedFileLength =0;
     struct stat fileproperties;
-    if (stat("sample.bin",&fileproperties)==0)
+
+    if (stat(file,&fileproperties)==0)
     {
-        NumberOfSamples = fileproperties.st_size/sizeof(double);
+         CombinedFileLength +=fileproperties.st_size;
     }
+
+    NumberOfSamples += CombinedFileLength/sizeof(double);
+
     // allocate data block
-    double data[NumberOfSamples];
+    char* data = new char[CombinedFileLength];
 
+    infile.open(file,ios::in | ios::binary);
     // write data into array
-    infile.read((char*)&data,fileproperties.st_size);
-
+    infile.read(reinterpret_cast<char*>(data),fileproperties.st_size);
+    infile.close();
+    double * values =reinterpret_cast<double*>(data);
 
     value = 0.0;
     for(int i=0;i<NumberOfSamples;i++)
     {
-        value+=data[i];
+        value+=values[i];
     }
     value /=NumberOfSamples;
-
 
     // intialize useful stuff for the loop
     mat std=zeros(2,bsteps);
@@ -291,7 +303,6 @@ mat mcInt::blocking(Config *parameters)
     }
 
     return std;
-
 }
 
 

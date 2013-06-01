@@ -14,6 +14,17 @@ positions::positions(Config * parameters)
 
 }
 
+positions::positions(positions * posit)
+{
+    ndim= posit->get_ndim();
+    nParticles=posit->get_nParticles();
+    r = zeros(nParticles);
+    rr= zeros(nParticles-1,nParticles-1);
+    pos=zeros(ndim,nParticles);
+
+    set_pos(posit->get_pos());
+}
+
 
 
 void positions::set_pos(mat  NewPositions)
@@ -93,4 +104,12 @@ mat positions::get_pos()
     return pos;
 }
 
+int positions::get_ndim()
+{
+    return ndim;
+}
 
+int positions::get_nParticles()
+{
+    return nParticles;
+}

@@ -72,11 +72,10 @@ int main()
     int parameterIterations = parameters->lookup("parameterIterations");
 
         vec a=zeros(nParams);
-        for (int i=0;i<nParams;i++)
-        {
-            a(i)=parameters->lookup("Parameters.[i]");
-            fun->setParameter(a(i),i);
-        }
+            a(0)=parameters->lookup("Parameters.[0]");
+            a(1)=parameters->lookup("Parameters.[1]");
+            fun->setParameter(a);
+
 
         cout<<"parameter optimization "<<endl;
 
@@ -86,14 +85,18 @@ int main()
         fun->setParameter(a(0),0);
 
 
+        ofstream params;
+        params.open("../Proj1/parameters.txt");
+
 
         // without adaptive stepsize, using 1/i
         for(int i=1;i<parameterIterations+1;i++)
         {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(40/(i+40));
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(40.0/(i+40.0));
             fun->setParameter(a);
+            params<<a(0)<<"\t"<<a(1)<<endl;
         }
-
+        params.close();
 
         cout <<"integration "<<endl;
 
@@ -128,7 +131,7 @@ int main()
     char* command=new char[50];
     const char* outputfile = parameters->lookup("outputfile");
     sprintf(command,"python ../Proj1/plot.py %s", outputfile);
-
+    cout<<command<<endl;
     system(command);
 
     return 0;

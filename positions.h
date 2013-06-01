@@ -19,6 +19,7 @@ protected:
 
 public:
     positions(Config * parameters);
+    positions(positions * posit);
 
     double get_r(int i);
     double get_rr(int i, int j);
@@ -28,6 +29,9 @@ public:
     vec get_singlePos(int particleNumber);
     void set_singlePos(vec NewPosition, int particleNumber);
     void step(double distance, int axis, int Particle);
+
+    int get_ndim();
+    int get_nParticles();
 
 };
 
