@@ -71,8 +71,8 @@ plt.show(block=False)
 r=[];
 
 
-datapoints = os.path.getsize('../Proj1/positions.bin')/8;
-p=open('../Proj1/positions.bin',mode='rb');
+datapoints = os.path.getsize('../Proj1/positions_Helium.bin')/8;
+p=open('../Proj1/positions_Helium.bin',mode='rb');
 values = array.array('d');
 values.read(p,datapoints)
 
@@ -90,7 +90,7 @@ plt.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
 
 xlabel('r [a.u.]')
 ylabel('density')
-title('single particle density for hydrogen molecule')
+title('single particle density')
 plt.show(block=True);
 
 quit()

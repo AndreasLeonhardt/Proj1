@@ -80,9 +80,9 @@ int main()
         cout<<"parameter optimization "<<endl;
 
         // set alpha to Z for a start
-        int Z = parameters->lookup("Z");
-        a(0)=Z;
-        fun->setParameter(a(0),0);
+        //int Z = parameters->lookup("Z");
+        //a(0)=Z;
+        //fun->setParameter(a(0),0);
 
 
         ofstream params;
@@ -92,7 +92,11 @@ int main()
         // without adaptive stepsize, using 1/i
         for(int i=1;i<parameterIterations+1;i++)
         {
-            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(40.0/(i+40.0));
+            a -= MC.StatGrad(fun,H,idumadress,nParams,parameters)*(1.0/(i+1.0));
+            if(a(1)<0)
+            {
+                a(1)=0.0000001;
+            }
             fun->setParameter(a);
             params<<a(0)<<"\t"<<a(1)<<endl;
         }
